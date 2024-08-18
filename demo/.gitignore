@@ -36,4 +36,4 @@ build/
 .env
 local.env
 
-!**/src/main//local.env
+!/src/main/resources/local.env

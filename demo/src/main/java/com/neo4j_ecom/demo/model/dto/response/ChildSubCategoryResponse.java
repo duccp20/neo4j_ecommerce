@@ -1,5 +1,6 @@
 package com.neo4j_ecom.demo.model.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,8 +9,10 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChildSubCategoryResponse {
 
     private String id;
     private String name;
+    private String subCategoryName;
 }

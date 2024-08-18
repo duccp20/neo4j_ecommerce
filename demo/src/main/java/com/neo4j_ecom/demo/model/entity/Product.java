@@ -9,8 +9,6 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -26,13 +24,14 @@ public class Product {
     private long price;
     private String description;
     private String image_url;
+    private double rating;
     @Relationship(type = "HAS_REVIEW")
-    private List<Review> reviews = new ArrayList<>();
+    private List<Review> reviews;
     @Relationship(type = "BELONGS_TO")
-    private List<Category> categories = new ArrayList<>();
+    private List<Category> categories;
     @Relationship(type = "BELONGS_TO")
-    private List<SubCategory> subcategories = new ArrayList<>();
+    private List<SubCategory> subcategories;
     @Relationship(type = "BELONGS_TO")
-    private List<ChildSubCategory> sub_subcategories = new ArrayList<>();
+    private List<ChildSubCategory> sub_subcategories;
 
 }

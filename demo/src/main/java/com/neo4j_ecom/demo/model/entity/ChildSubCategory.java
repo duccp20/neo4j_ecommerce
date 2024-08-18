@@ -20,7 +20,6 @@ public class ChildSubCategory {
     @Id @GeneratedValue(UUIDStringGenerator.class)
     private String id;
     private String name;
-
     @Relationship(type = "BELONGS_TO", direction = Relationship.Direction.INCOMING)
     private SubCategory subcategory;
 }

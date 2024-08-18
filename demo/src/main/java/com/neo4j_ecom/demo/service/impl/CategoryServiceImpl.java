@@ -97,6 +97,8 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id).
                 orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
+        log.info("deleted category: {}", category);
+
         categoryRepository.delete(category);
 
         return null;
