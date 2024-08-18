@@ -1,16 +1,30 @@
 package com.neo4j_ecom.demo.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
-@Entity
-@Table(name = "sub_categories")
+import java.util.List;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Data
+@Node(labels = "SubCategory")
 public class SubCategory {
 
-    @Id
-    @GeneratedValue
-    private int id;
+    @Id @GeneratedValue(UUIDStringGenerator.class)
+    private String id;
     private String name;
+
+    @Relationship(type = "HAS_SUB_SUBCATEGORY")
+    private List<ChildSubCategory> sub_subcategories;
+    @Relationship(type = "BELONGS_TO", direction = Relationship.Direction.INCOMING)
+    private Category category;
 }
