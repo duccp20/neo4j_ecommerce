@@ -13,4 +13,6 @@ public interface SubCategoryRepository extends Neo4jRepository<SubCategory, Stri
     Optional<SubCategory> findByName(String name);
 
     List<SubCategory> findByNameIn(List<String> subcategories);
+
+    boolean existsByName(String name);
 }

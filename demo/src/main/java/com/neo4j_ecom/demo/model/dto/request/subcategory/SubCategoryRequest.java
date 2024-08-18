@@ -4,11 +4,15 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@SuperBuilder
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SubCategoryRequest {
     String name;
+    List<String> childSubCategoriesName;
+    String categoryId;
 }

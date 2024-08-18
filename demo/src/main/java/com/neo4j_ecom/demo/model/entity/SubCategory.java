@@ -23,8 +23,8 @@ public class SubCategory {
     private String id;
     private String name;
 
-    @Relationship(type = "HAS_SUB_SUBCATEGORY")
-    private List<ChildSubCategory> sub_subcategories;
+    @Relationship(type = "HAS_CHILD", direction = Relationship.Direction.OUTGOING)
+    private List<ChildSubCategory> childSubCategories;
     @Relationship(type = "BELONGS_TO", direction = Relationship.Direction.INCOMING)
     private Category category;
 }

@@ -10,8 +10,12 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
+    @Mapping(target = "subcategories", ignore = true)
+    @Mapping(target = "id", ignore = true)
     Category toCategory(CategoryRequest request);
 
+
+    @Mapping(target = "subCategories", source = "category.subcategories")
     CategoryResponse toCategoryResponse(Category category);
 
     @Mapping(target = "subcategories", ignore = true)
