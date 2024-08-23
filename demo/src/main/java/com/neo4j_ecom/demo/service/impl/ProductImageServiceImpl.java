@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductImageServiceImpl implements ProductImageService {
 
     private final ProductRepository productRepository;
+
     @Override
     public String createImage(MultipartFile file) {
         return null;
@@ -27,7 +28,6 @@ public class ProductImageServiceImpl implements ProductImageService {
     @Override
     public void deleteFileImage(String Imageurl) {
 
-        return null;
 
     }
 }

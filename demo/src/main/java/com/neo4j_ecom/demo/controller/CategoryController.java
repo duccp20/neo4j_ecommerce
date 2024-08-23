@@ -1,6 +1,6 @@
 package com.neo4j_ecom.demo.controller;
 
-import com.neo4j_ecom.demo.model.dto.request.category.CategoryRequest;
+import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.service.CategoryService;
@@ -70,6 +70,37 @@ public class CategoryController {
         );
     }
 
+    @GetMapping({"/name/{name}"})
+    public ResponseEntity<ApiResponse<CategoryResponse>> handleGetCategoryByName(
+            @PathVariable String name) {
+
+        SuccessCode successCode = SuccessCode.FETCHED;
+
+        return ResponseEntity.status(successCode.getStatusCode()).body(
+                ApiResponse.<CategoryResponse>builder()
+                        .message(successCode.getMessage())
+                        .statusCode(successCode.getCode())
+                        .data(categoryService.handleGetCategoryByName(name))
+                        .build()
+        );}
+
+    @GetMapping({"/parent"})
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> handleGetAllCategoriesByParentId(
+            @RequestParam String parentId) {
+
+        log.info("get all categories by parent id request: {}", parentId);
+
+        SuccessCode successCode = SuccessCode.FETCHED;
+
+        return ResponseEntity.status(successCode.getStatusCode()).body(
+                ApiResponse.<List<CategoryResponse>>builder()
+                        .message(successCode.getMessage())
+                        .statusCode(successCode.getCode())
+                        .data(categoryService.handleGetAllCategoriesByParentId(parentId))
+                        .build()
+        );
+    }
+
     @PutMapping({"/{id}"})
     public ResponseEntity<ApiResponse<CategoryResponse>> handleUpdateCategory(
             @PathVariable String id,
@@ -98,6 +129,19 @@ public class CategoryController {
                         .message(SuccessCode.DELETED.getMessage())
                         .statusCode(SuccessCode.DELETED.getCode())
                         .data(categoryService.handleDeleteCategory(id))
+                        .build()
+        );
+    }
+
+
+    @GetMapping("/top/sold")
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> handleGetTopCategories() {
+        SuccessCode successCode = SuccessCode.FETCHED;
+        return ResponseEntity.status(successCode.getStatusCode()).body(
+                ApiResponse.<List<CategoryResponse>>builder()
+                        .message(successCode.getMessage())
+                        .statusCode(successCode.getCode())
+                        .data(categoryService.handleGetAllCategoriesBySoldQuantity())
                         .build()
         );
     }

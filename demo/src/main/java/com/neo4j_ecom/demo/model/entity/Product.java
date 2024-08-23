@@ -9,6 +9,8 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @AllArgsConstructor
@@ -21,17 +23,18 @@ public class Product {
     @Id @GeneratedValue(UUIDStringGenerator.class)
     private String id;
     private String name;
-    private long price;
+    private BigDecimal originalPrice;
+    private BigDecimal discountedPrice;
     private String description;
-    private String image_url;
     private double rating;
-    @Relationship(type = "HAS_REVIEW")
-    private List<Review> reviews;
-    @Relationship(type = "BELONGS_TO")
+    private long soldQuantity;
+    private long quantityAvailable;
+    private String brandName;
+    private List<String> productImages;
+    private String primaryImage;
+    @Relationship(type = "BELONG_TO", direction = Relationship.Direction.OUTGOING)
     private List<Category> categories;
-    @Relationship(type = "BELONGS_TO")
-    private List<SubCategory> subcategories;
-    @Relationship(type = "BELONGS_TO")
-    private List<ChildSubCategory> sub_subcategories;
+    @Relationship(type = "HAS_REVIEW", direction = Relationship.Direction.OUTGOING)
+    private List<ProductReview> reviews;
 
 }

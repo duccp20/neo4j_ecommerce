@@ -1,4 +1,4 @@
-package com.neo4j_ecom.demo.model.dto.request.product;
+package com.neo4j_ecom.demo.model.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -13,10 +13,14 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductRequest {
     String name;
-    BigDecimal price;
+    String brandName;
+    BigDecimal originalPrice;
+    BigDecimal discountedPrice;
     String description;
-    List<String> categoriesId;
-    List<String> subCategoriesId;
-    List<String> childSubCategoriesId;
+    long soldQuantity;
+    long quantityAvailable;
+    double rating;
+    String primaryImage;
+    List<String> categoryIds;
 
 }

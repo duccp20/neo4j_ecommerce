@@ -12,21 +12,21 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(404, "Category Not Found!", HttpStatus.NOT_FOUND),
     CATEGORY_ALREADY_EXISTS(409, "Category Already Exists!", HttpStatus.CONFLICT),
 
-    //subcategory
-    SUB_CATEGORY_ALREADY_EXISTS(409, "Sub Category Already Exists!", HttpStatus.CONFLICT),
-    SUB_CATEGORY_NOT_FOUND(404, "Sub Category Not Found!", HttpStatus.NOT_FOUND),
+    CANNOT_DELETE_CATEGORY_WITH_SUB_CATEGORIES(400, "Cannot delete category with sub-categories", HttpStatus.BAD_REQUEST),
+
 
     //product
     PRODUCT_NOT_FOUND(404, "Product Not Found!", HttpStatus.NOT_FOUND),
     PRODUCT_ALREADY_EXISTS(409, "Product Already Exists!", HttpStatus.CONFLICT),
 
-    //child sub category
-    CHILD_SUB_CATEGORY_ALREADY_EXISTS( 409, "Child Sub Category Already Exists!", HttpStatus.CONFLICT),
-    CHILD_SUB_CATEGORY_NOT_FOUND( 404, "Child Sub Category Not Found!", HttpStatus.NOT_FOUND),
-
     //review
-    REVIEW_NOT_FOUND(404, "Review Not Found!", HttpStatus.NOT_FOUND);
+    REVIEW_NOT_FOUND(404, "Review Not Found!", HttpStatus.NOT_FOUND),
 
+    //file
+    MISSING_REQUIRE_PARAM(400, "Missing Require Param!", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_EXTENSION(400, "Invalid File Extension!", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_MIME_TYPE(400, "Invalid File Mime Type!", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_SIZE(400, "Invalid File Size!", HttpStatus.BAD_REQUEST);
 
 
     private final int code;
@@ -40,4 +40,4 @@ public enum ErrorCode {
     }
 
 
-}
+    }

@@ -1,7 +1,19 @@
 spring:
   neo4j:
-    uri: ${NEO4J_URI}
+    uri: bolt://localhost:7687
     authentication:
-      username: ${NEO4J_USERNAME}
-      password: ${NEO4J_PASSWORD}
+      username: neo4j
+      password: Password1!
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+
+# file
+file:
+  image:
+    base-uri: file:///C:/workplace/backend/java/neo4j_ecommerce_/source/upload/
+    folder:
+      product: products
 

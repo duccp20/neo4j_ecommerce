@@ -1,19 +1,18 @@
 package com.neo4j_ecom.demo.model.mapper;
 
-import com.neo4j_ecom.demo.model.dto.request.ReviewRequest;
+import com.neo4j_ecom.demo.model.dto.request.ProductReviewRequest;
 import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
-import com.neo4j_ecom.demo.model.entity.Review;
+
+import com.neo4j_ecom.demo.model.entity.ProductReview;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface ReviewMapper {
+public interface ProductReviewMapper {
 
-
-
-    ReviewResponse toResponse(Review review);
+    ReviewResponse toResponse(ProductReview review);
 
 
     @Mapping(target = "id", ignore = true)
-    Review toEntity(ReviewRequest reviewResponse);
+    ProductReview toEntity(ProductReviewRequest reviewResponse);
 }

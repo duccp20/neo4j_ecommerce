@@ -4,9 +4,17 @@ package com.neo4j_ecom.demo.exception;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
@@ -23,6 +31,17 @@ public class GlobalException {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+    @ExceptionHandler(value = MaxUploadSizeExceededException.class)
+    ResponseEntity<ApiResponse> handlingMaxUploadSizeExceededException(MaxUploadSizeExceededException exception) {
+        log.error("Exception: ", exception);
+        ApiResponse apiResponse = new ApiResponse();
+
+        apiResponse.setStatusCode(ErrorCode.INVALID_FILE_SIZE.getCode());
+        apiResponse.setMessage(ErrorCode.INVALID_FILE_SIZE.getMessage());
+
+        return ResponseEntity.badRequest().body(apiResponse);
+    }
+
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse> handlingAppException(AppException exception) {
         ErrorCode errorCode = exception.getErrorCode();
@@ -32,5 +51,19 @@ public class GlobalException {
         apiResponse.setMessage(errorCode.getMessage());
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Object>> validationError(MethodArgumentNotValidException ex) {
+        BindingResult result = ex.getBindingResult();
+        final List<FieldError> fieldErrors = result.getFieldErrors();
+
+        ApiResponse<Object> res = new ApiResponse<>();
+
+        List<String> errors = fieldErrors.stream().map(f -> f.getDefaultMessage()).collect(Collectors.toList());
+        res.setStatusCode(400);
+        res.setMessage(errors.size() > 1 ? errors : errors.get(0));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 }

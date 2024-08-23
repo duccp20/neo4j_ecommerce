@@ -1,13 +1,11 @@
 package com.neo4j_ecom.demo.service.impl;
 
 import com.neo4j_ecom.demo.exception.AppException;
-import com.neo4j_ecom.demo.model.dto.request.category.CategoryRequest;
+import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.entity.Category;
-import com.neo4j_ecom.demo.model.entity.SubCategory;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.repository.CategoryRepository;
-import com.neo4j_ecom.demo.repository.SubCategoryRepository;
 import com.neo4j_ecom.demo.service.CategoryService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     CategoryRepository categoryRepository;
 
-    SubCategoryRepository subCategoryRepository;
 
     CategoryMapper categoryMapper;
 
@@ -44,17 +42,15 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = categoryMapper.toCategory(request);
 
-        if (request.getSubcategoriesName() != null) {
-            List<SubCategory> availableSkills = this.getSubCategoriesByListName(request.getSubcategoriesName());
+        if(request.getParent() != null) {
+            Category parent = categoryRepository.findById(request.getParent())
+                    .orElseThrow( () -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-            category.setSubcategories(availableSkills);
+            log.info("parent: {}", parent);
+            category.setParent(parent);
         }
 
-        Category savedCategory = categoryRepository.save(category);
-
-        log.info("saved category: {}", savedCategory);
-
-        return categoryMapper.toCategoryResponse(savedCategory);
+        return categoryMapper.toCategoryResponse(categoryRepository.save(category));
     }
 
 
@@ -78,12 +74,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryMapper.updateCategory(category, request);
 
-        if (request.getSubcategoriesName() != null) {
-            List<SubCategory> availableSkills = this.getSubCategoriesByListName(request.getSubcategoriesName());
-            category.setSubcategories(availableSkills);
-        }
-
         log.info("updated category: {}", category);
+
+        if(request.getParent() != null) {
+            Category parent = categoryRepository.findById(request.getParent())
+                    .orElseThrow( () -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+            category.setParent(parent);
+        }
 
         Category updatedCategory = categoryRepository.save(category);
 
@@ -97,7 +94,11 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id).
                 orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        log.info("deleted category: {}", category);
+        List<Category> subCategories = categoryRepository.findByParentId(id);
+
+        if(!subCategories.isEmpty()) {
+            throw new AppException(ErrorCode.CANNOT_DELETE_CATEGORY_WITH_SUB_CATEGORIES);
+        }
 
         categoryRepository.delete(category);
 
@@ -105,9 +106,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponse> handleGetAllCategories() {
+    public List<CategoryResponse> handleGetAllCategoriesByParentId(String parentId) {
 
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findByParentId(parentId);
 
         log.info("categories: {}", categories);
 
@@ -117,14 +118,46 @@ public class CategoryServiceImpl implements CategoryService {
                 .collect(Collectors.toList());
     }
 
-    private List<SubCategory> getSubCategoriesByListName(List<String> list) {
+    @Override
+    public CategoryResponse handleGetCategoryByName(String name) {
 
-        List<SubCategory> availableSkills = subCategoryRepository.findByNameIn(list);
+        Category category = categoryRepository.findByName(name)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        return availableSkills;
+        return categoryMapper.toCategoryResponse(category);
     }
-    
-    
+
+    @Override
+    public List<CategoryResponse> handleGetAllCategoriesBySoldQuantity() {
+
+        List<Category> categories = categoryRepository.findCategoriesBySoldQuantity();
+
+
+        List<CategoryResponse> list = new ArrayList<>();
+        for (Category category : categories) {
+            CategoryResponse response = CategoryResponse
+                    .builder()
+                    .id(category.getId())
+                    .name(category.getName())
+                    .build();
+            list.add(response);
+        }
+        return list;
+
+    }
+
+    @Override
+    public List<CategoryResponse> handleGetAllCategories() {
+
+        List<Category> categories = categoryRepository.findAllCategories();
+
+        log.info("categories: {}", categories);
+
+        return categories
+                .stream()
+                .map(categoryMapper::toCategoryResponse)
+                .collect(Collectors.toList());
+    }
 
 
 }
