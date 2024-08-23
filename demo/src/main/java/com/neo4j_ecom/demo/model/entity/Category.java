@@ -14,14 +14,17 @@ import java.util.List;
 @Node(labels = "Category")
 public class Category {
     @Id
-    @GeneratedValue(generatorClass =
-            UUIDStringGenerator.class)
+    @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     private String id;
 
-    @Property(name = "name")
     private String name;
-    @Relationship(type = "HAS_SUBCATEGORY")
-    private List<SubCategory> subcategories;
 
+    @Relationship(type = "CHILD_OF", direction = Relationship.Direction.OUTGOING)
+    private Category parent;
+    @Relationship(type = "CHILD_OF", direction = Relationship.Direction.INCOMING)
+    private List<Category> children;
+
+    @Relationship(type = "BELONGS_TO", direction = Relationship.Direction.INCOMING)
+    private List<Product> products;
 
 }

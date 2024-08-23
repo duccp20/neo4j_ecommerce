@@ -9,6 +9,4 @@ import java.util.List;
 
 public interface ProductReviewRepository extends Neo4jRepository<ProductReview, String> {
 
-    @Query("match (p:Product)-[:HAS_REVIEW]->(r:Review) where p.id = $productId return r")
-    List<ProductReview> fetchReviewsByProduct(String productId);
 }
