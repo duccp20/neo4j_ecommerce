@@ -3,6 +3,7 @@ package com.neo4j_ecom.demo.service.impl;
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductBannerRequest;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
+import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.entity.ProductBanner;
 import com.neo4j_ecom.demo.repository.ProductBannerRepository;
@@ -66,8 +67,9 @@ public class ProductBannerServiceImpl implements ProductBannerService {
                 //store file
                 String bannerImage = fileService.storeFile(file, folder);
 
+                String url = baseURI + folder + "/" + bannerImage;
                 //add banner image
-                bannerImages.add(bannerImage);
+                bannerImages.add(url);
 
                 String finalNameTrimmed = file.getOriginalFilename().replaceAll("\\s", "");
 
@@ -139,8 +141,10 @@ public class ProductBannerServiceImpl implements ProductBannerService {
                 fileService.validateFile(file);
                 //store file
                 String bannerImage = fileService.storeFile(file, folder);
+
+                String url = baseURI + folder + "/" + bannerImage;
                 //add banner image
-                bannerImages.add(bannerImage);
+                bannerImages.add(url);
             }
 
             if (bannerImages.size() > 0) {
@@ -231,6 +235,58 @@ public class ProductBannerServiceImpl implements ProductBannerService {
         return null;
     }
 
+    @Override
+    public ProductBannerResponse handleUpdateBannerFiles(String bannerId, List<MultipartFile> files) throws URISyntaxException {
+
+        ProductBanner productBanner = productBannerRepository
+                .findById(bannerId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
+
+        List<String> bannerImages = new ArrayList<>();
+        if (files != null && files.size() > 0) {
+
+            log.info("folder {}", folder);
+
+            for (MultipartFile file : files) {
+                //validate file
+                fileService.validateFile(file);
+                //store file
+                String bannerImage = fileService.storeFile(file, folder);
+
+                String url = baseURI + folder + "/" + bannerImage;
+                //add banner image
+                bannerImages.add(url);
+            }
+
+            if (bannerImages.size() > 0) {
+                productBanner.setBannerImages(bannerImages);
+            }
+
+            if (productBanner.getBannerImages().size() == 1) {
+                productBanner.setPrimaryBanner(productBanner.getBannerImages().get(0));
+            }
+        }
+
+        productBannerRepository.save(productBanner);
+
+
+        return this.toProductBannerResponse(productBanner);
+    }
+
+    @Override
+    public ProductBannerResponse handleUpdateBannerPrimary(String bannerId, String url) {
+
+        ProductBanner productBanner = productBannerRepository
+                .findById(bannerId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
+
+        productBanner.setPrimaryBanner(url);
+        productBannerRepository.save(productBanner);
+
+        return this.toProductBannerResponse(productBanner);
+
+    }
+
 
     private ProductBanner toProductBanner(ProductBannerRequest request) {
 
@@ -242,5 +298,7 @@ public class ProductBannerServiceImpl implements ProductBannerService {
         return ProductBannerResponse.builder().id(productBanner.getId()).title(productBanner.getTitle()).linkUrl(productBanner.getLinkUrl()).productName(productBanner.getProductName()).bannerImages(productBanner.getBannerImages()).primaryBanner(productBanner.getPrimaryBanner()).build();
 
     }
+
+
 }
 

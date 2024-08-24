@@ -2,6 +2,7 @@ package com.neo4j_ecom.demo.service;
 
 import com.neo4j_ecom.demo.model.dto.request.ProductBannerRequest;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
+import com.neo4j_ecom.demo.model.entity.ProductBanner;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URISyntaxException;
@@ -22,4 +23,7 @@ public interface ProductBannerService {
     Void handleDeleteBannerById(String bannerId);
 
     Void handleDeleteBannerImage(String bannerId, String imgUrl);
+    ProductBannerResponse handleUpdateBannerFiles(String bannerId, List<MultipartFile> files) throws URISyntaxException;
+
+    ProductBannerResponse handleUpdateBannerPrimary(String bannerId, String url);
 }
