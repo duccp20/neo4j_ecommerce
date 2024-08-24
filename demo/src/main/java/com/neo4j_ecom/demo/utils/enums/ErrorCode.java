@@ -26,7 +26,10 @@ public enum ErrorCode {
     MISSING_REQUIRE_PARAM(400, "Missing Require Param!", HttpStatus.BAD_REQUEST),
     INVALID_FILE_EXTENSION(400, "Invalid File Extension!", HttpStatus.BAD_REQUEST),
     INVALID_FILE_MIME_TYPE(400, "Invalid File Mime Type!", HttpStatus.BAD_REQUEST),
-    INVALID_FILE_SIZE(400, "Invalid File Size!", HttpStatus.BAD_REQUEST);
+    INVALID_FILE_SIZE(400, "Invalid File Size!", HttpStatus.BAD_REQUEST),
+
+    //Product Banner
+    PRODUCT_BANNER_NOT_FOUND( 404,  "Product Banner Not Found!", HttpStatus.NOT_FOUND);
 
 
     private final int code;

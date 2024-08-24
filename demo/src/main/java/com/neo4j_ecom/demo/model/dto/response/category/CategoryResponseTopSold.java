@@ -1,11 +1,10 @@
-package com.neo4j_ecom.demo.model.dto.response;
+package com.neo4j_ecom.demo.model.dto.response.category;
+
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
-import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,10 +12,10 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CategoryResponse {
+public class CategoryResponseTopSold {
 
-    private String id;
-    private String name;
-    private List<CategoryResponse> children;
+    String id;
+    String name;
+    long totalSold;
 
 }

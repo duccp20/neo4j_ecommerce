@@ -7,6 +7,7 @@ import org.springframework.data.neo4j.repository.query.Query;
 import java.util.List;
 import java.util.Optional;
 
+
 public interface ProductRepository extends Neo4jRepository<Product, String> {
     boolean existsByName(String name);
 
@@ -14,6 +15,10 @@ public interface ProductRepository extends Neo4jRepository<Product, String> {
     List<Product> findAll();
 
 
-    @Query("MATCH (p:Product) RETURN p ORDER BY p.soldQuantity DESC , p.rating DESC LIMIT 20")
-    List<Product> findProductPopularBySoldQuantityAndRating();
+    @Query("MATCH (p:Product) RETURN p ORDER BY p.soldQuantity DESC")
+    List<Product> findProductPopularBySoldQuantity();
+
+
+    @Query("MATCH (p:Product)-[:HAS_BANNER]->(b:ProductBanner) where b.id = $bannerId RETURN p")
+    Optional<Product> findProductByBannerId(String bannerId);
 }

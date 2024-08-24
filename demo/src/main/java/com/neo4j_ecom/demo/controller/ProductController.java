@@ -1,17 +1,22 @@
 package com.neo4j_ecom.demo.controller;
 
+import com.neo4j_ecom.demo.model.dto.request.ProductBannerRequest;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
+import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
+import com.neo4j_ecom.demo.service.ProductBannerService;
 import com.neo4j_ecom.demo.service.ProductService;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.Media;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -23,6 +28,8 @@ import java.util.List;
 public class ProductController {
 
     ProductService productService;
+
+    ProductBannerService productBannerService;
 
 
     @PostMapping
@@ -179,6 +186,117 @@ public class ProductController {
                         .build()
         );
     }
+
+
+//  ============== PRODUCT BANNER  =====================================================
+
+    @PostMapping(value = "/{productId}/banners")
+    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleCreateBanner(
+            @PathVariable String productId,
+            @RequestPart ProductBannerRequest request,
+            @RequestPart List<MultipartFile> files
+    ) throws URISyntaxException {
+
+        log.info("productId: {}", productId);
+        log.info("request: {}", request);
+        log.info("request: {}", files);
+
+
+        SuccessCode successCode = SuccessCode.CREATED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<ProductBannerResponse>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleCreateBanner(request, productId, files))
+                        .build()
+        );
+    }
+
+    @GetMapping("/{productId}/banners")
+    public ResponseEntity<ApiResponse<List<ProductBannerResponse>>> handleGetBannersByProductId(@PathVariable String productId) {
+        SuccessCode successCode = SuccessCode.FETCHED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<List<ProductBannerResponse>>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleGetBannersByProductId(productId))
+                        .build()
+        );
+    }
+
+    @PutMapping("{productId}/banners")
+    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBanner(
+            @PathVariable String productId,
+            @RequestParam String bannerId,
+            @RequestPart ProductBannerRequest request,
+            @RequestPart List<MultipartFile> files
+
+    ) throws URISyntaxException {
+        SuccessCode successCode = SuccessCode.UPDATED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<ProductBannerResponse>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleUpdateBanner(productId, bannerId, request, files))
+                        .build()
+        );
+    }
+
+    @GetMapping("/banners/{bannerId}")
+    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleGetBanner(
+            @PathVariable String bannerId) {
+        SuccessCode successCode = SuccessCode.FETCHED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<ProductBannerResponse>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleGetBannerById(bannerId))
+                        .build()
+        );
+    }
+
+    @DeleteMapping("/banners/{bannerId}")
+    public ResponseEntity<ApiResponse<Void>> handleDeleteBanner(
+            @PathVariable String bannerId) {
+        SuccessCode successCode = SuccessCode.DELETED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<Void>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleDeleteBannerById(bannerId)
+                        ).build()
+        );
+    }
+
+    @DeleteMapping("/{productId}/banners")
+    public ResponseEntity<ApiResponse<Void>> handleDeleteBannerByProductId(
+            @PathVariable String productId) {
+        SuccessCode successCode = SuccessCode.DELETED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<Void>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleDeleteBannerByProductId(productId)
+                        ).build()
+        );
+    }
+
+
+    @DeleteMapping("/banners/{bannerId}/image")
+    public ResponseEntity<ApiResponse<Void>> handleDeleteBannerImage(
+            @PathVariable String bannerId,
+            @RequestParam String imgUrl
+    ) {
+        SuccessCode successCode = SuccessCode.DELETED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<Void>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleDeleteBannerImage(bannerId, imgUrl)
+                        ).build()
+        );
+    }
+
 
 
 }

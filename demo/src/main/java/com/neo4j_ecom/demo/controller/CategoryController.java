@@ -3,6 +3,7 @@ package com.neo4j_ecom.demo.controller;
 import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
+import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.service.CategoryService;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
 import lombok.RequiredArgsConstructor;
@@ -135,10 +136,10 @@ public class CategoryController {
 
 
     @GetMapping("/top/sold")
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> handleGetTopCategories() {
+    public ResponseEntity<ApiResponse<List<CategoryResponseTopSold>>> handleGetTopCategories() {
         SuccessCode successCode = SuccessCode.FETCHED;
         return ResponseEntity.status(successCode.getStatusCode()).body(
-                ApiResponse.<List<CategoryResponse>>builder()
+                ApiResponse.<List<CategoryResponseTopSold>>builder()
                         .message(successCode.getMessage())
                         .statusCode(successCode.getCode())
                         .data(categoryService.handleGetAllCategoriesBySoldQuantity())

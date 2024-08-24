@@ -16,4 +16,7 @@ file:
     base-uri: file:///C:/workplace/backend/java/neo4j_ecommerce_/source/upload/
     folder:
       product: products
+      product-banner: banners
+
+
 

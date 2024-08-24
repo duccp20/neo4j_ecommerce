@@ -3,6 +3,7 @@ package com.neo4j_ecom.demo.service.impl;
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
+import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.model.entity.Category;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.repository.CategoryRepository;
@@ -128,21 +129,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponse> handleGetAllCategoriesBySoldQuantity() {
+    public List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity() {
 
-        List<Category> categories = categoryRepository.findCategoriesBySoldQuantity();
+        List<CategoryResponseTopSold> categories = categoryRepository.findCategoriesBySoldQuantity();
 
+        log.info("categories: {}", categories);
 
-        List<CategoryResponse> list = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryResponse response = CategoryResponse
-                    .builder()
-                    .id(category.getId())
-                    .name(category.getName())
-                    .build();
-            list.add(response);
-        }
-        return list;
+        return categories;
 
     }
 
