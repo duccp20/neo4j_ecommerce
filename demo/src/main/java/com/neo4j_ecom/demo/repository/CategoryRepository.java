@@ -1,5 +1,6 @@
 package com.neo4j_ecom.demo.repository;
 
+import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.model.entity.Category;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -24,7 +25,9 @@ public interface CategoryRepository extends Neo4jRepository<Category, String> {
 
 
     @Query("MATCH (p:Product)-[:BELONG_TO]->(c:Category) " +
-            "RETURN c.name, SUM(p.soldQuantity) as totalSold " +
-            "ORDER BY totalSold DESC LIMIT 10")
-    List<Category> findCategoriesBySoldQuantity();
+            "WITH c, sum(p.soldQuantity) AS totalSold " +
+            "WHERE totalSold > 0 " +
+            "RETURN c.id AS id, c.name AS name, totalSold " +
+            "ORDER BY totalSold DESC ")
+    List<CategoryResponseTopSold> findCategoriesBySoldQuantity();
 }

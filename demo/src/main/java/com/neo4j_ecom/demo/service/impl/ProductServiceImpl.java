@@ -44,7 +44,6 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductMapper productMapper;
 
-
     private final CategoryMapper categoryMapper;
 
     private final FileService fileService;
@@ -52,6 +51,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryService categoryService;
 
 
+    //============== PRODUCT ====================
     @Override
     public ProductResponse handleCreateProduct(ProductRequest request,
                                                List<MultipartFile> files) throws URISyntaxException {
@@ -66,7 +66,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<String> listProductImage = this.handleCreateListImageFile(files, product);
 
-        if(listProductImage.size() == 1) {
+        if (listProductImage.size() == 1) {
             product.setPrimaryImage(listProductImage.get(0));
         }
 
@@ -101,145 +101,6 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return response;
-
-    }
-
-
-    @Override
-    public Void handleDeleteProduct(String id) {
-
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        productRepository.delete(product);
-
-        return null;
-    }
-
-    @Override
-    public List<String> HandleCreateProductImages(String productId, List<MultipartFile> files) throws URISyntaxException {
-
-        Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        List<String> newProductImage = new ArrayList<>();
-
-        //current product image
-        newProductImage.addAll(product.getProductImages());
-
-        //new product image
-        List<String> listProductImage = this.handleCreateListImageFile(files, product);
-        newProductImage.addAll(listProductImage);
-
-        product.setProductImages(newProductImage);
-        productRepository.save(product);
-
-        return listProductImage;
-    }
-
-    @Override
-    public Void handleDeleteProductImage(String id, String imgUrl) {
-
-        Product product = productRepository
-                .findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        List<String>  productImages = product.getProductImages();
-
-        for (String s: productImages) {
-            if (s.equals(imgUrl)) {
-                productImages.remove(s);
-                break;
-            }
-        }
-
-        product.setProductImages(productImages);
-        productRepository.save(product);
-
-        return null;
-    }
-
-    @Override
-    public Void handleSetPrimaryImage(String productId, String imgUrl) {
-
-        Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        List<String>  productImages = product.getProductImages();
-
-        for (String s: productImages) {
-            if (s.equals(imgUrl)) {
-                product.setPrimaryImage(imgUrl);
-                break;
-            }
-        }
-
-        productRepository.save(product);
-
-        return null;
-    }
-
-    @Override
-    public List<ProductResponse> handleGetProductPopular() {
-
-        List<Product> products = productRepository.findProductPopularBySoldQuantityAndRating();
-
-        if (products.isEmpty()) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-        }
-
-        log.info("products in handleGetProductPopular: {}", products);
-
-        return products.stream().map(productMapper::toResponse).collect(Collectors.toList());
-    }
-
-
-    @Override
-    public ProductResponse handleGetProductById(String id) {
-
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        log.info("product: {}", product);
-
-        return productMapper.toResponse(product);
-
-    }
-
-    @Override
-    public List<ProductResponse> handleGetAllProducts() {
-
-        List<Product> products = productRepository.findAll();
-
-        if (products.isEmpty()) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-        }
-
-        log.info("products in handleGetAllProducts: {}", products);
-
-        List<ProductResponse> productResponseList = new ArrayList<>();
-
-        for (Product product : products) {
-
-            ProductResponse pRes = productMapper.toResponse(product);
-
-            List<CategoryResponse> categoryResponses = new ArrayList<>();
-            for (Category category : product.getCategories()) {
-
-                CategoryResponse cRes = categoryMapper.toCategoryResponse(category);
-                categoryResponses.add(cRes);
-            }
-
-            pRes.setCategories(categoryResponses);
-
-            productResponseList.add(pRes);
-
-        }
-
-        return productResponseList;
-
 
     }
 
@@ -289,7 +150,91 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+    @Override
+    public Void handleDeleteProduct(String id) {
 
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        productRepository.delete(product);
+
+        return null;
+    }
+
+    @Override
+    public List<ProductResponse> handleGetProductPopular() {
+
+        List<Product> products = productRepository.findProductPopularBySoldQuantity();
+
+        if (products.isEmpty()) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        log.info("products in handleGetProductPopular: {}", products);
+
+        List<ProductResponse> productResponseList = new ArrayList<>();
+
+        products.forEach(product -> {
+
+            ProductResponse pRes = productMapper.toResponse(product);
+
+            log.info("{product response in handleGetProductPopular }", pRes);
+            productResponseList.add(pRes);
+
+        });
+
+        return productResponseList;
+    }
+
+    @Override
+    public ProductResponse handleGetProductById(String id) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        log.info("product: {}", product);
+
+        return productMapper.toResponse(product);
+
+    }
+
+    @Override
+    public List<ProductResponse> handleGetAllProducts() {
+
+        List<Product> products = productRepository.findAll();
+
+        if (products.isEmpty()) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        log.info("products in handleGetAllProducts: {}", products);
+
+        List<ProductResponse> productResponseList = new ArrayList<>();
+
+        for (Product product : products) {
+
+            ProductResponse pRes = productMapper.toResponse(product);
+
+            List<CategoryResponse> categoryResponses = new ArrayList<>();
+            for (Category category : product.getCategories()) {
+
+                CategoryResponse cRes = categoryMapper.toCategoryResponse(category);
+                categoryResponses.add(cRes);
+            }
+
+            pRes.setCategories(categoryResponses);
+
+            productResponseList.add(pRes);
+
+        }
+
+        return productResponseList;
+
+
+    }
+
+
+    //==================PRODUCT IMAGES====================
     private List<String> handleCreateListImageFile(List<MultipartFile> files, Product product) throws URISyntaxException {
 
         List<String> images = new ArrayList<>();
@@ -324,5 +269,70 @@ public class ProductServiceImpl implements ProductService {
         log.info("url image: {}", urlImage);
 
         return urlImage;
+    }
+
+    @Override
+    public List<String> HandleCreateProductImages(String productId, List<MultipartFile> files) throws URISyntaxException {
+
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        List<String> newProductImage = new ArrayList<>();
+
+        //current product image
+        newProductImage.addAll(product.getProductImages());
+
+        //new product image
+        List<String> listProductImage = this.handleCreateListImageFile(files, product);
+        newProductImage.addAll(listProductImage);
+
+        product.setProductImages(newProductImage);
+        productRepository.save(product);
+
+        return listProductImage;
+    }
+
+    @Override
+    public Void handleDeleteProductImage(String id, String imgUrl) {
+
+        Product product = productRepository
+                .findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        List<String> productImages = product.getProductImages();
+
+        for (String s : productImages) {
+            if (s.equals(imgUrl)) {
+                productImages.remove(s);
+                break;
+            }
+        }
+
+        product.setProductImages(productImages);
+        productRepository.save(product);
+
+        return null;
+    }
+
+    @Override
+    public Void handleSetPrimaryImage(String productId, String imgUrl) {
+
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        List<String> productImages = product.getProductImages();
+
+        for (String s : productImages) {
+            if (s.equals(imgUrl)) {
+                product.setPrimaryImage(imgUrl);
+                break;
+            }
+        }
+
+        productRepository.save(product);
+
+        return null;
     }
 }

@@ -36,5 +36,7 @@ public class Product {
     private List<Category> categories;
     @Relationship(type = "HAS_REVIEW", direction = Relationship.Direction.OUTGOING)
     private List<ProductReview> reviews;
+    @Relationship(type = "HAS_BANNER", direction = Relationship.Direction.OUTGOING)
+    private List<ProductBanner> productBanners;
 
 }
