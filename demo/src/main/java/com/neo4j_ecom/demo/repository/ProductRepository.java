@@ -20,5 +20,5 @@ public interface ProductRepository extends Neo4jRepository<Product, String> {
 
 
     @Query("MATCH (p:Product)-[:HAS_BANNER]->(b:ProductBanner) where b.id = $bannerId RETURN p")
-    Optional<Product> findProductByBannerId(String bannerId);
+    Optional<Product> cfindProductByBannerId(String bannerId);
 }

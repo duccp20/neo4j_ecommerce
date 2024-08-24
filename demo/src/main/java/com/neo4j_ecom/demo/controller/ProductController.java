@@ -5,6 +5,7 @@ import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
+import com.neo4j_ecom.demo.model.entity.ProductBanner;
 import com.neo4j_ecom.demo.service.ProductBannerService;
 import com.neo4j_ecom.demo.service.ProductService;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
@@ -241,6 +242,38 @@ public class ProductController {
                         .build()
         );
     }
+
+    @PutMapping("/banners/{bannerId}/files")
+    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBannerFiles(
+            @PathVariable String bannerId,
+            @RequestPart List<MultipartFile> files
+    ) throws URISyntaxException {
+        SuccessCode successCode = SuccessCode.UPDATED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<ProductBannerResponse>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleUpdateBannerFiles(bannerId, files))
+                        .build()
+        );
+    }
+
+    //update primary banner
+    @PutMapping("/banners/{bannerId}/primary")
+    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBannerPrimary(
+            @PathVariable String bannerId,
+            @RequestParam String url
+    ) throws URISyntaxException {
+        SuccessCode successCode = SuccessCode.UPDATED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<ProductBannerResponse>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleUpdateBannerPrimary(bannerId, url))
+                        .build()
+        );
+    }
+
 
     @GetMapping("/banners/{bannerId}")
     public ResponseEntity<ApiResponse<ProductBannerResponse>> handleGetBanner(
