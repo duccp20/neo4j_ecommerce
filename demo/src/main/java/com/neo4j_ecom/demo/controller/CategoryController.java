@@ -24,7 +24,7 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<CategoryResponse>> handleCreateCategory(
             @RequestBody CategoryRequest request) {
 
-        log.info("create category request: {}", request);
+        log.info("create category request : {}", request);
 
         SuccessCode createdSuccessCode = SuccessCode.CREATED;
 

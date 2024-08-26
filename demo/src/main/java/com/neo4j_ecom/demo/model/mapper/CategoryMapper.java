@@ -17,6 +17,7 @@ public interface CategoryMapper {
     @Mapping(target = "parent", ignore = true)
     Category toCategory(CategoryRequest request);
 
+    @Mapping(target = "childrens", ignore = true)
     CategoryResponse toCategoryResponse(Category category);
 
     @Mapping(target = "products", ignore = true)
@@ -24,11 +25,9 @@ public interface CategoryMapper {
     Category toCategoryFromResponse(CategoryResponse request);
 
 
-//    @Mapping(target = "id", ignore = true)
-//    @Mapping(target = "children", ignore = true)
-//    @Mapping(target = "products", ignore = true)
-//    @Mapping(target = "parent", ignore = true)
-//    Category toCategory(CategoryRequest request, Category parent);
+
+
+
 
 
 
