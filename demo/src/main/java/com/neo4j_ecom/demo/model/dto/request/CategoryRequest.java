@@ -14,5 +14,7 @@ import java.util.List;
 public class CategoryRequest {
     String name;
     String parent;
+    String icon;
+    List<String> childrens;
 
 }

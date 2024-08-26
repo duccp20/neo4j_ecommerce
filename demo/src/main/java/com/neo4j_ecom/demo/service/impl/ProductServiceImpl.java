@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URISyntaxException;
@@ -32,10 +33,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Value("${file.image.base-uri}")
     private String baseURI;
-
     @Value("${file.image.folder.product}")
     private String folder;
-
     private final ProductRepository productRepository;
 
     private final CategoryRepository categoryRepository;
@@ -53,8 +52,8 @@ public class ProductServiceImpl implements ProductService {
 
     //============== PRODUCT ====================
     @Override
-    public ProductResponse handleCreateProduct(ProductRequest request,
-                                               List<MultipartFile> files) throws URISyntaxException {
+    @Transactional
+    public ProductResponse handleCreateProduct(ProductRequest request, List<MultipartFile> files) throws URISyntaxException {
 
         boolean existedProduct = productRepository.existsByName(request.getName());
 
@@ -79,8 +78,8 @@ public class ProductServiceImpl implements ProductService {
         if (request.getCategoryIds() != null) {
             List<Category> categories = new ArrayList<>();
             for (String id : request.getCategoryIds()) {
-                CategoryResponse category = categoryService.handleGetCategoryById(id);
-                Category categoryEntity = categoryMapper.toCategoryFromResponse(category);
+                CategoryResponse categoryResponse = categoryService.handleGetCategoryById(id);
+                Category categoryEntity = this.toCategory(categoryResponse);
                 categories.add(categoryEntity);
             }
             product.setCategories(categories);
@@ -92,11 +91,14 @@ public class ProductServiceImpl implements ProductService {
 
 
         if (product.getCategories() != null) {
-            List<CategoryResponse> categoryResponses = product.getCategories().stream()
-                    .map(categoryMapper::toCategoryResponse)
-                    .collect(Collectors.toList());
-
-
+            List<CategoryResponse> categoryResponses = product.getCategories()
+                    .stream()
+                    .map(category ->
+                            CategoryResponse
+                                    .builder()
+                                    .id(category.getId())
+                                    .name(category.getName())
+                            .build()).collect(Collectors.toList());
             response.setCategories(categoryResponses);
         }
 
@@ -104,12 +106,29 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+
+    private Category toCategory(CategoryResponse categoryResponse) {
+
+        Category category = new Category();
+        category.setId(categoryResponse.getId());
+        category.setName(categoryResponse.getName());
+        return category;
+    }
+
+    private CategoryResponse toCategoryResponse(Category category) {
+
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setId(category.getId());
+        categoryResponse.setName(category.getName());
+
+        return categoryResponse;
+    }
+
     @Override
     public ProductResponse handleUpdateProduct(String id, ProductRequest request) {
 
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         log.info("product: {}", product);
 
@@ -128,7 +147,7 @@ public class ProductServiceImpl implements ProductService {
                 log.info("identifier of category in update product: {}", identifier);
 
                 CategoryResponse category = categoryService.handleGetCategoryById(identifier);
-                Category categoryEntity = categoryMapper.toCategoryFromResponse(category);
+                Category categoryEntity = this.toCategory(category);
                 categories.add(categoryEntity);
             }
             product.setCategories(categories);
@@ -139,9 +158,7 @@ public class ProductServiceImpl implements ProductService {
         ProductResponse response = productMapper.toResponse(savedProductAfterUpdate);
 
         if (product.getCategories() != null) {
-            List<CategoryResponse> categoryResponses = product.getCategories().stream()
-                    .map(categoryMapper::toCategoryResponse)
-                    .collect(Collectors.toList());
+            List<CategoryResponse> categoryResponses = product.getCategories().stream().map(category -> CategoryResponse.builder().id(category.getId()).name(category.getName()).build()).collect(Collectors.toList());
 
             response.setCategories(categoryResponses);
         }
@@ -153,8 +170,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Void handleDeleteProduct(String id) {
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         productRepository.delete(product);
 
@@ -189,8 +205,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse handleGetProductById(String id) {
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         log.info("product: {}", product);
 
@@ -274,9 +289,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<String> HandleCreateProductImages(String productId, List<MultipartFile> files) throws URISyntaxException {
 
-        Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         List<String> newProductImage = new ArrayList<>();
 
@@ -296,9 +309,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Void handleDeleteProductImage(String id, String imgUrl) {
 
-        Product product = productRepository
-                .findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         List<String> productImages = product.getProductImages();
 
@@ -318,9 +329,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Void handleSetPrimaryImage(String productId, String imgUrl) {
 
-        Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         List<String> productImages = product.getProductImages();
 
@@ -335,4 +344,6 @@ public class ProductServiceImpl implements ProductService {
 
         return null;
     }
+
+
 }

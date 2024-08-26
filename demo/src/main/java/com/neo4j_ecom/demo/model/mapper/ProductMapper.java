@@ -24,8 +24,9 @@ public interface ProductMapper {
 
 
 
-
     @Mapping(target = "images", source = "productImages")
+    @Mapping(target = "reviews", ignore = true)
+    @Mapping(target = "categories", ignore = true)
     ProductResponse toResponse(Product savedProduct);
 
 

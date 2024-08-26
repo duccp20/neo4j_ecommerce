@@ -20,8 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -219,8 +221,7 @@ public class ProductBannerServiceImpl implements ProductBannerService {
     @Override
     public Void handleDeleteBannerImage(String bannerId, String imgUrl) {
 
-        ProductBanner productBanner = productBannerRepository.findById(bannerId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
+        ProductBanner productBanner = productBannerRepository.findById(bannerId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
 
         List<String> bannerImages = productBanner.getBannerImages();
 
@@ -238,9 +239,7 @@ public class ProductBannerServiceImpl implements ProductBannerService {
     @Override
     public ProductBannerResponse handleUpdateBannerFiles(String bannerId, List<MultipartFile> files) throws URISyntaxException {
 
-        ProductBanner productBanner = productBannerRepository
-                .findById(bannerId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
+        ProductBanner productBanner = productBannerRepository.findById(bannerId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
 
         List<String> bannerImages = new ArrayList<>();
         if (files != null && files.size() > 0) {
@@ -276,14 +275,23 @@ public class ProductBannerServiceImpl implements ProductBannerService {
     @Override
     public ProductBannerResponse handleUpdateBannerPrimary(String bannerId, String url) {
 
-        ProductBanner productBanner = productBannerRepository
-                .findById(bannerId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
+        ProductBanner productBanner = productBannerRepository.findById(bannerId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
 
         productBanner.setPrimaryBanner(url);
         productBannerRepository.save(productBanner);
 
         return this.toProductBannerResponse(productBanner);
+
+    }
+
+    @Override
+    public List<ProductBannerResponse> handleGetBannersByQuantity(int quantity) {
+
+        log.info("quantity {}", quantity);
+        List<ProductBanner> productBannerList = productBannerRepository.getBannersByQuantity(quantity);
+
+        return productBannerList.stream().map(this::toProductBannerResponse)
+                .collect(Collectors.toList());
 
     }
 

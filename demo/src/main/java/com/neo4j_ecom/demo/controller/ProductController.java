@@ -42,6 +42,8 @@ public class ProductController {
         log.info("request: {}", request);
         log.info("files: {}", files);
 
+        log.info("create product request: {}", request);
+
         SuccessCode successCode = SuccessCode.CREATED;
 
         return ResponseEntity.status(successCode.getCode())
@@ -224,6 +226,19 @@ public class ProductController {
                         .build()
         );
     }
+
+    @GetMapping("banners/{quantity}")
+    public ResponseEntity<ApiResponse<List<ProductBannerResponse>>> handleGetBannersByQuantity(@PathVariable int quantity) {
+        SuccessCode successCode = SuccessCode.FETCHED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<List<ProductBannerResponse>>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleGetBannersByQuantity(quantity))
+                        .build()
+        );
+    }
+
 
     @PutMapping("{productId}/banners")
     public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBanner(

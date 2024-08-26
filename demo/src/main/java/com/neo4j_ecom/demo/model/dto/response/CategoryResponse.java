@@ -17,6 +17,7 @@ public class CategoryResponse {
 
     private String id;
     private String name;
-    private List<CategoryResponse> children;
+    private String icon;
+    private List<CategoryResponse> childrens;
 
 }

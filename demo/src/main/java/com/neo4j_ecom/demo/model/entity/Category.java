@@ -16,14 +16,12 @@ public class Category {
     @Id
     @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     private String id;
-
     private String name;
-
+    private String icon;
     @Relationship(type = "CHILD_OF", direction = Relationship.Direction.OUTGOING)
     private Category parent;
     @Relationship(type = "CHILD_OF", direction = Relationship.Direction.INCOMING)
     private List<Category> children;
-
     @Relationship(type = "BELONGS_TO", direction = Relationship.Direction.INCOMING)
     private List<Product> products;
 

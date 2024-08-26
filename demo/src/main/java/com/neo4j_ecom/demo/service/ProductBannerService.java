@@ -26,4 +26,6 @@ public interface ProductBannerService {
     ProductBannerResponse handleUpdateBannerFiles(String bannerId, List<MultipartFile> files) throws URISyntaxException;
 
     ProductBannerResponse handleUpdateBannerPrimary(String bannerId, String url);
+
+    List<ProductBannerResponse> handleGetBannersByQuantity(int quantity);
 }
