@@ -18,6 +18,6 @@ public class CategoryResponse {
     private String id;
     private String name;
     private String icon;
-    private List<CategoryResponse> childrens;
+    private List<CategoryResponse> children;
 
 }

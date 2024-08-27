@@ -1,6 +1,7 @@
 package com.neo4j_ecom.demo.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.neo4j_ecom.demo.utils.enums.SellingType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.neo4j.core.schema.Id;
@@ -24,7 +25,13 @@ public class ProductResponse {
     long quantityAvailable;
     String brandName;
     String description;
-    double rating;
+    Float length;
+    Float width;
+    Float breadth;
+    Float weight;
+    SellingType sellingType;
+    String SKU;
+    Float rating;
     List<CategoryResponse> categories;
     List<String> images;
     String primaryImage;

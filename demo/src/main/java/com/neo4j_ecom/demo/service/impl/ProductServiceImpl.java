@@ -4,9 +4,11 @@ import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
+import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
 import com.neo4j_ecom.demo.model.entity.*;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
+import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.repository.*;
 import com.neo4j_ecom.demo.service.CategoryService;
 import com.neo4j_ecom.demo.service.FileService;
@@ -48,6 +50,8 @@ public class ProductServiceImpl implements ProductService {
     private final FileService fileService;
 
     private final CategoryService categoryService;
+
+    private final ProductReviewMapper reviewMapper;
 
 
     //============== PRODUCT ====================
@@ -178,7 +182,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> handleGetProductPopular() {
+    public List<ProductResponse> handleGetProducPopularBySoldQuantity() {
 
         List<Product> products = productRepository.findProductPopularBySoldQuantity();
 
@@ -186,7 +190,7 @@ public class ProductServiceImpl implements ProductService {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        log.info("products in handleGetProductPopular: {}", products);
+        log.info("products in handleGetProducPopularBySoldQuantity: {}", products);
 
         List<ProductResponse> productResponseList = new ArrayList<>();
 
@@ -194,7 +198,7 @@ public class ProductServiceImpl implements ProductService {
 
             ProductResponse pRes = productMapper.toResponse(product);
 
-            log.info("{product response in handleGetProductPopular }", pRes);
+            log.info("{product response in handleGetProducPopularBySoldQuantity }", pRes);
             productResponseList.add(pRes);
 
         });
@@ -209,8 +213,31 @@ public class ProductServiceImpl implements ProductService {
 
         log.info("product: {}", product);
 
-        return productMapper.toResponse(product);
+        return this.toProductResponse(product);
 
+    }
+
+    private ProductResponse toProductResponse(Product product) {
+        ProductResponse pRes = productMapper.toResponse(product);
+
+        List<CategoryResponse> categoryResponses = new ArrayList<>();
+        List<ReviewResponse> reviewResponses = new ArrayList<>();
+
+        for (Category category : product.getCategories()) {
+            categoryResponses.add(categoryMapper.toCategoryResponse(category));
+        }
+
+        for (ProductReview review : product.getReviews()) {
+
+            ReviewResponse reviewResponse = reviewMapper.toResponse(review);
+            reviewResponses.add(reviewResponse);
+        }
+
+
+        pRes.setCategories(categoryResponses);
+        pRes.setReviews(reviewResponses);
+        pRes.setImages(product.getProductImages());
+        return pRes;
     }
 
     @Override
@@ -228,17 +255,7 @@ public class ProductServiceImpl implements ProductService {
 
         for (Product product : products) {
 
-            ProductResponse pRes = productMapper.toResponse(product);
-
-            List<CategoryResponse> categoryResponses = new ArrayList<>();
-            for (Category category : product.getCategories()) {
-
-                CategoryResponse cRes = categoryMapper.toCategoryResponse(category);
-                categoryResponses.add(cRes);
-            }
-
-            pRes.setCategories(categoryResponses);
-
+            ProductResponse pRes = this.toProductResponse(product);
             productResponseList.add(pRes);
 
         }

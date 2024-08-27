@@ -1,27 +1,23 @@
 package com.neo4j_ecom.demo.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 @Node
-public class ProductReview {
+public class User {
 
     @Id
-    @GeneratedValue(UUIDStringGenerator.class)
+    @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     private String id;
-    private String content;
-    private float rating;
-    @Property("reviewer")
-    private User reviewer;
+    private String name;
+    private String email;
+    private String password;
 }

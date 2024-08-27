@@ -1,11 +1,13 @@
 package com.neo4j_ecom.demo.exception;
 
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -31,6 +33,7 @@ public class GlobalException {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+
     @ExceptionHandler(value = MaxUploadSizeExceededException.class)
     ResponseEntity<ApiResponse> handlingMaxUploadSizeExceededException(MaxUploadSizeExceededException exception) {
         log.error("Exception: ", exception);
@@ -53,7 +56,9 @@ public class GlobalException {
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({
+            MethodArgumentNotValidException.class
+    })
     public ResponseEntity<ApiResponse<Object>> validationError(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
         final List<FieldError> fieldErrors = result.getFieldErrors();
@@ -65,5 +70,17 @@ public class GlobalException {
         res.setMessage(errors.size() > 1 ? errors : errors.get(0));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
+
+
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        // Nếu lỗi là do giá trị enum không hợp lệ
+        ErrorCode errorCode = ErrorCode.WRONG_INPUT;
+        if (ex.getCause() != null && ex.getCause().getCause() instanceof InvalidFormatException ) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCode.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCode.getMessage());
     }
 }
