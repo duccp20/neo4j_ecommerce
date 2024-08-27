@@ -1,10 +1,12 @@
 spring:
   neo4j:
-    uri: neo4j+s://535b18e9.databases.neo4j.io
+    uri: neo4j+s://9484ada8.databases.neo4j.io
     authentication:
       username: neo4j
-      password: neo4j
-
+      password: edARVvmLhFy61hMtkLSYgJE0Y0aTHL9F98YxFVuN5G0
+  data:
+    neo4j:
+      database: neo4j
   servlet:
     multipart:
       max-file-size: 10MB
