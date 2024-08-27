@@ -10,5 +10,7 @@ public interface ProductReviewService {
     ProductResponse createReview(String productId, ProductReviewRequest review);
 
 
+    List<ProductResponse> getAllReviews();
 
+    ProductResponse getAllReviewsByProductId(String productId);
 }

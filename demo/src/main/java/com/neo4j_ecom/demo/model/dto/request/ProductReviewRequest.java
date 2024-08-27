@@ -19,6 +19,6 @@ public class ProductReviewRequest {
     @DecimalMin(value = "0.5", message = "Rating must be at least 0.5")
     @DecimalMax(value = "5.0", message = "Rating must be at most 5.0")
     @Digits(integer = 1, fraction = 1, message = "Rating must have at most 1 decimal place")
-    private double rating;
+    private float rating;
 
 }

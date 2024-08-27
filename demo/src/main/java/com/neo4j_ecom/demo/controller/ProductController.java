@@ -9,6 +9,7 @@ import com.neo4j_ecom.demo.model.entity.ProductBanner;
 import com.neo4j_ecom.demo.service.ProductBannerService;
 import com.neo4j_ecom.demo.service.ProductService;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> handleCreateProduct(
+            @Valid
             @RequestPart ProductRequest request,
             @RequestPart(required = false) List<MultipartFile> files
     ) throws URISyntaxException {
@@ -59,6 +61,7 @@ public class ProductController {
     @PutMapping
     public ResponseEntity<ApiResponse<ProductResponse>> handleUpdateProduct(
             @RequestParam String id,
+            @Valid
             @RequestBody ProductRequest request
     ) {
 
@@ -95,536 +98,6 @@ public class ProductController {
                         .build());
 
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     @PostMapping("/{productId}/images")
@@ -688,7 +161,7 @@ public class ProductController {
         );
     }
 
-    @PostMapping("/{productId}/images/primary")
+    @PostMapping("/{productId}/images/primary-image")
     public ResponseEntity<ApiResponse<Void>> handleSetPrimaryImage(
             @PathVariable String productId,
             @RequestParam String imgUrl
@@ -708,14 +181,14 @@ public class ProductController {
     }
 
 
-    @GetMapping("/popular")
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> handleGetProductPopular() {
+    @GetMapping("/top-selling")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> handleGetProducPopularBySoldQuantity() {
         SuccessCode successCode = SuccessCode.FETCHED;
         return ResponseEntity.status(successCode.getCode()).body(
                 ApiResponse.<List<ProductResponse>>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(productService.handleGetProductPopular())
+                        .data(productService.handleGetProducPopularBySoldQuantity())
                         .build()
         );
     }
@@ -726,6 +199,7 @@ public class ProductController {
     @PostMapping(value = "/{productId}/banners")
     public ResponseEntity<ApiResponse<ProductBannerResponse>> handleCreateBanner(
             @PathVariable String productId,
+            @Valid
             @RequestPart ProductBannerRequest request,
             @RequestPart List<MultipartFile> files
     ) throws URISyntaxException {
@@ -774,6 +248,7 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBanner(
             @PathVariable String productId,
             @RequestParam String bannerId,
+            @Valid
             @RequestPart ProductBannerRequest request,
             @RequestPart List<MultipartFile> files
 
@@ -788,7 +263,7 @@ public class ProductController {
         );
     }
 
-    @PutMapping("/banners/{bannerId}/files")
+    @PutMapping("/banners/{bannerId}/images")
     public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBannerFiles(
             @PathVariable String bannerId,
             @RequestPart List<MultipartFile> files
@@ -804,7 +279,7 @@ public class ProductController {
     }
 
     //update primary banner
-    @PutMapping("/banners/{bannerId}/primary")
+    @PutMapping("/banners/{bannerId}/primary-image")
     public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBannerPrimary(
             @PathVariable String bannerId,
             @RequestParam String url
@@ -860,7 +335,7 @@ public class ProductController {
     }
 
 
-    @DeleteMapping("/banners/{bannerId}/image")
+    @DeleteMapping("/banners/{bannerId}/images")
     public ResponseEntity<ApiResponse<Void>> handleDeleteBannerImage(
             @PathVariable String bannerId,
             @RequestParam String imgUrl

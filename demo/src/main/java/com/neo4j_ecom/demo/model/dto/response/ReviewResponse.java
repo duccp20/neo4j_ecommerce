@@ -15,5 +15,5 @@ public class ReviewResponse {
 
     String id;
     String content;
-    double rating;
+    float rating;
 }

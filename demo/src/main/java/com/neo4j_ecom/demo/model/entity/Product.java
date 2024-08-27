@@ -1,10 +1,14 @@
 package com.neo4j_ecom.demo.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.EnumNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.EnumNaming;
+import com.neo4j_ecom.demo.utils.enums.SellingType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.mapstruct.EnumMapping;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -27,9 +31,15 @@ public class Product {
     private BigDecimal originalPrice;
     private BigDecimal discountedPrice;
     private String description;
-    private double rating;
+    private Float rating;
     private long soldQuantity;
     private long quantityAvailable;
+    private Float length;
+    private Float width;
+    private Float breadth;
+    private Float weight;
+    private SellingType sellingType;
+    private String SKU;
     private String brandName;
     private List<String> productImages;
     private String primaryImage;

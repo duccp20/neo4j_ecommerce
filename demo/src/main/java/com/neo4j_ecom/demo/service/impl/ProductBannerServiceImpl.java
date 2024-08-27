@@ -3,7 +3,6 @@ package com.neo4j_ecom.demo.service.impl;
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductBannerRequest;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
-import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.entity.ProductBanner;
 import com.neo4j_ecom.demo.repository.ProductBannerRepository;
@@ -20,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -296,6 +294,8 @@ public class ProductBannerServiceImpl implements ProductBannerService {
     }
 
 
+
+    //mapper
     private ProductBanner toProductBanner(ProductBannerRequest request) {
 
         return ProductBanner.builder().title(request.getTitle()).linkUrl(request.getLinkUrl()).build();

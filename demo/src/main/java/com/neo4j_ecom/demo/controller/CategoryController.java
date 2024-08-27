@@ -6,6 +6,7 @@ import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.service.CategoryService;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<CategoryResponse>> handleCreateCategory(
+            @Valid
             @RequestBody CategoryRequest request) {
 
         log.info("create category request : {}", request);
@@ -35,22 +37,6 @@ public class CategoryController {
                         .data(categoryService.handleCreateCategory(request))
                         .build()
         );
-    }
-
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> handleGetAllCategories() {
-
-        log.info("get all categories request");
-
-        SuccessCode successCode = SuccessCode.FETCHED;
-
-        return ResponseEntity.status(successCode.getStatusCode()).body(
-                        ApiResponse.<List<CategoryResponse>>builder()
-                                .message(successCode.getMessage())
-                                .statusCode(successCode.getCode())
-                                .data(categoryService.handleGetAllCategories())
-                                .build()
-                );
     }
 
     @GetMapping({"/{id}"})
@@ -69,6 +55,40 @@ public class CategoryController {
                         .data(categoryService.handleGetCategoryById(id))
                         .build()
         );
+    }
+
+    @PutMapping({"/{id}"})
+    public ResponseEntity<ApiResponse<CategoryResponse>> handleUpdateCategory(
+            @PathVariable String id,
+            @Valid
+            @RequestBody CategoryRequest request
+    ) {
+        log.info("ID update category request: {}", id);
+        log.info("update category request: {}", request);
+
+        return ResponseEntity.status(SuccessCode.UPDATED.getStatusCode()).body(
+                ApiResponse.<CategoryResponse>builder()
+                        .message(SuccessCode.UPDATED.getMessage())
+                        .statusCode(SuccessCode.UPDATED.getCode())
+                        .data(categoryService.handleUpdateCategory(id, request))
+                        .build()
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> handleGetAllCategories() {
+
+        log.info("get all categories request");
+
+        SuccessCode successCode = SuccessCode.FETCHED;
+
+        return ResponseEntity.status(successCode.getStatusCode()).body(
+                        ApiResponse.<List<CategoryResponse>>builder()
+                                .message(successCode.getMessage())
+                                .statusCode(successCode.getCode())
+                                .data(categoryService.handleGetAllCategories())
+                                .build()
+                );
     }
 
     @GetMapping({"/name/{name}"})
@@ -102,19 +122,14 @@ public class CategoryController {
         );
     }
 
-    @PutMapping({"/{id}"})
-    public ResponseEntity<ApiResponse<CategoryResponse>> handleUpdateCategory(
-            @PathVariable String id,
-            @RequestBody CategoryRequest request
-    ) {
-        log.info("ID update category request: {}", id);
-        log.info("update category request: {}", request);
-
-        return ResponseEntity.status(SuccessCode.UPDATED.getStatusCode()).body(
-                ApiResponse.<CategoryResponse>builder()
-                        .message(SuccessCode.UPDATED.getMessage())
-                        .statusCode(SuccessCode.UPDATED.getCode())
-                        .data(categoryService.handleUpdateCategory(id, request))
+    @GetMapping("/top-selling")
+    public ResponseEntity<ApiResponse<List<CategoryResponseTopSold>>> handleGetTopCategories() {
+        SuccessCode successCode = SuccessCode.FETCHED;
+        return ResponseEntity.status(successCode.getStatusCode()).body(
+                ApiResponse.<List<CategoryResponseTopSold>>builder()
+                        .message(successCode.getMessage())
+                        .statusCode(successCode.getCode())
+                        .data(categoryService.handleGetAllCategoriesBySoldQuantity())
                         .build()
         );
     }
@@ -135,15 +150,4 @@ public class CategoryController {
     }
 
 
-    @GetMapping("/top/sold")
-    public ResponseEntity<ApiResponse<List<CategoryResponseTopSold>>> handleGetTopCategories() {
-        SuccessCode successCode = SuccessCode.FETCHED;
-        return ResponseEntity.status(successCode.getStatusCode()).body(
-                ApiResponse.<List<CategoryResponseTopSold>>builder()
-                        .message(successCode.getMessage())
-                        .statusCode(successCode.getCode())
-                        .data(categoryService.handleGetAllCategoriesBySoldQuantity())
-                        .build()
-        );
-    }
 }
