@@ -23,4 +23,6 @@ public interface CategoryService{
     CategoryResponse handleGetCategoryByName(String name);
 
     List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity();
+
+    List<CategoryResponse> handleGetCategoriesByLevel(Integer level);
 }

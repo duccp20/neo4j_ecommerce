@@ -131,6 +131,18 @@ public class ProductController {
         );
     }
 
+    @GetMapping("/exists")
+    public ResponseEntity<ApiResponse<Boolean>> handleProductExists(@RequestParam String name) {
+
+        SuccessCode successCode = SuccessCode.FETCHED;
+        return ResponseEntity.ok().body(
+                ApiResponse.<Boolean>builder()
+                        .statusCode(successCode.getCode())
+                        .data(productService.handleProductExists(name))
+                        .build()
+        );
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> handleGetProductById(@PathVariable String id) {
 

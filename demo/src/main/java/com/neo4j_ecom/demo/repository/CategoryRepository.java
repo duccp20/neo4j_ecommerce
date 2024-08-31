@@ -30,4 +30,6 @@ public interface CategoryRepository extends Neo4jRepository<Category, String> {
             "RETURN c.id AS id, c.name AS name, totalSold " +
             "ORDER BY totalSold DESC ")
     List<CategoryResponseTopSold> findCategoriesBySoldQuantity();
+
+    List<Category> findByLevel(Integer level);
 }

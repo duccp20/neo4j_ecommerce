@@ -18,6 +18,7 @@ public class Category {
     private String id;
     private String name;
     private String icon;
+    private Integer level;
     @Relationship(type = "CHILD_OF", direction = Relationship.Direction.OUTGOING)
     private Category parent;
     @Relationship(type = "CHILD_OF", direction = Relationship.Direction.INCOMING)

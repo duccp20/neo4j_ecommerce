@@ -101,7 +101,7 @@ public class CategoryServiceImpl implements CategoryService {
                 orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         boolean existedNameCategory = categoryRepository.existsByName(request.getName());
-        if (existedNameCategory) {
+        if (existedNameCategory && !category.getName().equals(request.getName())) {
             throw new AppException(ErrorCode.CATEGORY_ALREADY_EXISTS_WITH_SAME_NAME);
         }
 
@@ -168,6 +168,19 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categories;
 
+    }
+
+    @Override
+    public List<CategoryResponse> handleGetCategoriesByLevel(Integer level) {
+
+        List<Category> categories = categoryRepository.findByLevel(level);
+
+        log.info("categories: {}", categories);
+
+        return categories
+                .stream()
+                .map(categoryMapper::toCategoryResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
