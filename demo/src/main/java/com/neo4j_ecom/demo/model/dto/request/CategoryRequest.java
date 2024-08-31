@@ -19,6 +19,7 @@ public class CategoryRequest {
     String name;
     String parent;
     String icon;
+    Integer level;
     List<String> children;
 
 }

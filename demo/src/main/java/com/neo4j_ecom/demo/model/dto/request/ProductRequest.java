@@ -1,13 +1,16 @@
 package com.neo4j_ecom.demo.model.dto.request;
 
+import com.neo4j_ecom.demo.model.entity.ProductDimension;
 import com.neo4j_ecom.demo.utils.enums.SellingType;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.format.annotation.NumberFormat;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 @AllArgsConstructor
@@ -18,29 +21,23 @@ import java.util.List;
 public class ProductRequest {
 
     @NotNull(message = "Product name is required")
+    @Size(min = 5, max = 120, message = "Product name must be between 5 and 120 characters")
     String name;
     String brandName;
     @NotNull(message = "Original price is required")
     @NumberFormat
     BigDecimal originalPrice;
-    @NotNull(message = "Discounted price is required")
+
     @NumberFormat
     BigDecimal discountedPrice;
+    @NotNull(message = "Selling price is required")
+    @NumberFormat
+    BigDecimal sellingPrice;
     @NotNull(message = "Description is required")
+    @Size(min = 200, max = 1000, message = "Description must be between 200 and 1000 characters")
     String description;
     String SKU;
-
-    @NotNull(message = "Weight is required")
-    Float weight;
-
-    @NotNull(message = "Length is required")
-    Float length;
-
-    @NotNull(message = "Width is required")
-    Float width;
-
-    @NotNull(message = "Breadth is required")
-    Float breadth;
+    ProductDimension productDimension;
     @NotNull(message = "Selling type is required")
     SellingType sellingType;
     long soldQuantity;

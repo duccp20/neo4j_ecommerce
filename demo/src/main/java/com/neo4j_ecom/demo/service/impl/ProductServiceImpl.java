@@ -10,10 +10,7 @@ import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.repository.*;
-import com.neo4j_ecom.demo.service.CategoryService;
-import com.neo4j_ecom.demo.service.FileService;
-import com.neo4j_ecom.demo.service.ProductImageService;
-import com.neo4j_ecom.demo.service.ProductService;
+import com.neo4j_ecom.demo.service.*;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +46,10 @@ public class ProductServiceImpl implements ProductService {
 
     private final FileService fileService;
 
+    private final ProductDimensionRepository productDimentionRepository;
+
+    private final ProductDimensionService productDimensionService;
+
     private final CategoryService categoryService;
 
     private final ProductReviewMapper reviewMapper;
@@ -59,17 +60,24 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductResponse handleCreateProduct(ProductRequest request, List<MultipartFile> files) throws URISyntaxException {
 
-        boolean existedProduct = productRepository.existsByName(request.getName());
+        boolean existedProduct = productRepository.existsByName(request.getName().trim());
 
         if (existedProduct) {
             throw new AppException(ErrorCode.PRODUCT_ALREADY_EXISTS);
         }
 
         Product product = productMapper.toEntity(request);
+        product.setName(request.getName().trim());
+
+        if (request.getProductDimension() != null) {
+            ProductDimension productDimension = productDimensionService
+                    .createProductDimension(request.getProductDimension());
+            product.setProductDimension(productDimension);
+        }
 
         List<String> listProductImage = this.handleCreateListImageFile(files, product);
 
-        if (listProductImage.size() == 1) {
+        if (listProductImage.size() > 0) {
             product.setPrimaryImage(listProductImage.get(0));
         }
 
@@ -110,24 +118,6 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
-
-    private Category toCategory(CategoryResponse categoryResponse) {
-
-        Category category = new Category();
-        category.setId(categoryResponse.getId());
-        category.setName(categoryResponse.getName());
-        return category;
-    }
-
-    private CategoryResponse toCategoryResponse(Category category) {
-
-        CategoryResponse categoryResponse = new CategoryResponse();
-        categoryResponse.setId(category.getId());
-        categoryResponse.setName(category.getName());
-
-        return categoryResponse;
-    }
-
     @Override
     public ProductResponse handleUpdateProduct(String id, ProductRequest request) {
 
@@ -136,13 +126,20 @@ public class ProductServiceImpl implements ProductService {
 
         log.info("product: {}", product);
 
-        boolean existedProduct = productRepository.existsByName(request.getName());
+        boolean existedProduct = productRepository.existsByName(request.getName().trim());
 
         if (existedProduct) {
             throw new AppException(ErrorCode.PRODUCT_ALREADY_EXISTS);
         }
 
         productMapper.updateProduct(product, request);
+
+        if (request.getProductDimension() != null) {
+
+            product.setProductDimension(productDimensionService.
+                    updateProductDimension(product.getProductDimension(), request.getProductDimension()));
+
+        }
 
         if (request.getCategoryIds() != null) {
             List<Category> categories = new ArrayList<>();
@@ -207,6 +204,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Boolean handleProductExists(String name) {
+
+        boolean existedProduct = productRepository.existsByName(name);
+
+        return existedProduct;
+    }
+
+    @Override
     public ProductResponse handleGetProductById(String id) {
 
         Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -215,29 +220,6 @@ public class ProductServiceImpl implements ProductService {
 
         return this.toProductResponse(product);
 
-    }
-
-    private ProductResponse toProductResponse(Product product) {
-        ProductResponse pRes = productMapper.toResponse(product);
-
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
-        List<ReviewResponse> reviewResponses = new ArrayList<>();
-
-        for (Category category : product.getCategories()) {
-            categoryResponses.add(categoryMapper.toCategoryResponse(category));
-        }
-
-        for (ProductReview review : product.getReviews()) {
-
-            ReviewResponse reviewResponse = reviewMapper.toResponse(review);
-            reviewResponses.add(reviewResponse);
-        }
-
-
-        pRes.setCategories(categoryResponses);
-        pRes.setReviews(reviewResponses);
-        pRes.setImages(product.getProductImages());
-        return pRes;
     }
 
     @Override
@@ -362,5 +344,60 @@ public class ProductServiceImpl implements ProductService {
         return null;
     }
 
+
+//    ==================== MAPPER ======================
+    private Category toCategory(CategoryResponse categoryResponse) {
+
+        Category category = new Category();
+        category.setId(categoryResponse.getId());
+        category.setName(categoryResponse.getName().trim());
+        category.setIcon(categoryResponse.getIcon());
+        category.setLevel(categoryResponse.getLevel());
+
+        if (categoryResponse.getChildren() != null) {
+
+            List<Category> children = new ArrayList<>();
+
+            for (CategoryResponse child : categoryResponse.getChildren()) {
+                children.add(toCategory(child));
+            }
+
+            category.setChildren(children);
+        }
+
+        return category;
+    }
+
+    private CategoryResponse toCategoryResponse(Category category) {
+
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setId(category.getId());
+        categoryResponse.setName(category.getName());
+
+        return categoryResponse;
+    }
+
+    private ProductResponse toProductResponse(Product product) {
+        ProductResponse pRes = productMapper.toResponse(product);
+
+        List<CategoryResponse> categoryResponses = new ArrayList<>();
+        List<ReviewResponse> reviewResponses = new ArrayList<>();
+
+        for (Category category : product.getCategories()) {
+            categoryResponses.add(categoryMapper.toCategoryResponse(category));
+        }
+
+        for (ProductReview review : product.getReviews()) {
+
+            ReviewResponse reviewResponse = reviewMapper.toResponse(review);
+            reviewResponses.add(reviewResponse);
+        }
+
+
+        pRes.setCategories(categoryResponses);
+        pRes.setReviews(reviewResponses);
+        pRes.setImages(product.getProductImages());
+        return pRes;
+    }
 
 }

@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.mapstruct.EnumMapping;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -16,6 +18,8 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -30,6 +34,7 @@ public class Product {
     private String name;
     private BigDecimal originalPrice;
     private BigDecimal discountedPrice;
+    private BigDecimal sellingPrice;
     private String description;
     private Float rating;
     private long soldQuantity;
@@ -43,11 +48,17 @@ public class Product {
     private String brandName;
     private List<String> productImages;
     private String primaryImage;
+    @Relationship(type = "HAS_DIMENSION", direction = Relationship.Direction.OUTGOING)
+    private ProductDimension productDimension;
     @Relationship(type = "BELONG_TO", direction = Relationship.Direction.OUTGOING)
     private List<Category> categories;
     @Relationship(type = "HAS_REVIEW", direction = Relationship.Direction.OUTGOING)
     private List<ProductReview> reviews;
     @Relationship(type = "HAS_BANNER", direction = Relationship.Direction.OUTGOING)
     private List<ProductBanner> productBanners;
+    @CreatedDate
+    Instant createdAt;
+    @LastModifiedDate
+    Instant updatedAt;
 
 }

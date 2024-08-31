@@ -28,4 +28,6 @@ public interface ProductBannerService {
     ProductBannerResponse handleUpdateBannerPrimary(String bannerId, String url);
 
     List<ProductBannerResponse> handleGetBannersByQuantity(int quantity);
+
+
 }

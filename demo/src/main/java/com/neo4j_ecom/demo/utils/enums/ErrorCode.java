@@ -34,7 +34,9 @@ public enum ErrorCode {
     PRODUCT_BANNER_NOT_FOUND( 404,  "Product Banner Not Found!", HttpStatus.NOT_FOUND),
 
 
-    WRONG_INPUT (400, "Wrong Input in Request!", HttpStatus.BAD_REQUEST),;
+    WRONG_INPUT (400, "Wrong Input in Request!", HttpStatus.BAD_REQUEST),
+    INVALID_UNIT_LENGTH( 400, "Invalid Unit Length!", HttpStatus.BAD_REQUEST),
+    INVALID_UNIT_PACKAGE_SIZE( 400, "Invalid Unit Package Size!", HttpStatus.BAD_REQUEST);
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;

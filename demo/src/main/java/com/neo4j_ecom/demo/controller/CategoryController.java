@@ -57,6 +57,24 @@ public class CategoryController {
         );
     }
 
+    @GetMapping("level/{level}")
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> handleGetCategoryByLevel(
+            @PathVariable Integer level
+    ) {
+
+        log.info("get category by level request: {}", level);
+
+        SuccessCode successCode = SuccessCode.FETCHED;
+
+        return ResponseEntity.status(successCode.getStatusCode()).body(
+                ApiResponse.<List<CategoryResponse>>builder()
+                        .message(successCode.getMessage())
+                        .statusCode(successCode.getCode())
+                        .data(categoryService.handleGetCategoriesByLevel(level))
+                        .build()
+        );
+    }
+
     @PutMapping({"/{id}"})
     public ResponseEntity<ApiResponse<CategoryResponse>> handleUpdateCategory(
             @PathVariable String id,
@@ -83,12 +101,12 @@ public class CategoryController {
         SuccessCode successCode = SuccessCode.FETCHED;
 
         return ResponseEntity.status(successCode.getStatusCode()).body(
-                        ApiResponse.<List<CategoryResponse>>builder()
-                                .message(successCode.getMessage())
-                                .statusCode(successCode.getCode())
-                                .data(categoryService.handleGetAllCategories())
-                                .build()
-                );
+                ApiResponse.<List<CategoryResponse>>builder()
+                        .message(successCode.getMessage())
+                        .statusCode(successCode.getCode())
+                        .data(categoryService.handleGetAllCategories())
+                        .build()
+        );
     }
 
     @GetMapping({"/name/{name}"})
@@ -103,7 +121,8 @@ public class CategoryController {
                         .statusCode(successCode.getCode())
                         .data(categoryService.handleGetCategoryByName(name))
                         .build()
-        );}
+        );
+    }
 
     @GetMapping({"/parent"})
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> handleGetAllCategoriesByParentId(
