@@ -22,12 +22,9 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp initializeFirebase() throws IOException {
 
-//        ClassPathResource resource = new ClassPathResource("firebase-key.json");
-//        InputStream inputStream = resource.getInputStream();
-
-
 
         byte[] decodedConfig = Base64.getDecoder().decode(secretBase64);
+
         GoogleCredentials credentials = GoogleCredentials.fromStream(new ByteArrayInputStream(decodedConfig));
 
         FirebaseOptions options = FirebaseOptions.builder()
