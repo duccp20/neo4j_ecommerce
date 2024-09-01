@@ -19,11 +19,11 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp initializeFirebase() throws IOException {
 
-        ClassPathResource resource = new ClassPathResource("firebase-key.json");
-        InputStream inputStream = resource.getInputStream();
+        String firebaseConfigPath = "/etc/secrets/firebase-key.json";
+        FileInputStream serviceAccount = new FileInputStream(firebaseConfigPath);
 
         FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(inputStream))
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .setStorageBucket("ecom-accessed.appspot.com")
                 .build();
         return FirebaseApp.initializeApp(options);
