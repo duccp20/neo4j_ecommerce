@@ -4,26 +4,34 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Base64;
 
 @Configuration
 @Slf4j
 public class FirebaseConfig {
 
+
+    @Value("${firebase.secret-base64}")
+    private String secretBase64;
     @Bean
     public FirebaseApp initializeFirebase() throws IOException {
 
-        ClassPathResource resource = new ClassPathResource("firebase-key.json");
-        InputStream inputStream = resource.getInputStream();
+//        ClassPathResource resource = new ClassPathResource("firebase-key.json");
+//        InputStream inputStream = resource.getInputStream();
+
+
+
+        byte[] decodedConfig = Base64.getDecoder().decode(secretBase64);
+        GoogleCredentials credentials = GoogleCredentials.fromStream(new ByteArrayInputStream(decodedConfig));
 
         FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(inputStream))
+                .setCredentials(credentials)
                 .setStorageBucket("ecom-accessed.appspot.com")
                 .build();
         return FirebaseApp.initializeApp(options);
