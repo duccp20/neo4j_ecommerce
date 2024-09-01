@@ -16,9 +16,8 @@ public class FirebaseConfig {
 
     @Bean
     public FirebaseApp initializeFirebase() throws IOException {
-        String serviceAccountPath = System.getProperty("user.dir") + "/firebase-key.json";
+        String serviceAccountPath = FirebaseConfig.class.getClassLoader().getResource("firebase-key.json").getPath();
 
-        log.info("serviceAccountPath: " + serviceAccountPath);
         FileInputStream serviceAccountStream = new FileInputStream(serviceAccountPath);
 
         FirebaseOptions options = FirebaseOptions.builder()
