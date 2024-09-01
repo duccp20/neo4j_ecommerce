@@ -8,9 +8,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 
 @Configuration
 @Slf4j
@@ -19,11 +21,16 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp initializeFirebase() throws IOException {
 
-        String firebaseConfigPath = "/etc/secrets/firebase-key.json";
-        FileInputStream serviceAccount = new FileInputStream(firebaseConfigPath);
+        String firebaseConfigBase64 = System.getenv("FIREBASE_CONFIG");
+        if (firebaseConfigBase64 == null || firebaseConfigBase64.isEmpty()) {
+            throw new IllegalStateException("FIREBASE_CONFIG environment variable is not set");
+        }
+
+        byte[] decodedConfig = Base64.getDecoder().decode(firebaseConfigBase64);
+        GoogleCredentials credentials = GoogleCredentials.fromStream(new ByteArrayInputStream(decodedConfig));
 
         FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setCredentials(credentials)
                 .setStorageBucket("ecom-accessed.appspot.com")
                 .build();
         return FirebaseApp.initializeApp(options);
