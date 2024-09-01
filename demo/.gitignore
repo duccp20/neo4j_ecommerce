@@ -33,9 +33,3 @@ build/
 .vscode/
 
 ### .env ###
-.env
-local.env
-
-!/src/main/resources/local.env
-
-
