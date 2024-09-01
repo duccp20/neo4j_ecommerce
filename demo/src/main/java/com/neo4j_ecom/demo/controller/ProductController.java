@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.print.attribute.standard.Media;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class ProductController {
             @Valid
             @RequestPart ProductRequest request,
             @RequestPart(required = false) List<MultipartFile> files
-    ) throws URISyntaxException {
+    ) throws URISyntaxException, IOException {
 
         log.info("request: {}", request);
         log.info("files: {}", files);
@@ -103,7 +104,7 @@ public class ProductController {
     @PostMapping("/{productId}/images")
     public ResponseEntity<ApiResponse<List<String>>> handleCreateProductImages(
             @PathVariable String productId,
-            @RequestPart List<MultipartFile> files) throws URISyntaxException {
+            @RequestPart List<MultipartFile> files) throws URISyntaxException, IOException {
 
         log.info("productId: {}", productId);
         log.info("files: {}", files);

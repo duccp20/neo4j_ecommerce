@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
     //============== PRODUCT ====================
     @Override
     @Transactional
-    public ProductResponse handleCreateProduct(ProductRequest request, List<MultipartFile> files) throws URISyntaxException {
+    public ProductResponse handleCreateProduct(ProductRequest request, List<MultipartFile> files) throws URISyntaxException, IOException {
 
         boolean existedProduct = productRepository.existsByName(request.getName().trim());
 
@@ -110,7 +111,7 @@ public class ProductServiceImpl implements ProductService {
                                     .builder()
                                     .id(category.getId())
                                     .name(category.getName())
-                            .build()).collect(Collectors.toList());
+                                    .build()).collect(Collectors.toList());
             response.setCategories(categoryResponses);
         }
 
@@ -249,16 +250,20 @@ public class ProductServiceImpl implements ProductService {
 
 
     //==================PRODUCT IMAGES====================
-    private List<String> handleCreateListImageFile(List<MultipartFile> files, Product product) throws URISyntaxException {
+    private List<String> handleCreateListImageFile(List<MultipartFile> files, Product product) throws URISyntaxException, IOException {
 
         List<String> images = new ArrayList<>();
         if (files != null) {
 
             for (MultipartFile file : files) {
 
-                String fileName = this.handleCreateProductImage(file);
+                //local
+                // String fileName = this.handleCreateProductImage(file);
 
-                images.add(fileName);
+                //firebase
+                String url = this.handleCreateProductImageFirebase(file);
+
+                images.add(url);
             }
         }
 
@@ -285,8 +290,20 @@ public class ProductServiceImpl implements ProductService {
         return urlImage;
     }
 
+
+    private String handleCreateProductImageFirebase(MultipartFile file) throws URISyntaxException, IOException {
+        //validate file
+        fileService.validateFile(file);
+
+        String urlImage = fileService.storeFileFirebase(file, "products/images");
+
+        log.info("url image: {}", urlImage);
+
+        return urlImage;
+    }
+
     @Override
-    public List<String> HandleCreateProductImages(String productId, List<MultipartFile> files) throws URISyntaxException {
+    public List<String> HandleCreateProductImages(String productId, List<MultipartFile> files) throws URISyntaxException, IOException {
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
@@ -345,7 +362,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-//    ==================== MAPPER ======================
+    //    ==================== MAPPER ======================
     private Category toCategory(CategoryResponse categoryResponse) {
 
         Category category = new Category();
