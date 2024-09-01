@@ -4,6 +4,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 public interface FileService {
@@ -13,4 +14,8 @@ public interface FileService {
     String storeFile(MultipartFile file, String folder) throws URISyntaxException;
 
     void validateFile(MultipartFile file);
+
+    String storeFileFirebase(MultipartFile file, String folder) throws URISyntaxException, IOException;
+
+    void deleteFileFirebase(String path) throws FileNotFoundException;
 }
