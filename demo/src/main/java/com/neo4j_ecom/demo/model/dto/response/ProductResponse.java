@@ -26,6 +26,7 @@ public class ProductResponse {
     String name;
     BigDecimal originalPrice;
     BigDecimal discountedPrice;
+    BigDecimal sellingPrice;
     long soldQuantity;
     long quantityAvailable;
     String brandName;
@@ -40,5 +41,6 @@ public class ProductResponse {
     List<ReviewResponse> reviews;
     Instant createdAt;
     Instant updatedAt;
+
 
 }
