@@ -1,14 +1,11 @@
 package com.neo4j_ecom.demo.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.EnumNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.EnumNaming;
+
 import com.neo4j_ecom.demo.utils.enums.SellingType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.mapstruct.EnumMapping;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -57,8 +54,8 @@ public class Product {
     @Relationship(type = "HAS_BANNER", direction = Relationship.Direction.OUTGOING)
     private List<ProductBanner> productBanners;
     @CreatedDate
-    Instant createdAt;
+    private Instant createdAt;
     @LastModifiedDate
-    Instant updatedAt;
+    private Instant updatedAt;
 
 }

@@ -136,7 +136,7 @@ public class ProductServiceImpl implements ProductService {
 
         boolean existedProduct = productRepository.existsByName(request.getName().trim());
 
-        if (existedProduct) {
+        if (existedProduct && !product.getName().equals(request.getName().trim())) {
             throw new AppException(ErrorCode.PRODUCT_ALREADY_EXISTS);
         }
 
@@ -233,7 +233,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> handleGetAllProducts() {
 
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findProductsOrderedByLatestTime();
 
         if (products.isEmpty()) {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);

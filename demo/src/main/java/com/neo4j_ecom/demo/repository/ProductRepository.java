@@ -11,8 +11,11 @@ import java.util.Optional;
 public interface ProductRepository extends Neo4jRepository<Product, String> {
     boolean existsByName(String name);
 
-    @Query("MATCH (p:Product)-[r]-(relatedNode) RETURN p, r, relatedNode")
-    List<Product> findAll();
+    @Query("MATCH (p:Product)-[r]-(relatedNode) " +
+            "WITH p, MAX(p.updatedAt) AS latestUpdate " +
+            "RETURN p " +
+            "ORDER BY latestUpdate DESC")
+    List<Product> findProductsOrderedByLatestTime();
 
 
     @Query("MATCH (p:Product) RETURN p ORDER BY p.soldQuantity DESC")
@@ -20,5 +23,5 @@ public interface ProductRepository extends Neo4jRepository<Product, String> {
 
 
     @Query("MATCH (p:Product)-[:HAS_BANNER]->(b:ProductBanner) where b.id = $bannerId RETURN p")
-    Optional<Product> cfindProductByBannerId(String bannerId);
+    Optional<Product> findProductByBannerId(String bannerId);
 }
