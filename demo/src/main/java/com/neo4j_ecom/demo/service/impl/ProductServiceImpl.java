@@ -77,10 +77,19 @@ public class ProductServiceImpl implements ProductService {
         product.setName(request.getName().trim());
         product.setDescription(request.getDescription().trim());
 
-        ProductDimension dimension = request.getProductDimension();
-        if (dimension != null
-                && (dimension.getWidth() != null || dimension.getLength() != null || dimension.getWeight() != null || dimension.getBreadth() != null)) {
-            product.setProductDimension(productDimensionService.createProductDimension(dimension));
+        //still unit auto passed from request
+        if (request.getProductDimension() != null) {
+            if (request.getProductDimension().getWidth() == null
+                    && request.getProductDimension().getLength() == null
+                    && request.getProductDimension().getWeight() == null
+                    && request.getProductDimension().getBreadth() == null
+            ) {
+                product.setProductDimension(null);
+            } else {
+                ProductDimension productDimension = productDimensionService
+                        .createProductDimension(request.getProductDimension());
+                product.setProductDimension(productDimension);
+            }
         } else {
             product.setProductDimension(null);
         }
