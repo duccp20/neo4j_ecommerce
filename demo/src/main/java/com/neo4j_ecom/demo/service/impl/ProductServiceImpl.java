@@ -77,10 +77,12 @@ public class ProductServiceImpl implements ProductService {
         product.setName(request.getName().trim());
         product.setDescription(request.getDescription().trim());
 
-        if (request.getProductDimension() != null) {
-            ProductDimension productDimension = productDimensionService
-                    .createProductDimension(request.getProductDimension());
-            product.setProductDimension(productDimension);
+        ProductDimension dimension = request.getProductDimension();
+        if (dimension != null
+                && (dimension.getWidth() != null || dimension.getLength() != null || dimension.getWeight() != null || dimension.getBreadth() != null)) {
+            product.setProductDimension(productDimensionService.createProductDimension(dimension));
+        } else {
+            product.setProductDimension(null);
         }
 
         List<String> listProductImage = this.handleCreateListImageFile(files, product);
