@@ -2,6 +2,7 @@ package com.neo4j_ecom.demo.exception;
 
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.google.protobuf.Api;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -12,10 +13,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -73,14 +77,23 @@ public class GlobalException {
     }
 
 
-
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        // Nếu lỗi là do giá trị enum không hợp lệ
+    public ResponseEntity<ApiResponse<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+
         ErrorCode errorCode = ErrorCode.WRONG_INPUT;
-        if (ex.getCause() != null && ex.getCause().getCause() instanceof InvalidFormatException ) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCode.getMessage());
+        if (ex.getCause() != null && ex.getCause().getCause() instanceof InvalidFormatException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.<String>builder()
+                            .statusCode(errorCode.getCode())
+                            .data(errorCode.getMessage())
+                            .build());
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCode.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.<String>builder()
+                        .statusCode(errorCode.getCode())
+                        .data(errorCode.getMessage())
+                        .build());
     }
+
 }

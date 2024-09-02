@@ -61,6 +61,12 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductResponse handleCreateProduct(ProductRequest request, List<MultipartFile> files) throws URISyntaxException, IOException {
 
+
+        if (request.getOriginalPrice().compareTo(request.getSellingPrice()) > 0 ||
+                request.getOriginalPrice().compareTo(request.getDiscountedPrice()) > 0) {
+            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
+        }
+
         boolean existedProduct = productRepository.existsByName(request.getName().trim());
 
         if (existedProduct) {
@@ -69,6 +75,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productMapper.toEntity(request);
         product.setName(request.getName().trim());
+        product.setDescription(request.getDescription().trim());
 
         if (request.getProductDimension() != null) {
             ProductDimension productDimension = productDimensionService
