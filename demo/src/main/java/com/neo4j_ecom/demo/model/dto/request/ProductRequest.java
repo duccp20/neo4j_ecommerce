@@ -52,6 +52,9 @@ public class ProductRequest {
     long quantityAvailable;
     Float rating;
     String primaryImage;
+
+    @NotNull(message = "Category is required")
+    @NotEmpty(message = "Category is not be empty")
     List<String> categoryIds;
 
 
