@@ -3,6 +3,7 @@ package com.neo4j_ecom.demo.service.impl;
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
+import com.neo4j_ecom.demo.model.dto.response.ProductCategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
 import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
 import com.neo4j_ecom.demo.model.entity.*;
@@ -242,9 +243,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> handleGetAllProducts() {
+    public List<ProductCategoryResponse> handleGetAllProducts() {
 
-        List<Product> products = productRepository.findProductsOrderedByLatestTime();
+        List<ProductCategoryResponse> products = productRepository.findProductsOrderedByLatestTime();
+
 
         if (products.isEmpty()) {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
@@ -254,14 +256,14 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductResponse> productResponseList = new ArrayList<>();
 
-        for (Product product : products) {
+//        for (Product product : products) {
+//
+//            ProductResponse pRes = this.toProductResponse(product);
+//            productResponseList.add(pRes);
+//
+//        }
 
-            ProductResponse pRes = this.toProductResponse(product);
-            productResponseList.add(pRes);
-
-        }
-
-        return productResponseList;
+        return products;
 
 
     }
