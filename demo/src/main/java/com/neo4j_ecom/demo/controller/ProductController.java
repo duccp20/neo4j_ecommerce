@@ -4,6 +4,7 @@ import com.neo4j_ecom.demo.model.dto.request.ProductBannerRequest;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
+import com.neo4j_ecom.demo.model.dto.response.ProductCategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.ProductBanner;
 import com.neo4j_ecom.demo.service.ProductBannerService;
@@ -120,11 +121,11 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> handleGetAllProducts() {
+    public ResponseEntity<ApiResponse<List<ProductCategoryResponse>>> handleGetAllProducts() {
 
         SuccessCode successCode = SuccessCode.FETCHED;
         return ResponseEntity.ok().body(
-                ApiResponse.<List<ProductResponse>>builder()
+                ApiResponse.<List<ProductCategoryResponse>>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
                         .data(productService.handleGetAllProducts())
