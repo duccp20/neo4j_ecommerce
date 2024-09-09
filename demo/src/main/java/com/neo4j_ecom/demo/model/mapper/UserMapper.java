@@ -1,9 +1,10 @@
 package com.neo4j_ecom.demo.model.mapper;
 
 import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
+@Component
+public class UserMapper {
 
 
 

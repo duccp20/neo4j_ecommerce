@@ -5,12 +5,9 @@ import com.neo4j_ecom.demo.utils.enums.SellingType;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.format.annotation.NumberFormat;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 
 @AllArgsConstructor

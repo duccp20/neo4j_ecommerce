@@ -3,9 +3,7 @@ package com.neo4j_ecom.demo.model.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.util.List;
-import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,6 +17,7 @@ public class CategoryResponse {
     private String name;
     private String icon;
     private Integer level;
+    private String parent;
     private List<CategoryResponse> children;
 
 }

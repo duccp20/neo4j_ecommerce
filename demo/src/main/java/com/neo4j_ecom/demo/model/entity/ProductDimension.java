@@ -4,19 +4,18 @@ package com.neo4j_ecom.demo.model.entity;
 import com.neo4j_ecom.demo.utils.enums.Unit;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Document("product_dimension")
 public class ProductDimension {
 
     @Id
-    @GeneratedValue(UUIDStringGenerator.class)
     private String id;
     private Float length;
     private Float width;

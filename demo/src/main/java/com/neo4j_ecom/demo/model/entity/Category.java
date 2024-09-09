@@ -1,8 +1,16 @@
 package com.neo4j_ecom.demo.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-import org.springframework.data.neo4j.core.schema.*;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.ReadOnlyProperty;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
+
 
 import java.util.List;
 
@@ -11,19 +19,19 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Data
-@Node(labels = "Category")
+@Document(collection = "categories")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Category {
     @Id
-    @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     private String id;
     private String name;
     private String icon;
     private Integer level;
-    @Relationship(type = "CHILD_OF", direction = Relationship.Direction.OUTGOING)
+    @DocumentReference(lazy = true)
     private Category parent;
-    @Relationship(type = "CHILD_OF", direction = Relationship.Direction.INCOMING)
+    @DocumentReference(lazy = true)
     private List<Category> children;
-    @Relationship(type = "BELONGS_TO", direction = Relationship.Direction.INCOMING)
-    private List<Product> products;
+
+//    private List<Product> products;
 
 }

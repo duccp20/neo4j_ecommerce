@@ -2,15 +2,19 @@ package com.neo4j_ecom.demo.service.impl;
 
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.entity.ProductDimension;
+import com.neo4j_ecom.demo.repository.ProductDimensionRepository;
 import com.neo4j_ecom.demo.service.ProductDimensionService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.Unit;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ProductDimensionImpl implements ProductDimensionService {
 
 
+    private final ProductDimensionRepository productDimensionRepository;
     @Override
     public ProductDimension createProductDimension(ProductDimension request) {
 
@@ -42,7 +46,7 @@ public class ProductDimensionImpl implements ProductDimensionService {
             productDimension.setWeight(request.getWeight());
         }
 
-        return productDimension;
+        return productDimensionRepository.save(productDimension);
     }
 
     @Override

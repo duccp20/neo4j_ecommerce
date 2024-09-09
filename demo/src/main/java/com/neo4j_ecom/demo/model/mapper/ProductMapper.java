@@ -3,40 +3,96 @@ package com.neo4j_ecom.demo.model.mapper;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface ProductMapper {
+@Component
+public class ProductMapper {
 
+    public Product toEntity(ProductRequest request) {
 
+        Product product = new Product();
+        product.setOriginalPrice(request.getOriginalPrice() != null ? request.getOriginalPrice() : null);
+        product.setSellingPrice(request.getSellingPrice() != null ? request.getSellingPrice() : null);
+        product.setDiscountedPrice(request.getDiscountedPrice() != null ? request.getDiscountedPrice() : null);
 
+        if (request.getQuantityAvailable() > 0) {
+            product.setQuantityAvailable(request.getQuantityAvailable());
+        }
+        product.setSellingType(request.getSellingType() != null ? request.getSellingType() : null);
+        product.setDescription(request.getDescription() != null ? request.getDescription() : null);
+        product.setPrimaryImage(request.getPrimaryImage() != null ? request.getPrimaryImage() : null);
+        product.setRating(request.getRating() != null ? request.getRating() : null);
+        product.setSoldQuantity(request.getSoldQuantity() > 0 ? request.getSoldQuantity() : 0);
+        product.setBrandName(request.getBrandName() != null ? request.getBrandName() : null);
+        product.setSKU(request.getSKU() != null ? request.getSKU() : null);
+        product.setName(request.getName() != null ? request.getName() : null);
 
-
-    @Mapping(target = "reviews", ignore = true)
-    @Mapping(target = "productImages", ignore = true)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "categories", ignore = true)
-    Product toEntity(ProductRequest request);
-
-
-
-
-
-    @Mapping(target = "images", source = "productImages")
-    @Mapping(target = "reviews", ignore = true)
-    @Mapping(target = "categories", ignore = true)
-    ProductResponse toResponse(Product savedProduct);
-
-
-
-
+        return product;
+    }
 
 
-    @Mapping(target = "reviews", ignore = true)
-    @Mapping(target = "productImages", ignore = true)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "categories", ignore = true)
-    void updateProduct(@MappingTarget Product product, ProductRequest request);
+
+
+
+    public ProductResponse toResponse(Product product) {
+        ProductResponse response = new ProductResponse();
+        response.setId(product.getId());
+        response.setOriginalPrice(product.getOriginalPrice());
+        response.setSellingPrice(product.getSellingPrice());
+        response.setDiscountedPrice(product.getDiscountedPrice());
+        response.setQuantityAvailable(product.getQuantityAvailable());
+        response.setSellingType(product.getSellingType());
+        response.setDescription(product.getDescription());
+        response.setRating(product.getRating());
+        response.setSoldQuantity(product.getSoldQuantity());
+        response.setBrandName(product.getBrandName());
+        response.setSKU(product.getSKU());
+        response.setName(product.getName());
+        response.setPrimaryImage(product.getPrimaryImage());
+
+        if (product.getProductImages() != null || !product.getProductImages().isEmpty()) {
+            response.setImages(product.getProductImages());
+        }
+
+        if (product.getProductDimension() != null) {
+            response.setProductDimension(product.getProductDimension());
+        }
+
+        if (product.getCreatedAt() != null) {
+            response.setCreatedAt(product.getCreatedAt());
+        }
+
+        if (product.getUpdatedAt() != null) {
+            response.setUpdatedAt(product.getUpdatedAt());
+        }
+
+        return response;
+    }
+
+
+    public void updateProduct(Product product, ProductRequest request) {
+
+
+        product.setOriginalPrice(request.getOriginalPrice() != null ? request.getOriginalPrice() : null);
+        product.setSellingPrice(request.getSellingPrice() != null ? request.getSellingPrice() : null);
+        product.setDiscountedPrice(request.getDiscountedPrice() != null ? request.getDiscountedPrice() : null);
+
+        if (request.getQuantityAvailable() > 0) {
+            product.setQuantityAvailable(request.getQuantityAvailable());
+        }
+        product.setSellingType(request.getSellingType() != null ? request.getSellingType() : null);
+        product.setDescription(request.getDescription() != null ? request.getDescription() : null);
+        product.setPrimaryImage(request.getPrimaryImage() != null ? request.getPrimaryImage() : null);
+        product.setRating(request.getRating() != null ? request.getRating() : null);
+        product.setSoldQuantity(request.getSoldQuantity() > 0 ? request.getSoldQuantity() : 0);
+        product.setBrandName(request.getBrandName() != null ? request.getBrandName() : null);
+        product.setSKU(request.getSKU() != null ? request.getSKU() : null);
+        product.setName(request.getName() != null ? request.getName() : null);
+
+        if (request.getProductDimension() != null) {
+            product.setProductDimension(request.getProductDimension());
+        }
+
+    }
 }

@@ -2,14 +2,11 @@ server:
   port: 8080
 
 spring:
-  neo4j:
-    uri: neo4j+s://9484ada8.databases.neo4j.io
-    authentication:
-      username: neo4j
-      password: edARVvmLhFy61hMtkLSYgJE0Y0aTHL9F98YxFVuN5G0
   data:
-    neo4j:
-      database: neo4j
+    mongodb:
+      uri: mongodb+srv://ecommerce:Password1!@ecommerce-accessed.zemx8.mongodb.net
+      database: ecommerce_accessed
+
   servlet:
     multipart:
       max-file-size: 100MB

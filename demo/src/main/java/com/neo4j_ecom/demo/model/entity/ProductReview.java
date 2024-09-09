@@ -4,24 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Property;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
-@Node
+@Document("product_review")
 public class ProductReview {
 
     @Id
-    @GeneratedValue(UUIDStringGenerator.class)
     private String id;
     private String content;
     private float rating;
-    @Property("reviewer")
     private User reviewer;
 }
