@@ -1,23 +1,18 @@
 package com.neo4j_ecom.demo.model.entity;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
-
-import java.time.Instant;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Document("product_banner")
 public class ProductBanner {
 
     @Id
-    @GeneratedValue(UUIDStringGenerator.class)
     private String id;
     private String title;
     private String productName;

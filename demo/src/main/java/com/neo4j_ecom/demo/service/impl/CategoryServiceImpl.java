@@ -39,7 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new AppException(ErrorCode.CATEGORY_ALREADY_EXISTS);
         }
 
-        Category category = categoryMapper.toCategory(request);
+        Category category = categoryMapper.toEntity(request);
 
         if (request.getParent() != null) {
             Category parent = categoryRepository.findById(request.getParent())
@@ -66,31 +66,25 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.save(category);
 
-        //response
-
-        CategoryResponse categoryResponse = categoryMapper.toCategoryResponse(category);
-        if (children.size() > 0) {
-            categoryResponse.setChildren(this.toChildrenCategoryResponses(children));
-        }
+        CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+        categoryResponse.setChildren(children.stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
+        log.info("created category: {}", categoryResponse);
 
         return categoryResponse;
     }
 
 
-
-
     @Override
     public CategoryResponse handleGetCategoryById(String id) {
 
-        Category category = categoryRepository.findById(id).
-                orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        CategoryResponse res = categoryMapper.toCategoryResponse(category);
-        if (category.getChildren().size() > 0) {
-            res.setChildren(this.toChildrenCategoryResponses(category.getChildren()));
-        }
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        return res;
+        CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+        categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
+
+        return categoryResponse;
 
     }
 
@@ -109,10 +103,14 @@ public class CategoryServiceImpl implements CategoryService {
 
         log.info("updated category: {}", updatedCategory);
 
-        return categoryMapper.toCategoryResponse(categoryRepository.save(updatedCategory));
+        categoryRepository.save(updatedCategory);
+
+        CategoryResponse categoryResponse = categoryMapper.toResponse(updatedCategory);
+        categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
+
+        return categoryResponse;
 
     }
-
 
 
     @Override
@@ -137,12 +135,17 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<Category> categories = categoryRepository.findByParentId(parentId);
 
+        List<CategoryResponse> categoryResponses = new ArrayList<>();
+
+        for (Category category : categories) {
+            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+            categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
+            categoryResponses.add(categoryResponse);
+        }
+
         log.info("categories: {}", categories);
 
-        return categories
-                .stream()
-                .map(categoryMapper::toCategoryResponse)
-                .collect(Collectors.toList());
+        return categoryResponses;
     }
 
     @Override
@@ -151,10 +154,9 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findByName(name)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        CategoryResponse categoryResponse = categoryMapper.toCategoryResponse(category);
-        if (category.getChildren().size() > 0) {
-            categoryResponse.setChildren(this.toChildrenCategoryResponses(category.getChildren()));
-        }
+        CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+        categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
+        log.info("category: {}", category);
 
         return categoryResponse;
     }
@@ -162,13 +164,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity() {
 
-        List<CategoryResponseTopSold> categories = categoryRepository.findCategoriesBySoldQuantity();
-
-        log.info("categories: {}", categories);
-
-        return categories;
-
+//        List<CategoryResponseTopSold> categoryResponseTopSold = categoryRepository.findTopBySoldQuantity();
+        return null;
     }
+
 
     @Override
     public List<CategoryResponse> handleGetCategoriesByLevel(Integer level) {
@@ -177,32 +176,34 @@ public class CategoryServiceImpl implements CategoryService {
 
         log.info("categories: {}", categories);
 
-        return categories
-                .stream()
-                .map(categoryMapper::toCategoryResponse)
-                .collect(Collectors.toList());
+        List<CategoryResponse> categoryResponses = new ArrayList<>();
+        for (Category category : categories) {
+            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+            categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
+            categoryResponses.add(categoryResponse);
+        }
+
+        log.info("categoryResponses: {}", categoryResponses);
+
+        return categoryResponses;
+
     }
 
     @Override
     public List<CategoryResponse> handleGetAllCategories() {
-
-//        List<Category> categories = categoryRepository.findAllCategories();
 
         List<Category> categories = categoryRepository.findAll();
 
         log.info("categories: {}", categories);
 
         List<CategoryResponse> categoryResponses = new ArrayList<>();
-
         for (Category category : categories) {
-
-            CategoryResponse categoryResponse = categoryMapper.toCategoryResponse(category);
-            if (category.getChildren().size() > 0) {
-                categoryResponse.setChildren(this.toChildrenCategoryResponses(category.getChildren()));
-            }
-
+            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+            categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
             categoryResponses.add(categoryResponse);
         }
+
+        log.info("categoryResponses: {}", categoryResponses);
 
         return categoryResponses;
     }
@@ -236,18 +237,11 @@ public class CategoryServiceImpl implements CategoryService {
             category.setChildren(children);
         }
 
-        return category;
-    }
-    private List<CategoryResponse> toChildrenCategoryResponses(List<Category> children) {
 
-        List<CategoryResponse> res = new ArrayList<>();
-
-        for (Category child : children) {
-            res.add(categoryMapper.toCategoryResponse(child));
+        if (request.getLevel() != null) {
+            category.setLevel(request.getLevel());
         }
 
-        return res;
-
+        return category;
     }
-
 }

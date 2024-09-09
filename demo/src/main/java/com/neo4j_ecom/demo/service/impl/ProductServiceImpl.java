@@ -16,6 +16,9 @@ import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +53,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final FileService fileService;
 
-    private final ProductDimensionRepository productDimentionRepository;
+    private final ProductDimensionRepository productDimensionRepository;
 
     private final ProductDimensionService productDimensionService;
 
@@ -57,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductReviewMapper reviewMapper;
 
 
-    //============== PRODUCT ====================
+    //===================== PRODUCT ====================
     @Override
     @Transactional
     public ProductResponse handleCreateProduct(ProductRequest request, List<MultipartFile> files) throws URISyntaxException, IOException {
@@ -89,6 +94,7 @@ public class ProductServiceImpl implements ProductService {
             } else {
                 ProductDimension productDimension = productDimensionService
                         .createProductDimension(request.getProductDimension());
+
                 product.setProductDimension(productDimension);
             }
         } else {
@@ -199,28 +205,28 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> handleGetProducPopularBySoldQuantity() {
+    public List<ProductResponse> handleGetProductPopularBySoldQuantity() {
 
-        List<Product> products = productRepository.findProductPopularBySoldQuantity();
+//        List<Product> products = productRepository.findProductsBySoldQuantity();
+//
+//        if (products.isEmpty()) {
+//            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+//        }
+//
+//        log.info("products in handleGetProductPopularBySoldQuantity: {}", products);
+//
+//        List<ProductResponse> productResponseList = new ArrayList<>();
+//
+//        products.forEach(product -> {
+//
+//            ProductResponse pRes = productMapper.toResponse(product);
+//            productResponseList.add(pRes);
+//
+//        });
+//
+//        return productResponseList;
 
-        if (products.isEmpty()) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-        }
-
-        log.info("products in handleGetProducPopularBySoldQuantity: {}", products);
-
-        List<ProductResponse> productResponseList = new ArrayList<>();
-
-        products.forEach(product -> {
-
-            ProductResponse pRes = productMapper.toResponse(product);
-
-            log.info("{product response in handleGetProducPopularBySoldQuantity }", pRes);
-            productResponseList.add(pRes);
-
-        });
-
-        return productResponseList;
+        return null;
     }
 
     @Override
@@ -238,15 +244,14 @@ public class ProductServiceImpl implements ProductService {
 
         log.info("product: {}", product);
 
-        return this.toProductResponse(product);
+        return productMapper.toResponse(product);
 
     }
 
     @Override
     public List<ProductCategoryResponse> handleGetAllProducts() {
 
-        List<ProductCategoryResponse> products = productRepository.findProductsOrderedByLatestTime();
-
+        List<ProductCategoryResponse> products = productRepository.findProductsOrderedByLatestUpdateTime();
 
         if (products.isEmpty()) {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
@@ -254,18 +259,7 @@ public class ProductServiceImpl implements ProductService {
 
         log.info("products in handleGetAllProducts: {}", products);
 
-        List<ProductResponse> productResponseList = new ArrayList<>();
-
-//        for (Product product : products) {
-//
-//            ProductResponse pRes = this.toProductResponse(product);
-//            productResponseList.add(pRes);
-//
-//        }
-
         return products;
-
-
     }
 
 
@@ -421,7 +415,7 @@ public class ProductServiceImpl implements ProductService {
         List<ReviewResponse> reviewResponses = new ArrayList<>();
 
         for (Category category : product.getCategories()) {
-            categoryResponses.add(categoryMapper.toCategoryResponse(category));
+            categoryResponses.add(categoryMapper.toResponse(category));
         }
 
         for (ProductReview review : product.getReviews()) {

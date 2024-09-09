@@ -28,7 +28,7 @@ public interface ProductService {
 
     Void handleSetPrimaryImage(String productId, String imgUrl);
 
-    List<ProductResponse> handleGetProducPopularBySoldQuantity();
+    List<ProductResponse> handleGetProductPopularBySoldQuantity();
 
     Boolean handleProductExists(String name);
 }

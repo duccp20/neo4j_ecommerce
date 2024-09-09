@@ -1,8 +1,10 @@
 package com.neo4j_ecom.demo.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.neo4j_ecom.demo.model.entity.Category;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -18,10 +20,10 @@ public class ProductCategoryResponse {
     private String name;
     private Long quantityAvailable;
     private String primaryImage;
-    private BigDecimal sellingPrice;
+    private Double sellingPrice;
     private Instant createdAt;
     private Instant updatedAt;
-    private List<String> categoriesName;
+    private List<String> categories;
 
 
 }

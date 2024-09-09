@@ -1,39 +1,38 @@
 package com.neo4j_ecom.demo.model.mapper;
 
+
 import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.entity.Category;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.springframework.stereotype.Component;
+
+@Component
+public class CategoryMapper {
+
+    public Category toEntity(CategoryRequest request) {
+        return Category.builder()
+                .name(request.getName() != null ? request.getName() : null )
+                .level(request.getLevel() != null ? request.getLevel() : null)
+                .icon(request.getIcon() != null ? request.getIcon() : null)
+                .build();
+    }
+
+    public CategoryResponse toResponse(Category savedCategory) {
 
 
-@Mapper(componentModel = "spring")
-public interface CategoryMapper {
+            String parent = savedCategory.getParent() != null ? savedCategory.getParent().getName() : null;
 
 
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "products", ignore = true)
-    @Mapping(target = "parent", ignore = true)
-    Category toCategory(CategoryRequest request);
-
-    @Mapping(target = "children", ignore = true)
-    CategoryResponse toCategoryResponse(Category category);
-
-    @Mapping(target = "products", ignore = true)
-    @Mapping(target = "parent", ignore = true)
-    Category toCategoryFromResponse(CategoryResponse request);
+        return CategoryResponse.builder()
+                .id(savedCategory.getId())
+                .name(savedCategory.getName())
+                .level(savedCategory.getLevel())
+                .icon(savedCategory.getIcon())
+                .parent(parent)
+                .build();
+    }
 
 
 
 
-
-
-
-
-    @Mapping(target = "products", ignore = true)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "parent", ignore = true)
-    void updateCategory(@MappingTarget Category category, CategoryRequest userUpdateRequest);
 }
