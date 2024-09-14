@@ -1,6 +1,7 @@
 package com.neo4j_ecom.demo.model.entity;
 
 
+import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.utils.enums.SellingType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,6 +42,7 @@ public class Product {
     private List<Category> categories;
     private List<ProductReview> reviews;
     private List<ProductBanner> productBanners;
+    private List<ProductVariant> productVariants;
     @CreatedDate
     private Instant createdAt;
     @LastModifiedDate
