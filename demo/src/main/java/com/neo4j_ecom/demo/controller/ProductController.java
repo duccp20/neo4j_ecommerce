@@ -12,9 +12,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -30,19 +32,17 @@ public class ProductController {
 
     ProductBannerService productBannerService;
 
-     MongoTemplate mongoTemplate;
+    MongoTemplate mongoTemplate;
+
 
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> handleCreateProduct(
             @Valid
-            @RequestPart ProductRequest request,
-            @RequestPart(required = false) List<MultipartFile> files
+            @RequestBody ProductRequest request
     ) throws URISyntaxException, IOException {
 
         log.info("request: {}", request);
-        log.info("files: {}", files);
-
         log.info("create product request: {}", request);
 
         SuccessCode successCode = SuccessCode.CREATED;
@@ -52,7 +52,7 @@ public class ProductController {
                         ApiResponse.<ProductResponse>builder()
                                 .statusCode(successCode.getCode())
                                 .message(successCode.getMessage())
-                                .data(productService.handleCreateProduct(request, files))
+                                .data(productService.handleCreateProduct(request, null))
                                 .build()
                 );
     }
@@ -106,7 +106,7 @@ public class ProductController {
                 ApiResponse.<Void>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(productService.handleDeleteProductImage(id ,imgUrl))
+                        .data(productService.handleDeleteProductImage(id, imgUrl))
                         .build());
 
     }
@@ -129,7 +129,6 @@ public class ProductController {
                         ).build()
         );
     }
-
 
 
     @GetMapping("/exists")

@@ -51,7 +51,7 @@ public class ProductMapper {
         response.setName(product.getName());
         response.setPrimaryImage(product.getPrimaryImage());
 
-        if (product.getProductImages() != null || !product.getProductImages().isEmpty()) {
+        if (product.getProductImages() != null  && !product.getProductImages().isEmpty()) {
             response.setImages(product.getProductImages());
         }
 
@@ -65,6 +65,10 @@ public class ProductMapper {
 
         if (product.getUpdatedAt() != null) {
             response.setUpdatedAt(product.getUpdatedAt());
+        }
+
+        if (product.getProductVariants() != null && !product.getProductVariants().isEmpty()) {
+            response.setProductVariants(product.getProductVariants());
         }
 
         return response;

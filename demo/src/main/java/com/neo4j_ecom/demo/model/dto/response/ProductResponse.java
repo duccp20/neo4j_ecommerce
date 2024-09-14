@@ -2,6 +2,7 @@ package com.neo4j_ecom.demo.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.neo4j_ecom.demo.model.entity.ProductDimension;
+import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.utils.enums.SellingType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -37,6 +38,9 @@ public class ProductResponse {
     List<String> images;
     String primaryImage;
     List<ReviewResponse> reviews;
+    List<ProductVariant> productVariants;
+    Boolean hasVariants;
+    List<ProductBannerResponse> productBanners;
     Instant createdAt;
     Instant updatedAt;
 }

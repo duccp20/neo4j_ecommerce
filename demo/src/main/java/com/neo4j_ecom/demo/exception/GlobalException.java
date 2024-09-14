@@ -15,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.HashMap;
@@ -25,6 +26,15 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Slf4j
 public class GlobalException {
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException ex, WebRequest request) {
+
+        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
+        // Create a custom API response object
+        ApiResponse response = new ApiResponse(errorCode.getCode(), errorCode.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception) {

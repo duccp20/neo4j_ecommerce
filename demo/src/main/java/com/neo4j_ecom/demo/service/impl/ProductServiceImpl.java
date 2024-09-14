@@ -2,11 +2,13 @@ package com.neo4j_ecom.demo.service.impl;
 
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
+import com.neo4j_ecom.demo.model.dto.request.ProductVariantRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductCategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
 import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
 import com.neo4j_ecom.demo.model.entity.*;
+import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
@@ -83,6 +85,26 @@ public class ProductServiceImpl implements ProductService {
         product.setName(request.getName().trim());
         product.setDescription(request.getDescription().trim());
 
+
+        if (!request.getHasVariants()) {
+            product.setProductVariants(null);
+        }
+
+        if (request.getHasVariants() && request.getProductVariants() != null) {
+            List<ProductVariant> productVariants = new ArrayList<>();
+            for (ProductVariantRequest productVariantRequest : request.getProductVariants()) {
+                ProductVariant productVariant = new ProductVariant();
+                productVariant.setQuantityAvailable(productVariantRequest.getQuantityAvailable());
+                productVariant.setSKU(productVariantRequest.getSKU());
+                productVariant.setSellingPrice(productVariantRequest.getSellingPrice());
+                productVariant.setImages(productVariantRequest.getImages());
+                productVariant.setVariantOptions(productVariantRequest.getVariantOptions());
+                productVariants.add(productVariant);
+            }
+            product.setProductVariants(productVariants);
+        }
+
+
         //still unit auto passed from request
         if (request.getProductDimension() != null) {
             if (request.getProductDimension().getWidth() == null
@@ -92,9 +114,12 @@ public class ProductServiceImpl implements ProductService {
             ) {
                 product.setProductDimension(null);
             } else {
-                ProductDimension productDimension = productDimensionService
-                        .createProductDimension(request.getProductDimension());
-
+                ProductDimension productDimension = ProductDimension.builder()
+                        .breadth(request.getProductDimension().getBreadth())
+                        .length(request.getProductDimension().getLength())
+                        .weight(request.getProductDimension().getWeight())
+                        .width(request.getProductDimension().getWidth())
+                        .build();
                 product.setProductDimension(productDimension);
             }
         } else {

@@ -5,9 +5,11 @@ import com.neo4j_ecom.demo.utils.enums.SellingType;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.annotation.Transient;
 import org.springframework.format.annotation.NumberFormat;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -49,10 +51,11 @@ public class ProductRequest {
     long quantityAvailable;
     Float rating;
     String primaryImage;
-
     @NotNull(message = "Category is required")
     @NotEmpty(message = "Category is not be empty")
     List<String> categoryIds;
+    Boolean hasVariants;
+    List<ProductVariantRequest> productVariants;
 
 
     public void setName(String name) {
