@@ -55,6 +55,7 @@ public class ProductRequest {
     @NotEmpty(message = "Category is not be empty")
     List<String> categoryIds;
     Boolean hasVariants;
+    List<String> productImages;
     List<ProductVariantRequest> productVariants;
 
 
