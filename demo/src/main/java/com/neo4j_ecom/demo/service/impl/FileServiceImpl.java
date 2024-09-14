@@ -1,5 +1,6 @@
 package com.neo4j_ecom.demo.service.impl;
 
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
 import com.neo4j_ecom.demo.exception.AppException;
@@ -135,7 +136,27 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void deleteFileFirebase(String path) throws FileNotFoundException {
+        try {
 
+            String fileName = this.extractFileNameFromUrl(path);
+
+            Blob blob = StorageClient.getInstance().bucket().get(fileName);
+            if (blob != null) {
+                boolean deleted = blob.delete();
+                log.info("deleted file status: {}", deleted);
+            } else {
+                throw new AppException(ErrorCode.FILE_NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.FILE_NOT_FOUND);
+        }
+    }
+
+    private String extractFileNameFromUrl(String fileUrl) {
+        // Extract the part after "/o/" and decode the URL-encoded characters
+        String fileName = fileUrl.split("/o/")[1].split("\\?alt=media")[0];
+        return fileName.replace("%2F", "/");  // Replace URL-encoded %2F with /
     }
 
 }
