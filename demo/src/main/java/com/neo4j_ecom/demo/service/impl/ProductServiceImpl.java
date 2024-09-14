@@ -9,12 +9,14 @@ import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
 import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
 import com.neo4j_ecom.demo.model.entity.*;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
+import com.neo4j_ecom.demo.model.entity.ProductVariant.VariantOption;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.repository.*;
 import com.neo4j_ecom.demo.service.*;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
+import com.neo4j_ecom.demo.utils.enums.ProductType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,11 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-
 
 
 @Service
@@ -126,16 +125,15 @@ public class ProductServiceImpl implements ProductService {
             product.setProductDimension(null);
         }
 
-        List<String> listProductImage = this.handleCreateListImageFile(files, product);
 
-        if (listProductImage.size() > 0) {
-            product.setPrimaryImage(listProductImage.get(0));
-        }
-
-        if (!Collections.emptyList().equals(listProductImage)) {
-            product.setProductImages(listProductImage);
+        if (!Collections.emptyList().equals(request.getProductImages())) {
+            product.setProductImages(request.getProductImages());
         } else {
             product.setProductImages(null);
+        }
+
+        if (request.getProductImages().size() > 0) {
+            product.setPrimaryImage(request.getProductImages().get(0));
         }
 
         if (request.getCategoryIds() != null) {
@@ -267,11 +265,26 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
+        ProductResponse response = productMapper.toResponse(product);
+        if (product.getProductVariants() != null) {
+
+            Map<ProductType, List<String>> options = new HashMap<>();
+            for (ProductVariant variant : product.getProductVariants()) {
+                for (VariantOption option : variant.getVariantOptions()) {
+                    options.computeIfAbsent(option.getProductType(), k -> new ArrayList<>())
+                            .add(option.getValueName());
+                }
+            }
+
+            response.setOptions(options);
+        }
+
         log.info("product: {}", product);
 
-        return productMapper.toResponse(product);
+        return response;
 
     }
+
 
     @Override
     public List<ProductCategoryResponse> handleGetAllProducts() {
