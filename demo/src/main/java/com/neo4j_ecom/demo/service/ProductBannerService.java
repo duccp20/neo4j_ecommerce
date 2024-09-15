@@ -4,6 +4,7 @@ import com.neo4j_ecom.demo.model.dto.request.ProductBannerRequest;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -22,12 +23,13 @@ public interface ProductBannerService {
 
     Void handleDeleteBannerById(String bannerId);
 
-    Void handleDeleteBannerImage(String bannerId, String imgUrl);
-    ProductBannerResponse handleUpdateBannerFiles(String bannerId, List<MultipartFile> files) throws URISyntaxException;
+    Void handleDeleteBannerImage(String bannerId, String imgUrl) throws FileNotFoundException;
+    ProductBannerResponse handleUpdateBannerFiles(String bannerId, List<MultipartFile> files) throws URISyntaxException, IOException;
 
     ProductBannerResponse handleUpdateBannerPrimary(String bannerId, String url);
 
     List<ProductBannerResponse> handleGetBannersByQuantity(int quantity);
 
 
+    List<String> handleGetBannerImagesByQuantity(int quantity);
 }
