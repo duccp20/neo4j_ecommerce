@@ -2,15 +2,16 @@ package com.neo4j_ecom.demo.service;
 
 import com.neo4j_ecom.demo.model.dto.request.ProductReviewRequest;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
+import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
+import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 
 import java.util.List;
 
 public interface ProductReviewService {
 
-    ProductResponse createReview(String productId, ProductReviewRequest review);
+    ProductReview createReview(String productId, ProductReviewRequest review);
 
+    ProductReview getAllReviewsByProductId(String productId);
 
-    List<ProductResponse> getAllReviews();
-
-    ProductResponse getAllReviewsByProductId(String productId);
+    ReviewResponse getAllReviewsByVariantId(String variantId);
 }

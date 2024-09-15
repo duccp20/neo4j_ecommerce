@@ -4,6 +4,9 @@ package com.neo4j_ecom.demo.controller;
 import com.neo4j_ecom.demo.model.dto.request.ProductReviewRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
+import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
+import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
+import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 import com.neo4j_ecom.demo.service.ProductReviewService;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
 import jakarta.validation.Valid;
@@ -22,38 +25,38 @@ public class ProductReviewController {
 
     private final ProductReviewService productReviewService;
 
-    @PostMapping("/{productId}/reviews")
-    public ResponseEntity<ApiResponse<ProductResponse>> handleCreateProductReview(
-            @PathVariable String productId,
+    @PostMapping("/variants/{variantId}/reviews")
+    public ResponseEntity<ApiResponse<ProductReview>> handleCreateProductReview(
+            @PathVariable String variantId,
             @Valid
             @RequestBody ProductReviewRequest request
     ) {
 
-        log.info("create product review request : productId {}, request {}",  productId, request);
+        log.info("create product review request : productId {}, request {}",  variantId, request);
 
         SuccessCode successCode = SuccessCode.CREATED;
         return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<ProductResponse>builder()
+                ApiResponse.<ProductReview>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(productReviewService.createReview(productId, request))
+                        .data(productReviewService.createReview(variantId, request))
                         .build()
         );
     }
 
-    @GetMapping("{productId}/reviews")
-    public ResponseEntity<ApiResponse<ProductResponse>> handleGetAllReviewsByProductId(
-            @PathVariable String productId
+    @GetMapping("variants/{variantId}/reviews")
+    public ResponseEntity<ApiResponse<ReviewResponse>> handleGetAllReviewsByVariantId(
+            @PathVariable String variantId
     ) {
 
-        log.info("get all reviews by product request : {}", productId);
+        log.info("get all reviews by product request : {}", variantId);
         SuccessCode successCode = SuccessCode.FETCHED;
 
         return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<ProductResponse>builder()
+                ApiResponse.<ReviewResponse>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(productReviewService.getAllReviewsByProductId(productId))
+                        .data(productReviewService.getAllReviewsByVariantId(variantId))
                         .build()
         );
     }
