@@ -13,6 +13,7 @@ import com.neo4j_ecom.demo.model.entity.ProductVariant.VariantOption;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
+import com.neo4j_ecom.demo.model.mapper.ProductVariantMapper;
 import com.neo4j_ecom.demo.repository.*;
 import com.neo4j_ecom.demo.service.*;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
@@ -66,7 +67,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductReviewMapper reviewMapper;
 
-
+    private final ProductVariantMapper variantMapper;
 
 
     //===================== PRODUCT ====================
@@ -98,14 +99,10 @@ public class ProductServiceImpl implements ProductService {
         if (request.getHasVariants() && request.getProductVariants() != null) {
             List<ProductVariant> productVariants = new ArrayList<>();
             for (ProductVariantRequest productVariantRequest : request.getProductVariants()) {
-                ProductVariant productVariant = new ProductVariant();
-                productVariant.setQuantityAvailable(productVariantRequest.getQuantityAvailable());
-                productVariant.setSKU(productVariantRequest.getSKU());
-                productVariant.setSellingPrice(productVariantRequest.getSellingPrice());
-                productVariant.setImages(productVariantRequest.getImages());
-                productVariant.setVariantOptions(productVariantRequest.getVariantOptions());
-                productVariant.setProductSpecifications(productVariantRequest.getSpecifications());
-                productVariants.add( productVariantRepository.save(productVariant));
+
+                ProductVariant productVariant = variantMapper.toEntity(productVariantRequest);
+                productVariants.add(productVariantRepository.save(productVariant));
+
             }
             product.setProductVariants(productVariants);
         }
@@ -152,7 +149,6 @@ public class ProductServiceImpl implements ProductService {
             }
             product.setCategories(categories);
         }
-
 
 
         Product savedProduct = productRepository.save(product);
@@ -239,27 +235,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> handleGetProductPopularBySoldQuantity() {
 
-//        List<Product> products = productRepository.findProductsBySoldQuantity();
-//
-//        if (products.isEmpty()) {
-//            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-//        }
-//
-//        log.info("products in handleGetProductPopularBySoldQuantity: {}", products);
-//
-//        List<ProductResponse> productResponseList = new ArrayList<>();
-//
-//        products.forEach(product -> {
-//
-//            ProductResponse pRes = productMapper.toResponse(product);
-//            productResponseList.add(pRes);
-//
-//        });
-//
-//        return productResponseList;
+        List<Product> products = productRepository.findAll();
 
-        return null;
+
+        products.forEach(p -> {
+            if (p.getProductVariants() == null) {
+                return;
+            }
+            long sum = p.getProductVariants().stream().mapToLong(ProductVariant::getSoldQuantity).sum();
+            p.setSumSoldQuantity(sum);
+        });
+        products.sort((p1, p2) -> Long.compare(p2.getSumSoldQuantity(), p1.getSumSoldQuantity()));
+        return products.stream().map(productMapper::toResponse).collect(Collectors.toList());
     }
+
 
     @Override
     public Boolean handleProductExists(String name) {

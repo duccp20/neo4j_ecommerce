@@ -33,7 +33,7 @@ public class Product {
     private BigDecimal sellingPrice;
     private String description;
     private Float rating;
-    private long soldQuantity;
+    private long sumSoldQuantity;
     private long quantityAvailable;
     private SellingType sellingType;
     private String SKU;

@@ -28,7 +28,7 @@ public class ProductResponse {
     BigDecimal originalPrice;
     BigDecimal discountedPrice;
     BigDecimal sellingPrice;
-    long soldQuantity;
+    long sumSoldQuantity;
     long quantityAvailable;
     String brandName;
     String description;
