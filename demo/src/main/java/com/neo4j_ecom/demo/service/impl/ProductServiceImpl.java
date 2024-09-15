@@ -10,6 +10,7 @@ import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
 import com.neo4j_ecom.demo.model.entity.*;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.VariantOption;
+import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
@@ -21,9 +22,6 @@ import com.neo4j_ecom.demo.utils.enums.ProductType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -444,27 +442,27 @@ public class ProductServiceImpl implements ProductService {
         return categoryResponse;
     }
 
-    private ProductResponse toProductResponse(Product product) {
-        ProductResponse pRes = productMapper.toResponse(product);
-
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
-        List<ReviewResponse> reviewResponses = new ArrayList<>();
-
-        for (Category category : product.getCategories()) {
-            categoryResponses.add(categoryMapper.toResponse(category));
-        }
-
-        for (ProductReview review : product.getReviews()) {
-
-            ReviewResponse reviewResponse = reviewMapper.toResponse(review);
-            reviewResponses.add(reviewResponse);
-        }
-
-
-        pRes.setCategories(categoryResponses);
-        pRes.setReviews(reviewResponses);
-        pRes.setImages(product.getProductImages());
-        return pRes;
-    }
+//    private ProductResponse toProductResponse(Product product) {
+//        ProductResponse pRes = productMapper.toResponse(product);
+//
+//        List<CategoryResponse> categoryResponses = new ArrayList<>();
+//        List<ReviewResponse> reviewResponses = new ArrayList<>();
+//
+//        for (Category category : product.getCategories()) {
+//            categoryResponses.add(categoryMapper.toResponse(category));
+//        }
+//
+//        for (ProductReview review : product.getReviews()) {
+//
+//            ReviewResponse reviewResponse = reviewMapper.toResponse(review);
+//            reviewResponses.add(reviewResponse);
+//        }
+//
+//
+//        pRes.setCategories(categoryResponses);
+//        pRes.setReviews(reviewResponses);
+//        pRes.setImages(product.getProductImages());
+//        return pRes;
+//    }
 
 }

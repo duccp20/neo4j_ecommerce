@@ -5,11 +5,13 @@ import com.neo4j_ecom.demo.model.dto.request.ProductReviewRequest;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
 import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
-import com.neo4j_ecom.demo.model.entity.ProductReview;
+import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
+import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.repository.ProductRepository;
 import com.neo4j_ecom.demo.repository.ProductReviewRepository;
+import com.neo4j_ecom.demo.repository.ProductVariantRepository;
 import com.neo4j_ecom.demo.service.ProductReviewService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -28,68 +30,62 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final ProductReviewRepository productReviewRepository;
 
     private final ProductRepository productRepository;
+    private final ProductVariantRepository variantRepository;
 
     private final ProductReviewMapper reviewMapper;
 
     private final ProductMapper productMapper;
 
     @Override
-    public ProductResponse createReview(String productId, ProductReviewRequest review) {
+    public ProductReview createReview(String variantId, ProductReviewRequest review) {
 
-        Product product = productRepository.findById(productId)
+        ProductVariant productVariant = variantRepository.findById(variantId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        log.info("Product found: {}", product);
+        log.info("Product found: {}", productVariant);
 
         ProductReview productReview = reviewMapper.toEntity(review);
+        productReview.setVariantId(variantId);
 
-        List<ProductReview> reviews = product.getReviews();
-        reviews.add(productReview);
+        //missing filed user...do it later
 
-        product.setReviews(reviews);
+        List<ProductReview> reviews = productVariant.getReviews();
+        reviews.add(productReviewRepository.save(productReview));
+
+        productVariant.setReviews(reviews);
 
         float avgRating = this.calculateRating(reviews);
 
         log.info("Average rating: {}", avgRating);
 
-        product.setRating(avgRating);
+        productVariant.setAvgRating(avgRating);
+        productVariant.setCountOfReviews(reviews.size());
 
-        productRepository.save(product);
+        variantRepository.save(productVariant);
 
-        return productMapper.toResponse(product);
+        return productReview;
 
     }
 
     @Override
-    public List<ProductResponse> getAllReviews() {
+    public ProductReview getAllReviewsByProductId(String productId) {
         return null;
     }
 
-
     @Override
-    public ProductResponse getAllReviewsByProductId(String productId) {
+    public ReviewResponse getAllReviewsByVariantId(String variantId) {
 
-        Product product = productRepository.findById(productId)
+        ProductVariant productVariant = variantRepository.findById(variantId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        ProductResponse productResponse = productMapper.toResponse(product);
+        ReviewResponse reviewResponse = new ReviewResponse();
+        reviewResponse.setAvgRating(productVariant.getAvgRating());
+        reviewResponse.setCountOfReviews(productVariant.getCountOfReviews());
+        reviewResponse.setReviews(productVariant.getReviews());
 
-        List<ProductReview> reviews = product.getReviews();
-        productResponse.setReviews(this.toReviewsResponse(reviews));
-
-
-        return productResponse;
+        return reviewResponse;
     }
 
-    private List<ReviewResponse> toReviewsResponse(List<ProductReview> reviews) {
-
-        List<ReviewResponse> reviewResponses = new ArrayList<>();
-
-        reviews.forEach(review -> {
-            reviewResponses.add(reviewMapper.toResponse(review));
-        });
-        return reviewResponses;
-    }
 
     private float calculateRating(List<ProductReview> reviews) {
         float totalRating = 0;
