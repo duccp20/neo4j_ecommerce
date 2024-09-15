@@ -19,8 +19,6 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     List<ProductCategoryResponse> findProductsOrderedByLatestUpdateTime();
 
 
-    List<Product> findBySoldQuantityOrderBySoldQuantityDesc();
-
 
 //    @Query("MATCH (p:Product) RETURN p ORDER BY p.soldQuantity DESC")
 //    List<Product> findProductPopularBySoldQuantity();

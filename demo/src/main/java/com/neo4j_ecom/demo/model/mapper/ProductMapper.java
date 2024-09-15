@@ -25,7 +25,6 @@ public class ProductMapper {
         product.setDescription(request.getDescription() != null ? request.getDescription() : null);
         product.setPrimaryImage(request.getPrimaryImage() != null ? request.getPrimaryImage() : null);
         product.setRating(request.getRating() != null ? request.getRating() : null);
-        product.setSoldQuantity(request.getSoldQuantity() > 0 ? request.getSoldQuantity() : 0);
         product.setBrandName(request.getBrandName() != null ? request.getBrandName() : null);
         product.setSKU(request.getSKU() != null ? request.getSKU() : null);
         product.setName(request.getName() != null ? request.getName() : null);
@@ -44,7 +43,7 @@ public class ProductMapper {
         response.setSellingType(product.getSellingType());
         response.setDescription(product.getDescription());
         response.setRating(product.getRating());
-        response.setSoldQuantity(product.getSoldQuantity());
+        response.setSumSoldQuantity(product.getSumSoldQuantity());
         response.setBrandName(product.getBrandName());
         response.setSKU(product.getSKU());
         response.setName(product.getName());
@@ -103,7 +102,6 @@ public class ProductMapper {
         product.setDescription(request.getDescription() != null ? request.getDescription() : null);
         product.setPrimaryImage(request.getPrimaryImage() != null ? request.getPrimaryImage() : null);
         product.setRating(request.getRating() != null ? request.getRating() : null);
-        product.setSoldQuantity(request.getSoldQuantity() > 0 ? request.getSoldQuantity() : 0);
         product.setBrandName(request.getBrandName() != null ? request.getBrandName() : null);
         product.setSKU(request.getSKU() != null ? request.getSKU() : null);
         product.setName(request.getName() != null ? request.getName() : null);
