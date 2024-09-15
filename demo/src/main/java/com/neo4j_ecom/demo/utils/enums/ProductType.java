@@ -6,5 +6,19 @@ public enum ProductType {
 
     RAM,
 
-    STORAGE
+    STORAGE,
+
+    BATTERY,
+
+    DISPLAY,
+
+    OS,
+
+    NETWORK,
+
+    SIZE,
+
+    WEIGHT,
+
+    CPU
 }
