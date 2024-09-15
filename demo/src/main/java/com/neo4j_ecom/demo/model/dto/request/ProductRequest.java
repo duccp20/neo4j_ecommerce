@@ -1,15 +1,14 @@
 package com.neo4j_ecom.demo.model.dto.request;
 
 import com.neo4j_ecom.demo.model.entity.ProductDimension;
+import com.neo4j_ecom.demo.model.entity.Specfication.ProductSpecification;
 import com.neo4j_ecom.demo.utils.enums.SellingType;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.Transient;
 import org.springframework.format.annotation.NumberFormat;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -55,6 +54,7 @@ public class ProductRequest {
     @NotEmpty(message = "Category is not be empty")
     List<String> categoryIds;
     Boolean hasVariants;
+    Boolean hasSameSpecification;
     List<String> productImages;
     List<ProductVariantRequest> productVariants;
 

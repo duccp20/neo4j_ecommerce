@@ -56,11 +56,17 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductDimensionRepository productDimensionRepository;
 
+    private final ProductVariantRepository productVariantRepository;
+
+    private final ProductSpecificationRepository productSpecificationRepository;
+
     private final ProductDimensionService productDimensionService;
 
     private final CategoryService categoryService;
 
     private final ProductReviewMapper reviewMapper;
+
+
 
 
     //===================== PRODUCT ====================
@@ -98,7 +104,8 @@ public class ProductServiceImpl implements ProductService {
                 productVariant.setSellingPrice(productVariantRequest.getSellingPrice());
                 productVariant.setImages(productVariantRequest.getImages());
                 productVariant.setVariantOptions(productVariantRequest.getVariantOptions());
-                productVariants.add(productVariant);
+                productVariant.setProductSpecifications(productVariantRequest.getSpecifications());
+                productVariants.add( productVariantRepository.save(productVariant));
             }
             product.setProductVariants(productVariants);
         }
@@ -145,6 +152,8 @@ public class ProductServiceImpl implements ProductService {
             }
             product.setCategories(categories);
         }
+
+
 
         Product savedProduct = productRepository.save(product);
 

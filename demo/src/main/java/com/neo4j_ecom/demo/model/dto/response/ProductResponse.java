@@ -42,6 +42,7 @@ public class ProductResponse {
     List<ReviewResponse> reviews;
     List<ProductVariant> productVariants;
     Boolean hasVariants;
+    Boolean hasDimensions;
     List<ProductBannerResponse> productBanners;
     Map<ProductType, List<String>> options;
     Instant createdAt;

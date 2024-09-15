@@ -1,13 +1,11 @@
 package com.neo4j_ecom.demo.model.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.type.Decimal;
+import com.neo4j_ecom.demo.model.entity.Specfication.ProductSpecification;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.VariantOption;
 import lombok.*;
 
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -19,5 +17,6 @@ public class ProductVariantRequest {
     private BigDecimal sellingPrice;
     private List<String> images;
     private List<VariantOption> variantOptions;
+    private ProductSpecification specifications;
 
 }

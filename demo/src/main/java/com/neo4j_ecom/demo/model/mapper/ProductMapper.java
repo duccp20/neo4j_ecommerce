@@ -3,6 +3,8 @@ package com.neo4j_ecom.demo.model.mapper;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
+import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
+import com.neo4j_ecom.demo.model.entity.Specfication.ProductSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -32,9 +34,6 @@ public class ProductMapper {
     }
 
 
-
-
-
     public ProductResponse toResponse(Product product) {
         ProductResponse response = new ProductResponse();
         response.setId(product.getId());
@@ -51,12 +50,15 @@ public class ProductMapper {
         response.setName(product.getName());
         response.setPrimaryImage(product.getPrimaryImage());
 
-        if (product.getProductImages() != null  && !product.getProductImages().isEmpty()) {
+        if (product.getProductImages() != null && !product.getProductImages().isEmpty()) {
             response.setImages(product.getProductImages());
         }
 
         if (product.getProductDimension() != null) {
             response.setProductDimension(product.getProductDimension());
+            response.setHasDimensions(true);
+        } else {
+            response.setHasDimensions(false);
         }
 
         if (product.getCreatedAt() != null) {
@@ -68,7 +70,19 @@ public class ProductMapper {
         }
 
         if (product.getProductVariants() != null && !product.getProductVariants().isEmpty()) {
+
+            for (ProductVariant productVariant : product.getProductVariants()) {
+
+                ProductSpecification spec = productVariant.getProductSpecifications();
+                productVariant.setHasSpecification(spec != null);
+
+            }
+
             response.setProductVariants(product.getProductVariants());
+            response.setHasVariants(true);
+
+        } else {
+            response.setHasVariants(false);
         }
 
         return response;
