@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -66,5 +68,25 @@ public class ProductReviewController {
 
 
         return null;
+    }
+
+
+    @GetMapping("variants/{variantId}/reviews/sort")
+    public ResponseEntity<ApiResponse<ReviewResponse>> handleGetAllReviewsByVariantIdSort(
+            @PathVariable String variantId,
+            @RequestParam String sortBy,
+            @RequestParam String sortOrder
+    ) {
+
+        log.info("get all reviews by product request : {}, sortBy {}", variantId, sortBy);
+        SuccessCode successCode = SuccessCode.FETCHED;
+
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<ReviewResponse>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productReviewService.getAllReviewsByVariantIdSort(variantId, sortBy, sortOrder))
+                        .build()
+        );
     }
 }

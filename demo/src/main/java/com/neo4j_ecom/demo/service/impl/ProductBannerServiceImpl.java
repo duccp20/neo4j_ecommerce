@@ -17,12 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -51,6 +49,7 @@ public class ProductBannerServiceImpl implements ProductBannerService {
 
         ProductBanner productBanner = this.toProductBanner(request);
         productBanner.setProductName(product.getName());
+
 
         if (files != null && files.size() > 0) {
 
@@ -95,12 +94,14 @@ public class ProductBannerServiceImpl implements ProductBannerService {
             }
         }
 
+        ProductBanner savedProductBanner =  productBannerRepository.save(productBanner);
+
         List<ProductBanner> productBannerList = product.getProductBanners();
         productBannerList.add(productBanner);
 
         productRepository.save(product);
 
-        return this.toProductBannerResponse(productBanner);
+        return this.toProductBannerResponse(savedProductBanner);
     }
 
     @Override
@@ -159,13 +160,13 @@ public class ProductBannerServiceImpl implements ProductBannerService {
                 productBannerUpdate.setPrimaryBanner(productBannerUpdate.getBannerImages().get(0));
             }
         }
-
+        ProductBanner productBannerSaved = productBannerRepository.save(productBannerUpdate);
         List<ProductBanner> productBannerList = product.getProductBanners();
-        productBannerList.add(productBannerUpdate);
+        productBannerList.add(productBannerSaved);
 
         productRepository.save(product);
 
-        return this.toProductBannerResponse(productBannerUpdate);
+        return this.toProductBannerResponse(productBannerSaved);
     }
 
     private ProductBanner toUpdateProductBanner(ProductBanner productBanner, ProductBannerRequest request) {
@@ -194,8 +195,14 @@ public class ProductBannerServiceImpl implements ProductBannerService {
             throw new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND);
         }
 
+
+        List<ProductBanner> productBanners = product.getProductBanners();
+
         product.setProductBanners(null);
         productRepository.save(product);
+
+
+        productBannerRepository.deleteAll(productBanners);
 
         return null;
     }
@@ -221,7 +228,7 @@ public class ProductBannerServiceImpl implements ProductBannerService {
     }
 
     @Override
-    public Void handleDeleteBannerImage(String bannerId, String imgUrl) {
+    public Void handleDeleteBannerImage(String bannerId, String imgUrl) throws FileNotFoundException {
 
         ProductBanner productBanner = productBannerRepository.findById(bannerId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
 
@@ -234,12 +241,15 @@ public class ProductBannerServiceImpl implements ProductBannerService {
             }
         }
         productBanner.setBannerImages(bannerImages);
+
+        fileService.deleteFileFirebase(imgUrl);
+
         productBannerRepository.save(productBanner);
         return null;
     }
 
     @Override
-    public ProductBannerResponse handleUpdateBannerFiles(String bannerId, List<MultipartFile> files) throws URISyntaxException {
+    public ProductBannerResponse handleUpdateBannerFiles(String bannerId, List<MultipartFile> files) throws URISyntaxException, IOException {
 
         ProductBanner productBanner = productBannerRepository.findById(bannerId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
 
@@ -252,9 +262,7 @@ public class ProductBannerServiceImpl implements ProductBannerService {
                 //validate file
                 fileService.validateFile(file);
                 //store file
-                String bannerImage = fileService.storeFile(file, folder);
-
-                String url = baseURI + folder + "/" + bannerImage;
+                String url = fileService.storeFileFirebase(file, "products/banners");
                 //add banner image
                 bannerImages.add(url);
             }
@@ -289,26 +297,71 @@ public class ProductBannerServiceImpl implements ProductBannerService {
     @Override
     public List<ProductBannerResponse> handleGetBannersByQuantity(int quantity) {
 
-//        log.info("quantity {}", quantity);
-//        List<ProductBanner> productBannerList = productBannerRepository.getBannersByQuantity(quantity);
-//
-//        return productBannerList.stream().map(this::toProductBannerResponse)
-//                .collect(Collectors.toList());
+        log.info("quantity {}", quantity);
+        List<ProductBanner> productBannerList = productBannerRepository.findAllByOrderByIdDesc(quantity);
 
-        return null;
+        log.info("productBannerList {}", productBannerList);
 
+        return productBannerList.stream().map(this::toProductBannerResponse)
+                .collect(Collectors.toList());
+
+    }
+
+    @Override
+    public List<String> handleGetBannerImagesByQuantity(int quantity) {
+
+        List<ProductBanner> productBannerList = productBannerRepository.findAll();
+
+        Set<String> setBannerImages = new HashSet<>();
+        for (ProductBanner productBanner : productBannerList) {
+
+            if (quantity == setBannerImages.size()) {
+                break;
+            }
+
+            if (productBanner.getBannerImages() == null) {
+                continue;
+            }
+
+            for (String imageLink : productBanner.getBannerImages()) {
+                String fileName = imageLink.substring(imageLink.lastIndexOf("/") + 1);
+
+                if (quantity == setBannerImages.size()) {
+                    break;
+                }
+
+                String id = fileName.substring(fileName.indexOf("F") + 1);
+                if (!setBannerImages.stream().anyMatch(s -> s.contains(id))) {
+                    setBannerImages.add(imageLink);
+                }
+            }
+
+        }
+
+        return new ArrayList<>(setBannerImages);
     }
 
 
     //mapper
     private ProductBanner toProductBanner(ProductBannerRequest request) {
 
-        return ProductBanner.builder().title(request.getTitle()).linkUrl(request.getLinkUrl()).build();
+        return ProductBanner.builder()
+                .title(request.getTitle())
+                .linkUrl(request.getLinkUrl())
+                .primaryBanner(request.getPrimaryBanner())
+                .build();
     }
 
     private ProductBannerResponse toProductBannerResponse(ProductBanner productBanner) {
 
-        return ProductBannerResponse.builder().id(productBanner.getId()).title(productBanner.getTitle()).linkUrl(productBanner.getLinkUrl()).productName(productBanner.getProductName()).bannerImages(productBanner.getBannerImages()).primaryBanner(productBanner.getPrimaryBanner()).build();
+        return ProductBannerResponse.builder()
+                .id(productBanner.getId())
+                .title(productBanner.getTitle())
+                .linkUrl(productBanner.getLinkUrl())
+                .productName(productBanner.getProductName())
+                .bannerImages(productBanner.getBannerImages())
+                .primaryBanner(productBanner.getPrimaryBanner())
+                .build();
 
     }
 

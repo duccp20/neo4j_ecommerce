@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -71,6 +72,18 @@ public class ProductBannerController {
         );
     }
 
+    @GetMapping("banners/images/{quantity}")
+    public ResponseEntity<ApiResponse<List<String>>> handleGetBannerImagesByQuantity(@PathVariable int quantity) {
+        SuccessCode successCode = SuccessCode.FETCHED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<List<String>>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleGetBannerImagesByQuantity(quantity))
+                        .build()
+        );
+    }
+
     @GetMapping("/banners/{bannerId}")
     public ResponseEntity<ApiResponse<ProductBannerResponse>> handleGetBanner(
             @PathVariable String bannerId) {
@@ -108,7 +121,7 @@ public class ProductBannerController {
     public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBannerFiles(
             @PathVariable String bannerId,
             @RequestPart List<MultipartFile> files
-    ) throws URISyntaxException {
+    ) throws URISyntaxException, IOException {
         SuccessCode successCode = SuccessCode.UPDATED;
         return ResponseEntity.status(successCode.getCode()).body(
                 ApiResponse.<ProductBannerResponse>builder()
@@ -169,7 +182,7 @@ public class ProductBannerController {
     public ResponseEntity<ApiResponse<Void>> handleDeleteBannerImage(
             @PathVariable String bannerId,
             @RequestParam String imgUrl
-    ) {
+    ) throws FileNotFoundException {
         SuccessCode successCode = SuccessCode.DELETED;
         return ResponseEntity.status(successCode.getCode()).body(
                 ApiResponse.<Void>builder()
@@ -179,4 +192,6 @@ public class ProductBannerController {
                         ).build()
         );
     }
+
+
 }

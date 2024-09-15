@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -42,9 +43,8 @@ public class Product {
     private String primaryImage;
     private ProductDimension productDimension;
     private List<Category> categories;
-    private List<ProductReview> reviews;
-    private List<ProductBanner> productBanners;
-
+    private List<ProductReview> reviews = new ArrayList<>();
+    private List<ProductBanner> productBanners = new ArrayList<>();
     @DocumentReference
     private List<ProductVariant> productVariants;
     @CreatedDate

@@ -19,7 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -86,6 +88,37 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         return reviewResponse;
     }
 
+    @Override
+    public ReviewResponse getAllReviewsByVariantIdSort(String variantId, String sortBy, String order) {
+        ReviewResponse reviewResponse = this.getAllReviewsByVariantId(variantId);
+        List<ProductReview> reviews = reviewResponse.getReviews().stream()
+                .sorted(getComparator(sortBy, order))
+                .collect(Collectors.toList());
+        reviewResponse.setReviews(reviews);
+        return reviewResponse;
+    }
+
+    private Comparator<ProductReview> getComparator(String sortBy, String order) {
+        Comparator<ProductReview> comparator;
+        switch (sortBy) {
+            case "rating":
+                comparator = Comparator.comparingInt(ProductReview::getRating);
+                break;
+            case "updated":
+                comparator = Comparator.comparing(ProductReview::getUpdatedAt);
+                break;
+            default:
+                throw new AppException(ErrorCode.INVALID_SORT_BY);
+        }
+
+        if (order.equalsIgnoreCase("desc")) {
+            return comparator.reversed();
+        } else if (order.equalsIgnoreCase("asc")) {
+            return comparator;
+        } else {
+            throw new AppException(ErrorCode.INVALID_SORT_ORDER);
+        }
+    }
 
     private float calculateRating(List<ProductReview> reviews) {
         float totalRating = 0;
