@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -44,7 +45,7 @@ public class ProductResponse {
     Boolean hasVariants;
     Boolean hasDimensions;
     List<ProductBannerResponse> productBanners;
-    Map<ProductType, List<String>> options;
+    Map<ProductType, Set<String>> options;
     Instant createdAt;
     Instant updatedAt;
 }

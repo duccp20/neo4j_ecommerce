@@ -276,10 +276,10 @@ public class ProductServiceImpl implements ProductService {
         ProductResponse response = productMapper.toResponse(product);
         if (product.getProductVariants() != null) {
 
-            Map<ProductType, List<String>> options = new HashMap<>();
+            Map<ProductType, Set<String>> options = new HashMap<>();
             for (ProductVariant variant : product.getProductVariants()) {
                 for (VariantOption option : variant.getVariantOptions()) {
-                    options.computeIfAbsent(option.getProductType(), k -> new ArrayList<>())
+                    options.computeIfAbsent(option.getProductType(), k -> new HashSet<>())
                             .add(option.getValueName());
                 }
             }
