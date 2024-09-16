@@ -18,6 +18,14 @@ public class ProductVariantMapper {
         productVariant.setVariantOptions(productVariantRequest.getVariantOptions());
         productVariant.setProductSpecifications(productVariantRequest.getSpecifications());
 
+        if (productVariantRequest.getOriginalPrice() != null) {
+            productVariant.setOriginalPrice(productVariantRequest.getOriginalPrice());
+        }
+
+        if (productVariantRequest.getDiscountPrice() != null) {
+            productVariant.setDiscountPrice(productVariantRequest.getDiscountPrice());
+        }
+
         if (productVariantRequest.getSoldQuantity() != null) {
             productVariant.setSoldQuantity(productVariantRequest.getSoldQuantity());
         }

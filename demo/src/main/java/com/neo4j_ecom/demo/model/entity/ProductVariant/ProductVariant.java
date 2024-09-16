@@ -26,6 +26,8 @@ public class ProductVariant {
     private String SKU;
     private long soldQuantity;
     private BigDecimal sellingPrice;
+    private BigDecimal originalPrice;
+    private BigDecimal discountPrice;
     private List<String> images;
     private List<VariantOption> variantOptions;
     private List<ProductReview> reviews = new ArrayList<>();
