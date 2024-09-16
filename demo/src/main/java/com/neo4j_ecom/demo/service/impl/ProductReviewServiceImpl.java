@@ -104,7 +104,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
             case "rating":
                 comparator = Comparator.comparingInt(ProductReview::getRating);
                 break;
-            case "updated":
+            case "date":
                 comparator = Comparator.comparing(ProductReview::getUpdatedAt);
                 break;
             default:

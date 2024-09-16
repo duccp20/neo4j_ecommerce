@@ -98,6 +98,18 @@ public class ProductServiceImpl implements ProductService {
             List<ProductVariant> productVariants = new ArrayList<>();
             for (ProductVariantRequest productVariantRequest : request.getProductVariants()) {
 
+//                "sellingPrice": 10000,
+//        "originalPrice": 1800,
+//        "discountPrice": 1900,
+                if (productVariantRequest.getDiscountPrice() != null &&
+                        (productVariantRequest.getOriginalPrice().compareTo(productVariantRequest.getDiscountPrice()) >= 0 ||
+                                productVariantRequest.getOriginalPrice().compareTo(productVariantRequest.getSellingPrice()) >= 0 ||
+                                productVariantRequest.getDiscountPrice().compareTo(productVariantRequest.getSellingPrice()) >= 0)) {
+                    throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
+                } else if (productVariantRequest.getOriginalPrice().compareTo(productVariantRequest.getSellingPrice()) > 0) {
+                    throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
+                }
+
                 ProductVariant productVariant = variantMapper.toEntity(productVariantRequest);
                 productVariants.add(productVariantRepository.save(productVariant));
 
