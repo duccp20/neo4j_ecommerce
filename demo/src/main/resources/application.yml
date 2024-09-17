@@ -29,3 +29,6 @@ firebase:
     bucket: ecom-accessed.appspot.com
 
 
+logging:
+  level:
+    root=DEBUG:
