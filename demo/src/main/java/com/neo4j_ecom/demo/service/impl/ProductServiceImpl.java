@@ -305,7 +305,7 @@ public class ProductServiceImpl implements ProductService {
 
                     ProductCategoryResponse response = new ProductCategoryResponse();
 
-                    response.set_id(product.getId());
+                    response.setId(product.getId());
                     response.setName(product.getName());
                     response.setPrimaryImage(product.getPrimaryImage());
                     response.setSellingPrice(product.getSellingPrice());

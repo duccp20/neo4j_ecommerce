@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductCategoryResponse {
-    private String _id;
+    private String id;
     private String name;
     private BigDecimal originalPrice;
     private BigDecimal discountedPrice;
