@@ -45,6 +45,7 @@ public class Product {
     private List<Category> categories;
     private List<ProductReview> reviews = new ArrayList<>();
     private List<ProductBanner> productBanners = new ArrayList<>();
+
     @DocumentReference
     private List<ProductVariant> productVariants;
     @CreatedDate
