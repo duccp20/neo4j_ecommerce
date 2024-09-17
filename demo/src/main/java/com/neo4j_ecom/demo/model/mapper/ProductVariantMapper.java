@@ -23,7 +23,7 @@ public class ProductVariantMapper {
         }
 
         if (productVariantRequest.getDiscountPrice() != null) {
-            productVariant.setDiscountPrice(productVariantRequest.getDiscountPrice());
+            productVariant.setDiscountedPrice(productVariantRequest.getDiscountPrice());
         }
 
         if (productVariantRequest.getSoldQuantity() != null) {
