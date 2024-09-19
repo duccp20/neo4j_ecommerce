@@ -2,8 +2,9 @@ package com.neo4j_ecom.demo.model.entity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.security.Permission;
+
 import java.util.Set;
 
 @Data
@@ -11,6 +12,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Document(value = "roles")
 public class Role {
     @Id
     String id;

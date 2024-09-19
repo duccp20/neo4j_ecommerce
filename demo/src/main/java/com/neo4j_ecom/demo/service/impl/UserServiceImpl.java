@@ -7,6 +7,7 @@ import com.neo4j_ecom.demo.repository.RoleRepository;
 import com.neo4j_ecom.demo.repository.UserRepository;
 import com.neo4j_ecom.demo.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
+
+
 
     @Override
     public void registerUser(RegisterRequest registerRequest) {
