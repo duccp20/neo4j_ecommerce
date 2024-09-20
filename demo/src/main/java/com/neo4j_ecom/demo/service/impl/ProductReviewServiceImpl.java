@@ -98,6 +98,23 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         return reviewResponse;
     }
 
+    @Override
+    public ReviewResponse getAllReviewsByVariantIdFilter(String variantId, int rating) {
+        ProductVariant productVariant = variantRepository.findById(variantId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        List<ProductReview> reviews = productVariant.getReviews().stream()
+                .filter(review -> review.getRating() == rating)
+                .collect(Collectors.toList());
+
+        ReviewResponse reviewResponse = new ReviewResponse();
+        reviewResponse.setAvgRating(this.calculateRating(reviews));
+        reviewResponse.setCountOfReviews(reviews.size());
+        reviewResponse.setReviews(reviews);
+
+        return reviewResponse;
+    }
+
     private Comparator<ProductReview> getComparator(String sortBy, String order) {
         Comparator<ProductReview> comparator;
         switch (sortBy) {

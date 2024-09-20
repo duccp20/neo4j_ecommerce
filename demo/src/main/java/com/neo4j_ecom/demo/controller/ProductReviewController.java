@@ -89,4 +89,23 @@ public class ProductReviewController {
                         .build()
         );
     }
+
+
+    @GetMapping("variants/{variantId}/reviews/filter")
+    public ResponseEntity<ApiResponse<ReviewResponse>> handleGetAllReviewsByVariantIdFilter(
+            @PathVariable String variantId,
+            @RequestParam(defaultValue = "5") int rating
+    ) {
+
+        log.info("get all reviews by product request : {}, rating {}", variantId, rating);
+        SuccessCode successCode = SuccessCode.FETCHED;
+
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<ReviewResponse>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productReviewService.getAllReviewsByVariantIdFilter(variantId, rating))
+                        .build()
+        );
+    }
 }

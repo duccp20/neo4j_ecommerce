@@ -13,4 +13,6 @@ public interface ProductReviewService {
     ReviewResponse getAllReviewsByVariantId(String variantId);
 
     ReviewResponse getAllReviewsByVariantIdSort(String variantId, String sortBy, String sortOrder);
+
+    ReviewResponse getAllReviewsByVariantIdFilter(String variantId, int rating);
 }

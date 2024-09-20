@@ -297,16 +297,52 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductCategoryResponse> handleGetAllProducts() {
 
-        List<ProductCategoryResponse> products = productRepository.findProductsOrderedByLatestUpdateTime();
+        List<Product> products = productRepository.findAll();
 
-        if (products.isEmpty()) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-        }
+        return products.stream()
+                .sorted(Comparator.comparing(Product::getUpdatedAt).reversed())
+                .map(product -> {
 
-        log.info("products in handleGetAllProducts: {}", products);
+                    ProductCategoryResponse response = new ProductCategoryResponse();
 
-        return products;
+                    response.setId(product.getId());
+                    response.setName(product.getName());
+                    response.setPrimaryImage(product.getPrimaryImage());
+                    response.setSellingPrice(product.getSellingPrice());
+                    response.setOriginalPrice(product.getOriginalPrice());
+                    response.setDiscountedPrice(product.getDiscountedPrice());
+                    response.setBrandName(product.getBrandName());
+                    response.setDescription(product.getDescription());
+                    response.setSellingType(product.getSellingType());
+                    response.setUpdatedAt(product.getUpdatedAt());
+
+                    List<String> categoriesName = new ArrayList<>();
+                    product.getCategories().forEach(category -> {
+                        categoriesName.add(category.getName());
+                    });
+                    response.setCategories(categoriesName);
+
+                    response.setQuantityAvailable(product.getQuantityAvailable());
+
+                    float avgRating = product.getRating() == null ? 0 : product.getRating();
+                    long soldQuantity = product.getSumSoldQuantity();
+                    int variantCount = 0;
+                    for (ProductVariant productVariant : product.getProductVariants()) {
+                        soldQuantity += productVariant.getSoldQuantity();
+                        if (productVariant.getAvgRating() != null) {
+                            avgRating += productVariant.getAvgRating();
+                            variantCount++;
+                        }
+                    }
+
+                    response.setAvgRating( variantCount == 0 ? avgRating : (avgRating / (variantCount + 1)));
+                    response.setSumSoldQuantity(soldQuantity);
+
+                    return response;
+                })
+                .collect(Collectors.toList());
     }
+
 
 
     //==================PRODUCT IMAGES====================
