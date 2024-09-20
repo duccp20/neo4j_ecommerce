@@ -35,6 +35,6 @@ logging:
 
 bezkoder:
   app:
-    jwtCookieName: bezkoder
+    jwtCookieName: ecommerce_accessed
     jwtSecret: "======================BezKoder=Spring==========================="
     jwtExpirationMs: 30000
