@@ -1,28 +1,22 @@
 package com.neo4j_ecom.demo.model.entity;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+
 import java.util.Set;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Data
-@Document("users")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User {
-
+@Document(value = "roles")
+public class Role {
     @Id
     String id;
     String name;
-    String phone;
-    String email;
-    private String username;
-    @JsonIgnore
-    private String password;
-    private Set<Role> roles;
+    String description;
+    Set<Permission> permissions;
 }
