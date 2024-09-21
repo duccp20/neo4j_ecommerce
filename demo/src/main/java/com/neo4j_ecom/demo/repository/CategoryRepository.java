@@ -1,5 +1,6 @@
 package com.neo4j_ecom.demo.repository;
 
+import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.model.entity.Category;
 import org.bson.types.ObjectId;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface CategoryRepository extends MongoRepository<Category, String> {
 
     Optional<Category> findByName(String name);
@@ -23,4 +23,7 @@ public interface CategoryRepository extends MongoRepository<Category, String> {
 //    @Query("")
 //    List<CategoryResponseTopSold> findCategoriesBySoldQuantity();
     List<Category> findByLevel(Integer level);
+
+    List<Category> findByIsFeatured(boolean b);
+
 }

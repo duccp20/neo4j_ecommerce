@@ -93,8 +93,27 @@ public class CategoryController {
         );
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> handleGetAllCategories() {
+    @GetMapping("/featured")
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> handleGetAllCategories(
+            @RequestParam boolean isFeatured
+    ) {
+
+        log.info("get all categories request");
+
+        SuccessCode successCode = SuccessCode.FETCHED;
+
+        return ResponseEntity.status(successCode.getStatusCode()).body(
+                ApiResponse.<List<CategoryResponse>>builder()
+                        .message(successCode.getMessage())
+                        .statusCode(successCode.getCode())
+                        .data(categoryService.handleGetAllCategoriesFeatured(isFeatured))
+                        .build()
+        );
+    }
+
+    @GetMapping()
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> handleGetAllCategories(
+    ) {
 
         log.info("get all categories request");
 
@@ -108,6 +127,7 @@ public class CategoryController {
                         .build()
         );
     }
+
 
     @GetMapping({"/name/{name}"})
     public ResponseEntity<ApiResponse<CategoryResponse>> handleGetCategoryByName(
