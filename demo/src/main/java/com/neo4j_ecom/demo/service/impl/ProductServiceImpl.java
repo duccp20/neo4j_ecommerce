@@ -278,7 +278,15 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
+
         ProductResponse response = productMapper.toResponse(product);
+
+        if (product.getCountOfReviews() > 0) {
+            response.setHasReviews(true);
+        } else {
+            response.setHasReviews(false);
+        }
+
         if (product.getProductVariants() != null) {
 
             Map<ProductType, Set<String>> options = new HashMap<>();

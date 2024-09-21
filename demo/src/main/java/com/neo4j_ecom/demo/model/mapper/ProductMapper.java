@@ -37,6 +37,8 @@ public class ProductMapper {
                 .brand(request.getBrandName() != null ? brandRepository.findByName(request.getBrandName()) : null)
                 .SKU(request.getSKU())
                 .name(request.getName() != null ? request.getName().trim() : null)
+                .countOfReviews(request.getReviewOptions() != null ? request.getReviewOptions().size() : 0)
+                .reviewOptions(request.getReviewOptions() != null ? request.getReviewOptions() : null)
                 .build();
     }
 
@@ -50,12 +52,13 @@ public class ProductMapper {
         response.setQuantityAvailable(product.getQuantityAvailable());
         response.setSellingType(product.getSellingType() != null ? product.getSellingType() : null);
         response.setDescription(product.getDescription() != null ? product.getDescription() : null);
-        response.setRating(product.getAvgRating() != null ? product.getAvgRating() : null);
+        response.setAvgRating(product.getAvgRating() != null ? product.getAvgRating() : null);
         response.setSumSoldQuantity(product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0);
         response.setBrandName(product.getBrand() != null ? product.getBrand().getName() : null);
         response.setSKU(product.getSKU());
         response.setName(product.getName());
         response.setPrimaryImage(product.getPrimaryImage());
+        response.setCountOfReviews(product.getCountOfReviews());
 
         if (product.getProductImages() != null && !product.getProductImages().isEmpty()) {
             response.setImages(product.getProductImages());
@@ -100,6 +103,10 @@ public class ProductMapper {
             response.setHasSpecification(true);
         } else {
             response.setHasSpecification(false);
+        }
+
+        if (product.getReviewOptions() != null && !product.getReviewOptions().isEmpty()) {
+            response.setReviewOptions(product.getReviewOptions());
         }
 
         return response;

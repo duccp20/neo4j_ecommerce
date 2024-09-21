@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -113,11 +114,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<Category> categories = categoryRepository.findByParentId(parentId);
 
-        log.info("categories: {}", categories);
+        log.info("categories in handleGetAllCategoriesByParentId: {}", categories);
 
         List<CategoryResponse> categoryResponses = new ArrayList<>();
         for (Category category : categories) {
             CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+            //do not show product for this api
+            categoryResponse.setProducts(Collections.emptyList());
             categoryResponses.add(categoryResponse);
         }
 
@@ -154,6 +157,9 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryResponse> categoryResponses = new ArrayList<>();
         for (Category category : categories) {
             CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+
+            //do not show product for this api
+            categoryResponse.setProducts(Collections.emptyList());
             categoryResponses.add(categoryResponse);
         }
 
@@ -173,6 +179,8 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryResponse> categoryResponses = new ArrayList<>();
         for (Category category : categories) {
             CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+            //do not show product for this api
+            categoryResponse.setProducts(Collections.emptyList());
             categoryResponses.add(categoryResponse);
         }
 
