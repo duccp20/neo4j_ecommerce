@@ -1,5 +1,7 @@
 package com.neo4j_ecom.demo.model.entity.Review;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.entity.User;
 import lombok.AllArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -20,7 +23,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Data
-@Document("product_review")
+@Document("product_reviews")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductReview {
 
     @Id
@@ -30,9 +34,10 @@ public class ProductReview {
     private String title;
     private int rating;
     private String content;
-    List<ReviewOption> options;
-    private String variantId;
-    @DocumentReference
+    private List<ReviewOption> options = new ArrayList<>();
+    @DocumentReference(lazy = true)
+    private Product product;
+    @DocumentReference(lazy = true)
     private User reviewer;
     @CreatedDate
     private Instant createdAt;

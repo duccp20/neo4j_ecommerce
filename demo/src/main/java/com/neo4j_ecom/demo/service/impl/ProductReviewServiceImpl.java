@@ -2,10 +2,11 @@ package com.neo4j_ecom.demo.service.impl;
 
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductReviewRequest;
-import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
-import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
+import com.neo4j_ecom.demo.model.dto.response.pagination.Meta;
+import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
+import com.neo4j_ecom.demo.model.dto.response.review.ProductReviewResponse;
+import com.neo4j_ecom.demo.model.dto.response.review.ReviewResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
-import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
@@ -16,6 +17,9 @@ import com.neo4j_ecom.demo.service.ProductReviewService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,102 +43,116 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final ProductMapper productMapper;
 
     @Override
-    public ProductReview createReview(String variantId, ProductReviewRequest review) {
+    public ProductReviewResponse createReview(String productId, ProductReviewRequest review) {
 
-        ProductVariant productVariant = variantRepository.findById(variantId)
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        log.info("Product found: {}", productVariant);
+        log.info("Product found: {}", product);
 
         ProductReview productReview = reviewMapper.toEntity(review);
-        productReview.setVariantId(variantId);
-
+        productReview.setProduct(product);
         //missing filed user...do it later
+        productReview.setReviewer(null);
+        ProductReview savedProductReview = productReviewRepository.save(productReview);
 
-        List<ProductReview> reviews = productVariant.getReviews();
-        reviews.add(productReviewRepository.save(productReview));
 
-        productVariant.setReviews(reviews);
+        //add review to product
+        List<ProductReview> reviews = product.getReviews();
+        reviews.add(savedProductReview);
 
+        product.setReviews(reviews);
+
+        //calculate avg rating
         float avgRating = this.calculateRating(reviews);
-
         log.info("Average rating: {}", avgRating);
+        product.setAvgRating(avgRating);
+        product.setCountOfReviews(reviews.size());
 
-        productVariant.setAvgRating(avgRating);
-        productVariant.setCountOfReviews(reviews.size());
+        productRepository.save(product);
 
-        variantRepository.save(productVariant);
-
-        return productReview;
-
+        return reviewMapper.toResponse(savedProductReview);
     }
 
     @Override
-    public ProductReview getAllReviewsByProductId(String productId) {
-        return null;
+    public PaginationResponse getAllReviewsByProductId(String productId, int page, int size, String sortBy, String sortOrder) {
+
+        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        int totalReviews = product.getCountOfReviews();
+        float avgRating = product.getAvgRating();
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        //page
+        Page<ProductReview> reviewPage = productReviewRepository.findAllByProductId(productId, pageRequest);
+
+        //reviews entities
+        List<ProductReview> reviews = reviewPage.getContent();
+
+        //map entity to response
+        List<ProductReviewResponse> reviewResponses = new ArrayList<>();
+        reviews.forEach(review -> {
+            reviewResponses.add(reviewMapper.toResponse(review));
+        });
+
+        //review response with total reviews, avg rating
+        ReviewResponse reviewResponse = ReviewResponse.builder()
+                .countOfReviews(totalReviews)
+                .avgRating(avgRating)
+                .reviews(reviewResponses)
+                .build();
+
+        Meta meta = Meta.builder()
+                .current(reviewPage.getNumber() + 1)
+                .pageSize(reviewPage.getNumberOfElements())
+                .totalPages(reviewPage.getTotalPages())
+                .totalItems(reviewPage.getTotalElements())
+                .isFirstPage(reviewPage.isFirst())
+                .isLastPage(reviewPage.isLast())
+                .build();
+
+
+        return PaginationResponse.builder()
+                .meta(meta)
+                .result(reviewResponse)
+                .build();
     }
 
-    @Override
-    public ReviewResponse getAllReviewsByVariantId(String variantId) {
-
-        ProductVariant productVariant = variantRepository.findById(variantId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        ReviewResponse reviewResponse = new ReviewResponse();
-        reviewResponse.setAvgRating(productVariant.getAvgRating());
-        reviewResponse.setCountOfReviews(productVariant.getCountOfReviews());
-        reviewResponse.setReviews(productVariant.getReviews());
-
-        return reviewResponse;
-    }
 
     @Override
-    public ReviewResponse getAllReviewsByVariantIdSort(String variantId, String sortBy, String order) {
-        ReviewResponse reviewResponse = this.getAllReviewsByVariantId(variantId);
-        List<ProductReview> reviews = reviewResponse.getReviews().stream()
-                .sorted(getComparator(sortBy, order))
+    public PaginationResponse getAllReviewsByProductIdFilter(String productId, int rating, int page, int size) {
+
+        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        float avgRating = product.getAvgRating();
+        int totalReviews = product.getCountOfReviews();
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        Page<ProductReview> reviewPage = productReviewRepository.findAllByProductIdAndRating(productId, rating, pageRequest);
+
+        List<ProductReviewResponse> reviewResponses = reviewPage.getContent().stream()
+                .map(reviewMapper::toResponse)
                 .collect(Collectors.toList());
-        reviewResponse.setReviews(reviews);
-        return reviewResponse;
-    }
 
-    @Override
-    public ReviewResponse getAllReviewsByVariantIdFilter(String variantId, int rating) {
-        ProductVariant productVariant = variantRepository.findById(variantId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        Meta meta = Meta.builder()
+                .current(reviewPage.getNumber() + 1)
+                .pageSize(reviewPage.getNumberOfElements())
+                .totalPages(reviewPage.getTotalPages())
+                .totalItems(reviewPage.getTotalElements())
+                .isFirstPage(reviewPage.isFirst())
+                .isLastPage(reviewPage.isLast())
+                .build();
 
-        List<ProductReview> reviews = productVariant.getReviews().stream()
-                .filter(review -> review.getRating() == rating)
-                .collect(Collectors.toList());
-
-        ReviewResponse reviewResponse = new ReviewResponse();
-        reviewResponse.setAvgRating(this.calculateRating(reviews));
-        reviewResponse.setCountOfReviews(reviews.size());
-        reviewResponse.setReviews(reviews);
-
-        return reviewResponse;
-    }
-
-    private Comparator<ProductReview> getComparator(String sortBy, String order) {
-        Comparator<ProductReview> comparator;
-        switch (sortBy) {
-            case "rating":
-                comparator = Comparator.comparingInt(ProductReview::getRating);
-                break;
-            case "date":
-                comparator = Comparator.comparing(ProductReview::getUpdatedAt);
-                break;
-            default:
-                throw new AppException(ErrorCode.INVALID_SORT_BY);
-        }
-
-        if (order.equalsIgnoreCase("desc")) {
-            return comparator.reversed();
-        } else if (order.equalsIgnoreCase("asc")) {
-            return comparator;
-        } else {
-            throw new AppException(ErrorCode.INVALID_SORT_ORDER);
-        }
+        return PaginationResponse.builder()
+                .meta(meta)
+                .result(ReviewResponse.builder()
+                        .countOfReviews(totalReviews)
+                        .avgRating(avgRating)
+                        .reviews(reviewResponses)
+                        .build())
+                .build();
     }
 
     private float calculateRating(List<ProductReview> reviews) {
@@ -146,8 +164,8 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         }
 
-        if(reviews.size() > 0) {
-           avgRating = totalRating / reviews.size();
+        if (reviews.size() > 0) {
+            avgRating = totalRating / reviews.size();
         }
 
         return avgRating;

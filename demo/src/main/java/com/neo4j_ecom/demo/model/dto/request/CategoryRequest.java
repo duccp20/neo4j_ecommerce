@@ -1,5 +1,6 @@
 package com.neo4j_ecom.demo.model.dto.request;
 
+import com.neo4j_ecom.demo.utils.enums.ProductType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -21,5 +22,8 @@ public class CategoryRequest {
     String icon;
     Integer level;
     List<String> children;
+    List<ProductType> variantOptions;
+    List<ProductType> specificationOptions;
+    Boolean isFeatured;
 
 }

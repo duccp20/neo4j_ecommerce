@@ -9,6 +9,7 @@ import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import java.util.List;
 
 public interface CategoryService{
+    List<CategoryResponse> handleGetAllCategoriesFeatured(boolean isFeatured);
     List<CategoryResponse> handleGetAllCategories();
 
     CategoryResponse handleCreateCategory(CategoryRequest request);

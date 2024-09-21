@@ -5,7 +5,7 @@ spring:
   data:
     mongodb:
       uri: mongodb+srv://ecommerce:Password1!@ecommerce-accessed.zemx8.mongodb.net
-      database: ecommerce_accessed
+      database: accessed_ecommerce_v2
 
   servlet:
     multipart:

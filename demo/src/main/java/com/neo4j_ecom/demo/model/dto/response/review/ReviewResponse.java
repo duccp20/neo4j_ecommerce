@@ -1,4 +1,4 @@
-package com.neo4j_ecom.demo.model.dto.response;
+package com.neo4j_ecom.demo.model.dto.response.review;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -20,5 +20,5 @@ public class ReviewResponse {
 
     int countOfReviews;
 
-    List<ProductReview> reviews;
+    List<ProductReviewResponse> reviews;
 }

@@ -43,6 +43,10 @@ public enum ErrorCode {
     INVALID_SORT_BY(400, "Invalid Sort By!", HttpStatus.BAD_REQUEST),
     INVALID_SORT_ORDER(400, "Invalid Sort Order!", HttpStatus.BAD_REQUEST),
 
+    //brand
+    BRAND_ALREADY_EXISTS( 409, "Brand Already Exists!" , HttpStatus.CONFLICT),
+    BRAND_NOT_FOUND( 404, "Brand Not Found!",  HttpStatus.NOT_FOUND),
+
     //Auth
     EMAIL_ALREADY_EXISTS(409, "Mail Already Exists!", HttpStatus.CONFLICT),
     LOGIN_FAILED(400, "Invalid username or password!", HttpStatus.BAD_REQUEST );

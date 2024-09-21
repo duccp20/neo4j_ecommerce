@@ -4,13 +4,10 @@ import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.request.ProductVariantRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
-import com.neo4j_ecom.demo.model.dto.response.ProductCategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
-import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
 import com.neo4j_ecom.demo.model.entity.*;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.VariantOption;
-import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
@@ -43,6 +40,8 @@ public class ProductServiceImpl implements ProductService {
     private String folder;
     private final ProductRepository productRepository;
 
+    private final BrandRepository brandRepository;
+
     private final CategoryRepository categoryRepository;
 
     private final ProductImageService productImageService;
@@ -73,11 +72,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductResponse handleCreateProduct(ProductRequest request, List<MultipartFile> files) throws URISyntaxException, IOException {
 
-
-        if (request.getOriginalPrice().compareTo(request.getSellingPrice()) > 0 ||
-                request.getOriginalPrice().compareTo(request.getDiscountedPrice()) > 0) {
-            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
-        }
+        this.validateProductPrices(request);
 
         boolean existedProduct = productRepository.existsByName(request.getName().trim());
 
@@ -85,40 +80,33 @@ public class ProductServiceImpl implements ProductService {
             throw new AppException(ErrorCode.PRODUCT_ALREADY_EXISTS);
         }
 
-        Product product = productMapper.toEntity(request);
-        product.setName(request.getName().trim());
-        product.setDescription(request.getDescription().trim());
+        boolean existedBrand = brandRepository.existsByName(request.getBrandName().trim());
 
-
-        if (!request.getHasVariants()) {
-            product.setProductVariants(null);
+        if (!existedBrand) {
+            brandRepository.save(Brand.builder()
+                    .name(request.getBrandName().trim())
+                    .exclusiveShopId("999")
+                    .build());
         }
 
+        Product product = productMapper.toEntity(request);
+
+        //variant
         if (request.getHasVariants() && request.getProductVariants() != null) {
             List<ProductVariant> productVariants = new ArrayList<>();
             for (ProductVariantRequest productVariantRequest : request.getProductVariants()) {
 
-//                "sellingPrice": 10000,
-//        "originalPrice": 1800,
-//        "discountPrice": 1900,
-                if (productVariantRequest.getDiscountPrice() != null &&
-                        (productVariantRequest.getOriginalPrice().compareTo(productVariantRequest.getDiscountPrice()) >= 0 ||
-                                productVariantRequest.getOriginalPrice().compareTo(productVariantRequest.getSellingPrice()) >= 0 ||
-                                productVariantRequest.getDiscountPrice().compareTo(productVariantRequest.getSellingPrice()) >= 0)) {
-                    throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
-                } else if (productVariantRequest.getOriginalPrice().compareTo(productVariantRequest.getSellingPrice()) > 0) {
-                    throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
-                }
-
+                this.validateProductVariantPrices(productVariantRequest);
                 ProductVariant productVariant = variantMapper.toEntity(productVariantRequest);
                 productVariants.add(productVariantRepository.save(productVariant));
 
             }
             product.setProductVariants(productVariants);
+        } else {
+            product.setProductVariants(null);
         }
 
-
-        //still unit auto passed from request
+        //dimension
         if (request.getProductDimension() != null) {
             if (request.getProductDimension().getWidth() == null
                     && request.getProductDimension().getLength() == null
@@ -127,59 +115,79 @@ public class ProductServiceImpl implements ProductService {
             ) {
                 product.setProductDimension(null);
             } else {
-                ProductDimension productDimension = ProductDimension.builder()
+                product.setProductDimension(ProductDimension.builder()
                         .breadth(request.getProductDimension().getBreadth())
                         .length(request.getProductDimension().getLength())
                         .weight(request.getProductDimension().getWeight())
                         .width(request.getProductDimension().getWidth())
-                        .build();
-                product.setProductDimension(productDimension);
+                        .packageUnit(request.getProductDimension().getPackageUnit())
+                        .unitWeight(request.getProductDimension().getUnitWeight())
+                        .build());
             }
         } else {
             product.setProductDimension(null);
         }
 
-
+        //images
         if (!Collections.emptyList().equals(request.getProductImages())) {
             product.setProductImages(request.getProductImages());
         } else {
             product.setProductImages(null);
         }
-
         if (request.getProductImages().size() > 0) {
             product.setPrimaryImage(request.getProductImages().get(0));
         }
 
+        //categories and collections
         if (request.getCategoryIds() != null) {
             List<Category> categories = new ArrayList<>();
             for (String id : request.getCategoryIds()) {
-                CategoryResponse categoryResponse = categoryService.handleGetCategoryById(id);
-                Category categoryEntity = this.toCategory(categoryResponse);
-                categories.add(categoryEntity);
+                Category category = categoryRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+                categories.add(category);
             }
             product.setCategories(categories);
         }
 
+        //specification
+        if (request.getHasSpecification() && request.getSpecifications() != null) {
+            product.setProductSpecifications(request.getSpecifications());
+        }
 
         Product savedProduct = productRepository.save(product);
 
-        ProductResponse response = productMapper.toResponse(savedProduct);
-
-
-        if (product.getCategories() != null) {
-            List<CategoryResponse> categoryResponses = product.getCategories()
-                    .stream()
-                    .map(category ->
-                            CategoryResponse
-                                    .builder()
-                                    .id(category.getId())
-                                    .name(category.getName())
-                                    .build()).collect(Collectors.toList());
-            response.setCategories(categoryResponses);
+        //save product to category/collection
+        if (request.getCategoryIds() != null) {
+            for (String id : request.getCategoryIds()) {
+                Category category = categoryRepository.findById(id).get();
+                category.getProducts().add(savedProduct);
+                categoryRepository.save(category);
+            }
         }
 
-        return response;
+        //save product to brand
+        Brand brand = brandRepository.findByName(request.getBrandName().trim());
+        brand.getProducts().add(savedProduct);
+        brandRepository.save(brand);
 
+        return productMapper.toResponse(savedProduct);
+    }
+
+    private void validateProductPrices(ProductRequest request) {
+        if (request.getOriginalPrice().compareTo(request.getSellingPrice()) > 0 ||
+                request.getOriginalPrice().compareTo(request.getDiscountedPrice()) > 0) {
+            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
+        }
+    }
+
+    private void validateProductVariantPrices(ProductVariantRequest request) {
+        if (request.getDiscountPrice() != null &&
+                (request.getOriginalPrice().compareTo(request.getDiscountPrice()) >= 0 ||
+                        request.getOriginalPrice().compareTo(request.getSellingPrice()) >= 0 ||
+                        request.getDiscountPrice().compareTo(request.getSellingPrice()) >= 0)) {
+            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
+        } else if (request.getOriginalPrice().compareTo(request.getSellingPrice()) > 0) {
+            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
+        }
     }
 
     @Override
@@ -220,15 +228,13 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProductAfterUpdate = productRepository.save(product);
 
-        ProductResponse response = productMapper.toResponse(savedProductAfterUpdate);
+        //        if (product.getCategories() != null) {
+//            List<CategoryResponse> categoryResponses = product.getCategories().stream().map(category -> CategoryResponse.builder().id(category.getId()).name(category.getName()).build()).collect(Collectors.toList());
+//
+//            response.setCategories(categoryResponses);
+//        }
 
-        if (product.getCategories() != null) {
-            List<CategoryResponse> categoryResponses = product.getCategories().stream().map(category -> CategoryResponse.builder().id(category.getId()).name(category.getName()).build()).collect(Collectors.toList());
-
-            response.setCategories(categoryResponses);
-        }
-
-        return response;
+        return productMapper.toResponse(savedProductAfterUpdate);
 
     }
 
@@ -259,7 +265,6 @@ public class ProductServiceImpl implements ProductService {
         return products.stream().map(productMapper::toResponse).collect(Collectors.toList());
     }
 
-
     @Override
     public Boolean handleProductExists(String name) {
 
@@ -273,7 +278,15 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
+
         ProductResponse response = productMapper.toResponse(product);
+
+        if (product.getCountOfReviews() > 0) {
+            response.setHasReviews(true);
+        } else {
+            response.setHasReviews(false);
+        }
+
         if (product.getProductVariants() != null) {
 
             Map<ProductType, Set<String>> options = new HashMap<>();
@@ -295,54 +308,12 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public List<ProductCategoryResponse> handleGetAllProducts() {
+    public List<ProductResponse> handleGetAllProducts() {
 
         List<Product> products = productRepository.findAll();
 
-        return products.stream()
-                .sorted(Comparator.comparing(Product::getUpdatedAt).reversed())
-                .map(product -> {
-
-                    ProductCategoryResponse response = new ProductCategoryResponse();
-
-                    response.setId(product.getId());
-                    response.setName(product.getName());
-                    response.setPrimaryImage(product.getPrimaryImage());
-                    response.setSellingPrice(product.getSellingPrice());
-                    response.setOriginalPrice(product.getOriginalPrice());
-                    response.setDiscountedPrice(product.getDiscountedPrice());
-                    response.setBrandName(product.getBrandName());
-                    response.setDescription(product.getDescription());
-                    response.setSellingType(product.getSellingType());
-                    response.setUpdatedAt(product.getUpdatedAt());
-
-                    List<String> categoriesName = new ArrayList<>();
-                    product.getCategories().forEach(category -> {
-                        categoriesName.add(category.getName());
-                    });
-                    response.setCategories(categoriesName);
-
-                    response.setQuantityAvailable(product.getQuantityAvailable());
-
-                    float avgRating = product.getRating() == null ? 0 : product.getRating();
-                    long soldQuantity = product.getSumSoldQuantity();
-                    int variantCount = 0;
-                    for (ProductVariant productVariant : product.getProductVariants()) {
-                        soldQuantity += productVariant.getSoldQuantity();
-                        if (productVariant.getAvgRating() != null) {
-                            avgRating += productVariant.getAvgRating();
-                            variantCount++;
-                        }
-                    }
-
-                    response.setAvgRating( variantCount == 0 ? avgRating : (avgRating / (variantCount + 1)));
-                    response.setSumSoldQuantity(soldQuantity);
-
-                    return response;
-                })
-                .collect(Collectors.toList());
+        return products.stream().map(productMapper::toResponse).collect(Collectors.toList());
     }
-
 
 
     //==================PRODUCT IMAGES====================
@@ -466,17 +437,6 @@ public class ProductServiceImpl implements ProductService {
         category.setName(categoryResponse.getName().trim());
         category.setIcon(categoryResponse.getIcon());
         category.setLevel(categoryResponse.getLevel());
-
-        if (categoryResponse.getChildren() != null) {
-
-            List<Category> children = new ArrayList<>();
-
-            for (CategoryResponse child : categoryResponse.getChildren()) {
-                children.add(toCategory(child));
-            }
-
-            category.setChildren(children);
-        }
 
         return category;
     }

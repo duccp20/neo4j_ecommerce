@@ -1,7 +1,6 @@
 package com.neo4j_ecom.demo.service;
 
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
-import com.neo4j_ecom.demo.model.dto.response.ProductCategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +15,7 @@ public interface ProductService {
 
     ProductResponse handleGetProductById(String id);
 
-    List<ProductCategoryResponse> handleGetAllProducts();
+    List<ProductResponse> handleGetAllProducts();
 
     ProductResponse handleUpdateProduct(String id, ProductRequest request);
 

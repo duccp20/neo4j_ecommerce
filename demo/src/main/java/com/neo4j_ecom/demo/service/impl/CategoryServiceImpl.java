@@ -13,10 +13,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
     CategoryMapper categoryMapper;
 
     @Override
+    @Transactional
     public CategoryResponse handleCreateCategory(CategoryRequest request) {
 
         boolean existedCategory = categoryRepository.existsByName(request.getName());
@@ -40,37 +42,20 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category category = categoryMapper.toEntity(request);
+        category.setProducts(null);
+
+        Category savedCategory = categoryRepository.save(category);
+
 
         if (request.getParent() != null) {
-            Category parent = categoryRepository.findById(request.getParent())
-                    .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
-
-            log.info("parent: {}", parent);
-            category.setParent(parent);
+            Category parent = categoryRepository.findById(request.getParent()).orElseThrow(
+                    () -> new AppException(ErrorCode.CATEGORY_NOT_FOUND)
+            );
+            parent.getChildren().add(savedCategory);
+            categoryRepository.save(parent);
         }
 
-        if (request.getIcon() != null) {
-            category.setIcon(request.getIcon());
-        }
-
-        List<Category> children = new ArrayList<>();
-        if (request.getChildren() != null) {
-
-            for (String child : request.getChildren()) {
-                children.add(categoryRepository.findById(child)
-                        .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND)));
-            }
-
-            category.setChildren(children);
-        }
-
-        categoryRepository.save(category);
-
-        CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-        categoryResponse.setChildren(children.stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
-        log.info("created category: {}", categoryResponse);
-
-        return categoryResponse;
+        return categoryMapper.toResponse(category);
     }
 
 
@@ -81,10 +66,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-        categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
-
-        return categoryResponse;
+        return categoryMapper.toResponse(category);
 
     }
 
@@ -99,16 +81,13 @@ public class CategoryServiceImpl implements CategoryService {
             throw new AppException(ErrorCode.CATEGORY_ALREADY_EXISTS_WITH_SAME_NAME);
         }
 
-        Category updatedCategory = this.toCategoryEntityFromRequest(category, request);
+        Category updatedCategory = categoryMapper.updateCategory(category, request);
 
         log.info("updated category: {}", updatedCategory);
 
         categoryRepository.save(updatedCategory);
 
-        CategoryResponse categoryResponse = categoryMapper.toResponse(updatedCategory);
-        categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
-
-        return categoryResponse;
+        return categoryMapper.toResponse(updatedCategory);
 
     }
 
@@ -135,15 +114,15 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<Category> categories = categoryRepository.findByParentId(parentId);
 
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
+        log.info("categories in handleGetAllCategoriesByParentId: {}", categories);
 
+        List<CategoryResponse> categoryResponses = new ArrayList<>();
         for (Category category : categories) {
             CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-            categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
+            //do not show product for this api
+            categoryResponse.setProducts(Collections.emptyList());
             categoryResponses.add(categoryResponse);
         }
-
-        log.info("categories: {}", categories);
 
         return categoryResponses;
     }
@@ -155,7 +134,6 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-        categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
         log.info("category: {}", category);
 
         return categoryResponse;
@@ -174,12 +152,14 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<Category> categories = categoryRepository.findByLevel(level);
 
-        log.info("categories: {}", categories);
+        log.info("categories in level: {}", categories);
 
         List<CategoryResponse> categoryResponses = new ArrayList<>();
         for (Category category : categories) {
             CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-            categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
+
+            //do not show product for this api
+            categoryResponse.setProducts(Collections.emptyList());
             categoryResponses.add(categoryResponse);
         }
 
@@ -190,16 +170,17 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponse> handleGetAllCategories() {
+    public List<CategoryResponse> handleGetAllCategoriesFeatured(boolean isFeatured) {
 
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findByIsFeatured(isFeatured);
 
         log.info("categories: {}", categories);
 
         List<CategoryResponse> categoryResponses = new ArrayList<>();
         for (Category category : categories) {
             CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-            categoryResponse.setChildren(category.getChildren().stream().map(categoryMapper::toResponse).collect(Collectors.toList()));
+            //do not show product for this api
+            categoryResponse.setProducts(Collections.emptyList());
             categoryResponses.add(categoryResponse);
         }
 
@@ -208,40 +189,21 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryResponses;
     }
 
+    @Override
+    public List<CategoryResponse> handleGetAllCategories() {
 
-    //mapper
-    private Category toCategoryEntityFromRequest(Category category, CategoryRequest request) {
+        List<Category> categories = categoryRepository.findAll();
 
-        if (request.getName() != null) {
-            category.setName(request.getName());
+        log.info("categories in handleGetAllCategories: {}", categories);
+
+        List<CategoryResponse> categoryResponses = new ArrayList<>();
+        for (Category category : categories) {
+            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+            categoryResponses.add(categoryResponse);
         }
 
-        if (request.getIcon() != null) {
-            category.setIcon(request.getIcon());
-        }
-
-        if (request.getParent() != null) {
-            Category parent = categoryRepository.findById(request.getParent())
-                    .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
-            category.setParent(parent);
-        }
-
-        if (request.getChildren() != null) {
-            List<Category> children = new ArrayList<>();
-
-            for (String child : request.getChildren()) {
-                children.add(categoryRepository.findById(child)
-                        .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND)));
-            }
-
-            category.setChildren(children);
-        }
-
-
-        if (request.getLevel() != null) {
-            category.setLevel(request.getLevel());
-        }
-
-        return category;
+        return categoryResponses;
     }
+
+
 }

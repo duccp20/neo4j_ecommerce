@@ -3,15 +3,22 @@ package com.neo4j_ecom.demo.model.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.neo4j_ecom.demo.model.entity.ProductVariant.VariantOption;
+import com.neo4j_ecom.demo.model.entity.Specfication.SpecificationOption;
+import com.neo4j_ecom.demo.utils.enums.ProductType;
+import com.neo4j_ecom.demo.utils.enums.Status;
 import lombok.*;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 
+import java.time.Instant;
 import java.util.List;
 
 
@@ -19,7 +26,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Data
-@Document(collection = "categories")
+@Document(value = "categories")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Category {
     @Id
@@ -31,7 +38,16 @@ public class Category {
     private Category parent;
     @DocumentReference(lazy = true)
     private List<Category> children;
+    @DocumentReference(lazy = true)
+    private List<Product> products;
+    private List<ProductType> variantOptions;
+    private List<ProductType> specificationOptions;
+    private Boolean isFeatured;
+    private Status status;
+    @CreatedDate
+    private Instant createdOn;
+    @LastModifiedDate
+    private Instant lastModifiedOn;
 
-//    private List<Product> products;
 
 }
