@@ -11,7 +11,9 @@ public enum SuccessCode {
     DELETED (200, "Deleted Successfully!", HttpStatus.OK),
     UPDATED(200, "Updated Successfully", HttpStatus.OK),
     FETCHED(200, "Get Successfully" , HttpStatus.OK), UPLOADED( 200, "Uploaded Successfully", HttpStatus.OK),
-    REGISTER(200, "User Registered Successfully", HttpStatus.OK);
+    REGISTER(200, "User Registered Successfully", HttpStatus.OK),
+    LOGIN(200, "Success", HttpStatus.OK),
+    LOGOUT(200, "You've been signed out!", HttpStatus.OK);
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;
