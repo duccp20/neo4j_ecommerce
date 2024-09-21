@@ -29,3 +29,12 @@ firebase:
     bucket: ecom-accessed.appspot.com
 
 
+logging:
+  level:
+    root=DEBUG:
+
+bezkoder:
+  app:
+    jwtCookieName: ecommerce_accessed
+    jwtSecret: "======================BezKoder=Spring==========================="
+    jwtExpirationMs: 30000
