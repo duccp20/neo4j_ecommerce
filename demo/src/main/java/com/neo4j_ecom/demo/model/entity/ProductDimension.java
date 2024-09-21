@@ -12,11 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Document("product_dimension")
 public class ProductDimension {
 
-    @Id
-    private String id;
     private Float length;
     private Float width;
     private Float breadth;

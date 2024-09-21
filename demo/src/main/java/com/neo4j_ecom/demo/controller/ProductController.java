@@ -30,12 +30,6 @@ public class ProductController {
 
     ProductService productService;
 
-    ProductBannerService productBannerService;
-
-    MongoTemplate mongoTemplate;
-
-
-
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> handleCreateProduct(
             @Valid
@@ -58,11 +52,11 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductCategoryResponse>>> handleGetAllProducts() {
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> handleGetAllProducts() {
 
         SuccessCode successCode = SuccessCode.FETCHED;
         return ResponseEntity.ok().body(
-                ApiResponse.<List<ProductCategoryResponse>>builder()
+                ApiResponse.<List<ProductResponse>>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
                         .data(productService.handleGetAllProducts())

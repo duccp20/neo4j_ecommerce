@@ -21,7 +21,6 @@ public class ProductVariant {
 
     @Id
     private String id;
-    private Float avgRating;
     private long quantityAvailable;
     private String SKU;
     private long soldQuantity;
@@ -31,11 +30,4 @@ public class ProductVariant {
     private String productId;
     private List<String> images;
     private List<VariantOption> variantOptions;
-    private List<ProductReview> reviews = new ArrayList<>();
-    private int countOfReviews;
-    @Transient
-    private Boolean hasSpecification;
-
-    private ProductSpecification productSpecifications;
-
 }

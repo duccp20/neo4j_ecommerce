@@ -9,7 +9,6 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Builder
-@Document("product_banner")
 public class ProductBanner {
 
     @Id

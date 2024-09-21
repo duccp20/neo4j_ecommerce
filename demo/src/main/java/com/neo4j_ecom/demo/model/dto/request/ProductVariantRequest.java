@@ -20,6 +20,5 @@ public class ProductVariantRequest {
     private Long soldQuantity;
     private List<String> images;
     private List<VariantOption> variantOptions;
-    private ProductSpecification specifications;
 
 }

@@ -41,31 +41,33 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     @Override
     public ProductReview createReview(String variantId, ProductReviewRequest review) {
 
-        ProductVariant productVariant = variantRepository.findById(variantId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+//        ProductVariant productVariant = variantRepository.findById(variantId)
+//                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+//
+//        log.info("Product found: {}", productVariant);
+//
+//        ProductReview productReview = reviewMapper.toEntity(review);
+//        productReview.setVariantId(variantId);
+//
+//        //missing filed user...do it later
+//
+//        List<ProductReview> reviews = productVariant.getReviews();
+//        reviews.add(productReviewRepository.save(productReview));
+//
+//        productVariant.setReviews(reviews);
+//
+//        float avgRating = this.calculateRating(reviews);
+//
+//        log.info("Average rating: {}", avgRating);
+//
+//        productVariant.setAvgRating(avgRating);
+//        productVariant.setCountOfReviews(reviews.size());
+//
+//        variantRepository.save(productVariant);
+//
+//        return productReview;
 
-        log.info("Product found: {}", productVariant);
-
-        ProductReview productReview = reviewMapper.toEntity(review);
-        productReview.setVariantId(variantId);
-
-        //missing filed user...do it later
-
-        List<ProductReview> reviews = productVariant.getReviews();
-        reviews.add(productReviewRepository.save(productReview));
-
-        productVariant.setReviews(reviews);
-
-        float avgRating = this.calculateRating(reviews);
-
-        log.info("Average rating: {}", avgRating);
-
-        productVariant.setAvgRating(avgRating);
-        productVariant.setCountOfReviews(reviews.size());
-
-        variantRepository.save(productVariant);
-
-        return productReview;
+        return null;
 
     }
 
@@ -77,15 +79,17 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     @Override
     public ReviewResponse getAllReviewsByVariantId(String variantId) {
 
-        ProductVariant productVariant = variantRepository.findById(variantId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+//        ProductVariant productVariant = variantRepository.findById(variantId)
+//                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+//
+//        ReviewResponse reviewResponse = new ReviewResponse();
+//        reviewResponse.setAvgRating(productVariant.getAvgRating());
+//        reviewResponse.setCountOfReviews(productVariant.getCountOfReviews());
+//        reviewResponse.setReviews(productVariant.getReviews());
+//
+//        return reviewResponse;
 
-        ReviewResponse reviewResponse = new ReviewResponse();
-        reviewResponse.setAvgRating(productVariant.getAvgRating());
-        reviewResponse.setCountOfReviews(productVariant.getCountOfReviews());
-        reviewResponse.setReviews(productVariant.getReviews());
-
-        return reviewResponse;
+        return null;
     }
 
     @Override
@@ -103,16 +107,18 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         ProductVariant productVariant = variantRepository.findById(variantId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        List<ProductReview> reviews = productVariant.getReviews().stream()
-                .filter(review -> review.getRating() == rating)
-                .collect(Collectors.toList());
+//        List<ProductReview> reviews = productVariant.getReviews().stream()
+//                .filter(review -> review.getRating() == rating)
+//                .collect(Collectors.toList());
+//
+//        ReviewResponse reviewResponse = new ReviewResponse();
+//        reviewResponse.setAvgRating(this.calculateRating(reviews));
+//        reviewResponse.setCountOfReviews(reviews.size());
+//        reviewResponse.setReviews(reviews);
 
-        ReviewResponse reviewResponse = new ReviewResponse();
-        reviewResponse.setAvgRating(this.calculateRating(reviews));
-        reviewResponse.setCountOfReviews(reviews.size());
-        reviewResponse.setReviews(reviews);
+//        return reviewResponse;
 
-        return reviewResponse;
+        return null;
     }
 
     private Comparator<ProductReview> getComparator(String sortBy, String order) {
