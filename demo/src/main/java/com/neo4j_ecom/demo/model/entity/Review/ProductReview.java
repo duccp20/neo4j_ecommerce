@@ -1,5 +1,6 @@
 package com.neo4j_ecom.demo.model.entity.Review;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.entity.User;
@@ -22,7 +23,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Data
-@Document("product_review")
+@Document("product_reviews")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductReview {
 
     @Id

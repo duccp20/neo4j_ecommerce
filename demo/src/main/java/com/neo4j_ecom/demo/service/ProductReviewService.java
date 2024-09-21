@@ -1,18 +1,15 @@
 package com.neo4j_ecom.demo.service;
 
 import com.neo4j_ecom.demo.model.dto.request.ProductReviewRequest;
-import com.neo4j_ecom.demo.model.dto.response.ReviewResponse;
+import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
+import com.neo4j_ecom.demo.model.dto.response.review.ProductReviewResponse;
 import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 
 public interface ProductReviewService {
 
-    ProductReview createReview(String productId, ProductReviewRequest review);
+    ProductReviewResponse createReview(String productId, ProductReviewRequest review);
 
-    ProductReview getAllReviewsByProductId(String productId);
+    PaginationResponse getAllReviewsByProductId(String productId, int page, int size, String sortBy, String sortOrder);
 
-    ReviewResponse getAllReviewsByVariantId(String variantId);
-
-    ReviewResponse getAllReviewsByVariantIdSort(String variantId, String sortBy, String sortOrder);
-
-    ReviewResponse getAllReviewsByVariantIdFilter(String variantId, int rating);
+    PaginationResponse getAllReviewsByProductIdFilter(String productId, int rating, int page, int size);
 }
