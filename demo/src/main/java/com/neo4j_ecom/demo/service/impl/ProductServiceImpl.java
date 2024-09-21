@@ -8,6 +8,7 @@ import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.*;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.VariantOption;
+import com.neo4j_ecom.demo.model.entity.Review.ReviewOption;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
@@ -39,6 +40,8 @@ public class ProductServiceImpl implements ProductService {
     @Value("${file.image.folder.product}")
     private String folder;
     private final ProductRepository productRepository;
+
+    private final ReviewOptionRepository reviewOptionRepository;
 
     private final BrandRepository brandRepository;
 
@@ -151,6 +154,23 @@ public class ProductServiceImpl implements ProductService {
         //specification
         if (request.getHasSpecification() && request.getSpecifications() != null) {
             product.setProductSpecifications(request.getSpecifications());
+        }
+
+        //review options
+        if (request.getReviewOptions() != null) {
+
+            List<ReviewOption> reviewOptions = new ArrayList<>();
+            for (ReviewOption reviewOption : request.getReviewOptions()) {
+                ReviewOption savedReviewOption = reviewOptionRepository.findByType(reviewOption.getType());
+                if (savedReviewOption == null) {
+                    savedReviewOption = reviewOptionRepository.save(reviewOption);
+                    reviewOptions.add(savedReviewOption);
+                } else {
+                    reviewOptions.add(savedReviewOption);
+                }
+            }
+            product.setReviewOptions(reviewOptions);
+
         }
 
         Product savedProduct = productRepository.save(product);

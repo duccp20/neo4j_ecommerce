@@ -35,7 +35,7 @@ public class ProductMapper {
                 .primaryImage(request.getPrimaryImage())
                 .avgRating(request.getRating())
                 .brand(request.getBrandName() != null ? brandRepository.findByName(request.getBrandName()) : null)
-                .SKU(request.getSKU())
+                .sku(request.getSKU())
                 .name(request.getName() != null ? request.getName().trim() : null)
                 .countOfReviews(request.getReviewOptions() != null ? request.getReviewOptions().size() : 0)
                 .reviewOptions(request.getReviewOptions() != null ? request.getReviewOptions() : null)
@@ -55,7 +55,7 @@ public class ProductMapper {
         response.setAvgRating(product.getAvgRating() != null ? product.getAvgRating() : null);
         response.setSumSoldQuantity(product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0);
         response.setBrandName(product.getBrand() != null ? product.getBrand().getName() : null);
-        response.setSKU(product.getSKU());
+        response.setSKU(product.getSku());
         response.setName(product.getName());
         response.setPrimaryImage(product.getPrimaryImage());
         response.setCountOfReviews(product.getCountOfReviews());
@@ -105,6 +105,7 @@ public class ProductMapper {
             response.setHasSpecification(false);
         }
 
+
         if (product.getReviewOptions() != null && !product.getReviewOptions().isEmpty()) {
             response.setReviewOptions(product.getReviewOptions());
         }
@@ -128,7 +129,7 @@ public class ProductMapper {
         product.setPrimaryImage(request.getPrimaryImage() != null ? request.getPrimaryImage() : null);
 //        product.setRating(request.getRating() != null ? request.getRating() : null);
 //        product.setBrandName(request.getBrandName() != null ? request.getBrandName() : null);
-        product.setSKU(request.getSKU() != null ? request.getSKU() : null);
+        product.setSku(request.getSKU() != null ? request.getSKU() : null);
         product.setName(request.getName() != null ? request.getName() : null);
 
         if (request.getProductDimension() != null) {

@@ -63,7 +63,7 @@ public class ProductRequest {
     List<String> productImages;
     List<ProductVariantRequest> productVariants;
     List<SpecificationOption> specifications;
-    List<ReviewType> reviewOptions = new ArrayList<>();
+    List<ReviewOption> reviewOptions = new ArrayList<>();
     public void setName(String name) {
         this.name = name != null ? name.trim() : null;
     }

@@ -13,7 +13,7 @@ import java.util.List;
 public class ProductVariantRequest {
 
     private long quantityAvailable;
-    private String SKU;
+    private String sku;
     private BigDecimal sellingPrice;
     private BigDecimal originalPrice;
     private BigDecimal discountPrice;

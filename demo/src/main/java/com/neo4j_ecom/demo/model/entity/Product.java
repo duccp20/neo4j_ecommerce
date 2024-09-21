@@ -47,7 +47,7 @@ public class Product {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private long quantityAvailable;
     private SellingType sellingType;
-    private String SKU;
+    private String sku;
     private List<String> productImages = new ArrayList<>();
     private String primaryImage;
     private ProductDimension productDimension;
@@ -61,7 +61,9 @@ public class Product {
     @DocumentReference(lazy = true)
     private List<ProductVariant> productVariants;
     private List<SpecificationOption> productSpecifications;
-    private List<ReviewType> reviewOptions = new ArrayList<>();
+
+    @DocumentReference(lazy = true)
+    private List<ReviewOption> reviewOptions = new ArrayList<>();
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private int countOfReviews;
