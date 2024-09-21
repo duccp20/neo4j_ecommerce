@@ -8,7 +8,8 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 public class RegisterRequest {
-    private String userName;
+    private String firstName;
+    private String lastName;
     private String email;
     private String password;
     private Set<String> roles;

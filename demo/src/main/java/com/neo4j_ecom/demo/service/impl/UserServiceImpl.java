@@ -1,11 +1,13 @@
 package com.neo4j_ecom.demo.service.impl;
 
+import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.RegisterRequest;
 import com.neo4j_ecom.demo.model.entity.Role;
 import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.repository.RoleRepository;
 import com.neo4j_ecom.demo.repository.UserRepository;
 import com.neo4j_ecom.demo.service.UserService;
+import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +30,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void registerUser(RegisterRequest registerRequest) {
-        if (userRepository.existsByUsername(registerRequest.getUserName())) {
-            throw new RuntimeException("Username is already taken!");
-        }
-
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new RuntimeException("Email is already in use!");
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
         User user = new User();
-        user.setUsername(registerRequest.getUserName());
+        user.setFirstName(registerRequest.getFirstName());
+        user.setLastName(registerRequest.getLastName());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(encoder.encode(registerRequest.getPassword()));
 
