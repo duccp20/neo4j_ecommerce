@@ -41,8 +41,11 @@ public enum ErrorCode {
 
     //sort
     INVALID_SORT_BY(400, "Invalid Sort By!", HttpStatus.BAD_REQUEST),
-    INVALID_SORT_ORDER(400, "Invalid Sort Order!", HttpStatus.BAD_REQUEST);
+    INVALID_SORT_ORDER(400, "Invalid Sort Order!", HttpStatus.BAD_REQUEST),
 
+    //Auth
+    EMAIL_ALREADY_EXISTS(409, "Mail Already Exists!", HttpStatus.CONFLICT),
+    LOGIN_FAILED(400, "Invalid username or password!", HttpStatus.BAD_REQUEST );
 
     private final int code;
     private final String message;
