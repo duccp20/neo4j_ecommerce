@@ -56,7 +56,7 @@ public class ProductResponse {
     Boolean hasReviews;
 
     List<ProductBannerResponse> productBanners;
-    List<ReviewType> reviewOptions = new ArrayList<>();
+    List<ReviewOption> reviewOptions = new ArrayList<>();
     Map<ProductType, Set<String>> options;
     Instant createdAt;
     Instant updatedAt;

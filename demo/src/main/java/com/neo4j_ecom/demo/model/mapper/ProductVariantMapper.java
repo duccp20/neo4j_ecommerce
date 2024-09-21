@@ -12,7 +12,7 @@ public class ProductVariantMapper {
 
         ProductVariant productVariant = new ProductVariant();
         productVariant.setQuantityAvailable(productVariantRequest.getQuantityAvailable());
-        productVariant.setSKU(productVariantRequest.getSKU());
+        productVariant.setSku(productVariantRequest.getSku() == null ? null : productVariantRequest.getSku().toUpperCase());
         productVariant.setSellingPrice(productVariantRequest.getSellingPrice());
         productVariant.setImages(productVariantRequest.getImages());
         productVariant.setVariantOptions(productVariantRequest.getVariantOptions());

@@ -22,7 +22,7 @@ public class ProductVariant {
     @Id
     private String id;
     private long quantityAvailable;
-    private String SKU;
+    private String sku;
     private long soldQuantity;
     private BigDecimal sellingPrice;
     private BigDecimal originalPrice;
