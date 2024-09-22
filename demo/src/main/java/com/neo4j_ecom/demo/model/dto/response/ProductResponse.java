@@ -47,7 +47,7 @@ public class ProductResponse {
     List<Object> categories;
     List<String> images;
     String primaryImage;
-
+    ProductType primaryVariantType;
     List<ProductVariant> productVariants;
     List<SpecificationOption> productSpecifications;
     Boolean hasVariants;

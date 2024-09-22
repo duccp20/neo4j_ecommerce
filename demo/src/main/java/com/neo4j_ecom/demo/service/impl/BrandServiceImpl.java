@@ -2,6 +2,7 @@ package com.neo4j_ecom.demo.service.impl;
 
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.entity.Brand;
+import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.repository.BrandRepository;
 import com.neo4j_ecom.demo.service.BrandService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +36,9 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public List<Brand> handleGetBrands() {
 
-        return brandRepository.findAll();
+        List<Brand> brands = brandRepository.findAll();
+        brands.forEach(brand -> brand.setProducts(null));
+        return brands;
     }
 
     @Override
