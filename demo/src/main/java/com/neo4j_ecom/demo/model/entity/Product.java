@@ -8,6 +8,7 @@ import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 import com.neo4j_ecom.demo.model.entity.Review.ReviewOption;
 import com.neo4j_ecom.demo.model.entity.Specfication.ProductSpecification;
 import com.neo4j_ecom.demo.model.entity.Specfication.SpecificationOption;
+import com.neo4j_ecom.demo.utils.enums.ProductType;
 import com.neo4j_ecom.demo.utils.enums.ReviewType;
 import com.neo4j_ecom.demo.utils.enums.SellingType;
 import lombok.AllArgsConstructor;
@@ -43,7 +44,6 @@ public class Product {
     private BigDecimal sellingPrice;
     private String description;
     private Float avgRating;
-
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private long quantityAvailable;
     private SellingType sellingType;
@@ -58,6 +58,7 @@ public class Product {
     private List<Category> categories = new ArrayList<>();
     @DocumentReference(lazy = true)
     private List<ProductReview> reviews = new ArrayList<>();
+    private ProductType primaryVariantType;
     @DocumentReference(lazy = true)
     private List<ProductVariant> productVariants;
     private List<SpecificationOption> productSpecifications;

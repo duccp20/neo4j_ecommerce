@@ -4,6 +4,7 @@ import com.neo4j_ecom.demo.model.entity.ProductDimension;
 import com.neo4j_ecom.demo.model.entity.Review.ReviewOption;
 import com.neo4j_ecom.demo.model.entity.Specfication.ProductSpecification;
 import com.neo4j_ecom.demo.model.entity.Specfication.SpecificationOption;
+import com.neo4j_ecom.demo.utils.enums.ProductType;
 import com.neo4j_ecom.demo.utils.enums.ReviewType;
 import com.neo4j_ecom.demo.utils.enums.SellingType;
 import jakarta.validation.constraints.*;
@@ -61,6 +62,7 @@ public class ProductRequest {
     Boolean hasSpecification;
     Boolean hasCollection;
     List<String> productImages;
+    ProductType primaryVariantType;
     List<ProductVariantRequest> productVariants;
     List<SpecificationOption> specifications;
     List<ReviewOption> reviewOptions = new ArrayList<>();

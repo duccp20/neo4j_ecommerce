@@ -39,6 +39,7 @@ public class ProductMapper {
                 .name(request.getName() != null ? request.getName().trim() : null)
                 .countOfReviews(request.getReviewOptions() != null ? request.getReviewOptions().size() : 0)
                 .reviewOptions(request.getReviewOptions() != null ? request.getReviewOptions() : null)
+                .primaryVariantType(request.getPrimaryVariantType())
                 .build();
     }
 
@@ -108,6 +109,10 @@ public class ProductMapper {
 
         if (product.getReviewOptions() != null && !product.getReviewOptions().isEmpty()) {
             response.setReviewOptions(product.getReviewOptions());
+        }
+
+        if (product.getPrimaryVariantType() != null) {
+            response.setPrimaryVariantType(product.getPrimaryVariantType());
         }
 
         return response;

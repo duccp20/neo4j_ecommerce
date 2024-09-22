@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,6 +33,7 @@ public class Brand {
     private String name;
     private String description;
     @DocumentReference(lazy = true)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Product> products;
     private Status status;
     private String exclusiveShopId;
