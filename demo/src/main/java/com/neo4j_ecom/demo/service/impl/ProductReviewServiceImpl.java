@@ -112,6 +112,8 @@ public class ProductReviewServiceImpl implements ProductReviewService {
                 .isLastPage(reviewPage.isLast())
                 .build();
 
+        log.info("reviews by product id: {}", reviewPage);
+
 
         return PaginationResponse.builder()
                 .meta(meta)
