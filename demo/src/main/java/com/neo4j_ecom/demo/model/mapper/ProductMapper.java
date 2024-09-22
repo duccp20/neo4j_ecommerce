@@ -1,20 +1,16 @@
 package com.neo4j_ecom.demo.model.mapper;
 
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
-import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
-import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
+import com.neo4j_ecom.demo.model.dto.response.product.ProductPopular;
+import com.neo4j_ecom.demo.model.dto.response.product.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.Category;
 import com.neo4j_ecom.demo.model.entity.Product;
-import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
-import com.neo4j_ecom.demo.model.entity.Specfication.ProductSpecification;
-import com.neo4j_ecom.demo.model.entity.Specfication.SpecificationOption;
 import com.neo4j_ecom.demo.repository.BrandRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
@@ -143,5 +139,17 @@ public class ProductMapper {
             product.setProductDimension(request.getProductDimension());
         }
 
+    }
+
+    public ProductPopular toPopular(Product product) {
+
+        return ProductPopular.builder()
+                .id(product.getId() != null ? product.getId() : null)
+                .name(product.getName() != null ? product.getName() : null)
+                .image(product.getPrimaryImage() != null ? product.getPrimaryImage() : null)
+                .brandName(product.getBrand() != null ? product.getBrand().getName() : null)
+                .avgRating(product.getAvgRating() != null ? product.getAvgRating() : null)
+                .sumSoldQuantity(product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0)
+                .build();
     }
 }

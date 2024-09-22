@@ -1,18 +1,17 @@
 package com.neo4j_ecom.demo.controller;
 
+import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
-import com.neo4j_ecom.demo.model.dto.response.ProductCategoryResponse;
-import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
-import com.neo4j_ecom.demo.service.ProductBannerService;
+import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
+import com.neo4j_ecom.demo.model.dto.response.product.ProductResponse;
 import com.neo4j_ecom.demo.service.ProductService;
+import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -188,13 +187,36 @@ public class ProductController {
 
 
     @GetMapping("/top-selling")
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> handleGetProductPopularBySoldQuantity() {
+    public ResponseEntity<ApiResponse<PaginationResponse>> handleGetProductPopularBySoldQuantity(
+            @RequestParam(defaultValue = "0") String page,
+            @RequestParam(defaultValue = "4") String size
+    ) {
+
+        log.info("page: {}", page);
+        log.info("size: {}", size);
+
+
+        Integer pageInt = Integer.parseInt(page);
+        Integer sizeInt = Integer.parseInt(size);
+
+        try {
+            Integer.parseInt(page);
+            Integer.parseInt(size);
+        } catch (NumberFormatException e) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+        if (pageInt < 0 || sizeInt < 0) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+
         SuccessCode successCode = SuccessCode.FETCHED;
         return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<List<ProductResponse>>builder()
+                ApiResponse.<PaginationResponse>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(productService.handleGetProductPopularBySoldQuantity())
+                        .data(productService.handleGetProductPopularBySoldQuantity(pageInt, sizeInt))
                         .build()
         );
     }

@@ -4,7 +4,10 @@ import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.request.ProductVariantRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
-import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
+import com.neo4j_ecom.demo.model.dto.response.pagination.Meta;
+import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
+import com.neo4j_ecom.demo.model.dto.response.product.ProductPopular;
+import com.neo4j_ecom.demo.model.dto.response.product.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.*;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.VariantOption;
@@ -20,6 +23,9 @@ import com.neo4j_ecom.demo.utils.enums.ProductType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -240,8 +246,8 @@ public class ProductServiceImpl implements ProductService {
                 log.info("identifier of category in update product: {}", identifier);
 
                 CategoryResponse category = categoryService.handleGetCategoryById(identifier);
-                Category categoryEntity = this.toCategory(category);
-                categories.add(categoryEntity);
+//                Category categoryEntity = this.toCategory(category);
+//                categories.add(categoryEntity);
             }
             product.setCategories(categories);
         }
@@ -269,20 +275,27 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> handleGetProductPopularBySoldQuantity() {
+    public PaginationResponse handleGetProductPopularBySoldQuantity(int page, int size) {
 
-        List<Product> products = productRepository.findAll();
+        Sort sort = Sort.by(Sort.Direction.DESC, "sumSoldQuantity");
+        Page<Product> productPage = productRepository.findAll(PageRequest.of(page, size, sort));
+        List<Product> products = productPage.getContent();
 
+        List<ProductPopular> productPopulars = products.stream().map(productMapper::toPopular).collect(Collectors.toList());
 
-        products.forEach(p -> {
-            if (p.getProductVariants() == null) {
-                return;
-            }
-            long sum = p.getProductVariants().stream().mapToLong(ProductVariant::getSoldQuantity).sum();
-            p.setSumSoldQuantity(sum);
-        });
-        products.sort((p1, p2) -> Long.compare(p2.getSumSoldQuantity(), p1.getSumSoldQuantity()));
-        return products.stream().map(productMapper::toResponse).collect(Collectors.toList());
+        Meta meta = Meta.builder()
+                .current(productPage.getNumber() + 1)
+                .pageSize(productPage.getNumberOfElements())
+                .totalPages(productPage.getTotalPages())
+                .totalItems(productPage.getTotalElements())
+                .isFirstPage(productPage.isFirst())
+                .isLastPage(productPage.isLast())
+                .build();
+
+        return PaginationResponse.builder()
+                .meta(meta)
+                .result(productPopulars)
+                .build();
     }
 
     @Override
@@ -448,49 +461,5 @@ public class ProductServiceImpl implements ProductService {
         return null;
     }
 
-
-    //    ==================== MAPPER ======================
-    private Category toCategory(CategoryResponse categoryResponse) {
-
-        Category category = new Category();
-        category.setId(categoryResponse.getId());
-        category.setName(categoryResponse.getName().trim());
-        category.setIcon(categoryResponse.getIcon());
-        category.setLevel(categoryResponse.getLevel());
-
-        return category;
-    }
-
-    private CategoryResponse toCategoryResponse(Category category) {
-
-        CategoryResponse categoryResponse = new CategoryResponse();
-        categoryResponse.setId(category.getId());
-        categoryResponse.setName(category.getName());
-
-        return categoryResponse;
-    }
-
-//    private ProductResponse toProductResponse(Product product) {
-//        ProductResponse pRes = productMapper.toResponse(product);
-//
-//        List<CategoryResponse> categoryResponses = new ArrayList<>();
-//        List<ReviewResponse> reviewResponses = new ArrayList<>();
-//
-//        for (Category category : product.getCategories()) {
-//            categoryResponses.add(categoryMapper.toResponse(category));
-//        }
-//
-//        for (ProductReview review : product.getReviews()) {
-//
-//            ReviewResponse reviewResponse = reviewMapper.toResponse(review);
-//            reviewResponses.add(reviewResponse);
-//        }
-//
-//
-//        pRes.setCategories(categoryResponses);
-//        pRes.setReviews(reviewResponses);
-//        pRes.setImages(product.getProductImages());
-//        return pRes;
-//    }
 
 }
