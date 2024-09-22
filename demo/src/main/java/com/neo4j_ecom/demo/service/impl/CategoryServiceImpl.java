@@ -5,6 +5,7 @@ import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.model.entity.Category;
+import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.repository.CategoryRepository;
 import com.neo4j_ecom.demo.service.CategoryService;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -141,9 +143,30 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity() {
+        List<Category> categories = categoryRepository.findAll();
 
-//        List<CategoryResponseTopSold> categoryResponseTopSold = categoryRepository.findTopBySoldQuantity();
-        return null;
+        List<CategoryResponseTopSold> categoryResponseTopSoldList = new ArrayList<>();
+        for (Category category : categories) {
+            long sumSoldQuantity = 0;
+
+            if (category.getIsFeatured()) {
+                continue;
+            }
+
+            for (Product product : category.getProducts()) {
+                sumSoldQuantity += product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0;
+            }
+            CategoryResponseTopSold res = CategoryResponseTopSold.builder()
+                    .id(category.getId())
+                    .name(category.getName())
+                    .totalSold(sumSoldQuantity)
+                    .build();
+            categoryResponseTopSoldList.add(res);
+        }
+
+        categoryResponseTopSoldList.sort(Comparator.comparing(CategoryResponseTopSold::getTotalSold, Comparator.reverseOrder()));
+
+        return categoryResponseTopSoldList;
     }
 
 

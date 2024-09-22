@@ -36,6 +36,14 @@ public class GlobalException {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(NumberFormatException.class)
+    public ResponseEntity<ApiResponse> handleNumberFormatException(NumberFormatException ex, WebRequest request) {
+
+        ErrorCode errorCode = ErrorCode.WRONG_INPUT;
+        ApiResponse response = new ApiResponse(errorCode.getCode(), errorCode.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception) {
         log.error("Exception: ", exception);

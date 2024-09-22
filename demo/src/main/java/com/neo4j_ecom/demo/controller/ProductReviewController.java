@@ -1,6 +1,7 @@
 package com.neo4j_ecom.demo.controller;
 
 
+import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductReviewRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
@@ -9,7 +10,9 @@ import com.neo4j_ecom.demo.model.dto.response.review.ProductReviewResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ReviewResponse;
 import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 import com.neo4j_ecom.demo.service.ProductReviewService;
+import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
+import com.neo4j_ecom.demo.validator.ValidateQueryParams;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,17 +49,35 @@ public class ProductReviewController {
     @GetMapping("{productId}/reviews")
     public ResponseEntity<ApiResponse<PaginationResponse>> handleGetAllReviewsByProductId(
             @PathVariable String productId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false, defaultValue = "UpdatedAt") String sortBy,
+            @RequestParam(defaultValue = "0") String page,
+            @RequestParam(defaultValue = "20") String size,
+            @RequestParam(required = false, defaultValue = "updatedAt") String sortBy,
             @RequestParam(required = false, defaultValue = "DESC") String sortOrder
 
     ) {
 
+        Integer pageInt = Integer.parseInt(page);
+        Integer sizeInt = Integer.parseInt(size);
+
+        try {
+            Integer.parseInt(page);
+            Integer.parseInt(size);
+        } catch (NumberFormatException e) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+        if (pageInt < 0 || sizeInt < 0) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+        if (!sortOrder.equalsIgnoreCase("ASC") && !sortOrder.equalsIgnoreCase("DESC")) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
         log.info("get all reviews by product request : {}, page {}, size {}", productId, page, size, sortBy, sortOrder);
         SuccessCode successCode = SuccessCode.FETCHED;
 
-        PaginationResponse response = productReviewService.getAllReviewsByProductId(productId, page, size, sortBy, sortOrder);
+        PaginationResponse response = productReviewService.getAllReviewsByProductId(productId, pageInt, sizeInt, sortBy, sortOrder);
 
         return ResponseEntity.status(successCode.getCode()).body(
                 ApiResponse.<PaginationResponse>builder()
@@ -78,17 +99,31 @@ public class ProductReviewController {
 
     @GetMapping("{productId}/reviews/filter")
     public ResponseEntity<ApiResponse<PaginationResponse>> handleGetAllReviewsByVariantIdFilter(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "0") String page,
+            @RequestParam(defaultValue = "20") String size,
             @PathVariable String productId,
             @RequestParam(defaultValue = "5") String rating
     ) {
+
+        Integer pageInt = Integer.parseInt(page);
+        Integer sizeInt = Integer.parseInt(size);
+
+        try {
+            Integer.parseInt(page);
+            Integer.parseInt(size);
+        } catch (NumberFormatException e) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+        if (pageInt < 0 || sizeInt < 0) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
 
         Integer ratingInt = Integer.parseInt(rating);
         log.info("get all reviews by product request : {}, rating {}", productId, rating);
         SuccessCode successCode = SuccessCode.FETCHED;
 
-        PaginationResponse response = productReviewService.getAllReviewsByProductIdFilter(productId, ratingInt, page, size);
+        PaginationResponse response = productReviewService.getAllReviewsByProductIdFilter(productId, ratingInt, pageInt, sizeInt);
         return ResponseEntity.status(successCode.getCode()).body(
                 ApiResponse.<PaginationResponse>builder()
                         .statusCode(successCode.getCode())
