@@ -2,6 +2,8 @@ package com.neo4j_ecom.demo.repository;
 
 import com.neo4j_ecom.demo.model.dto.response.ProductCategoryResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -32,6 +34,11 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     @Query("{ 'productVariants._id' : ?0 }")
     Product findByVariantId(String variantId);
+
+
+    Page<Product> findByCategories_Id(String categoryId, PageRequest pageRequest);
+
+    Page<Product> findByCategories_IdAndIdNot(String categoryId, String productId, PageRequest pageRequest);
 }
 
 

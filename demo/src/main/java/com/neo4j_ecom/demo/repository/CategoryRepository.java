@@ -4,6 +4,8 @@ import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.model.entity.Category;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -21,9 +23,8 @@ public interface CategoryRepository extends MongoRepository<Category, String> {
 
 //    List<Category> findAllCategories();
 //    @Query("")
-//    List<CategoryResponseTopSold> findCategoriesBySoldQuantity();
+//    List<CategoryResponseTopSold> findCategoriesBySoldQuantity();`
     List<Category> findByLevel(Integer level);
 
     List<Category> findByIsFeatured(boolean b);
-
 }

@@ -4,6 +4,7 @@ package com.neo4j_ecom.demo.service;
 import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
+import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 
 
 import java.util.List;
@@ -27,4 +28,6 @@ public interface CategoryService{
     List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity();
 
     List<CategoryResponse> handleGetCategoriesByLevel(Integer level);
+
+    PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer pageInt, Integer sizeInt, String productId);
 }

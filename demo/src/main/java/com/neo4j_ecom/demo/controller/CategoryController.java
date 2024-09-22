@@ -1,10 +1,13 @@
 package com.neo4j_ecom.demo.controller;
 
+import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
+import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.service.CategoryService;
+import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -184,6 +187,42 @@ public class CategoryController {
                         .message(SuccessCode.DELETED.getMessage())
                         .statusCode(SuccessCode.DELETED.getCode())
                         .data(categoryService.handleDeleteCategory(id))
+                        .build()
+        );
+    }
+
+    @GetMapping("/{categoryId}/products")
+    public ResponseEntity<ApiResponse<PaginationResponse>> handleGetProductByCategoryId(
+            @RequestParam(defaultValue = "0") String page,
+            @RequestParam(defaultValue = "20") String size,
+            @PathVariable String categoryId,
+            @RequestParam(required = false) String productId
+    ) {
+
+        log.info("page: {}", page);
+        log.info("size: {}", size);
+
+        Integer pageInt = Integer.parseInt(page);
+        Integer sizeInt = Integer.parseInt(size);
+
+        try {
+            Integer.parseInt(page);
+            Integer.parseInt(size);
+        } catch (NumberFormatException e) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+        if (pageInt < 0 || sizeInt < 0) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+        SuccessCode successCode = SuccessCode.FETCHED;
+
+        return ResponseEntity.status(successCode.getStatusCode()).body(
+                ApiResponse.<PaginationResponse>builder()
+                        .message(successCode.getMessage())
+                        .statusCode(successCode.getCode())
+                        .data(categoryService.handleGetProductsByCategoryId(categoryId, pageInt, sizeInt, productId))
                         .build()
         );
     }
