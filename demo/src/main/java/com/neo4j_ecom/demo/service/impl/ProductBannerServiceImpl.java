@@ -3,8 +3,11 @@ package com.neo4j_ecom.demo.service.impl;
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductBannerRequest;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
+import com.neo4j_ecom.demo.model.entity.Category;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.entity.ProductBanner;
+import com.neo4j_ecom.demo.model.mapper.ProductBannerMapper;
+import com.neo4j_ecom.demo.repository.CategoryRepository;
 import com.neo4j_ecom.demo.repository.ProductBannerRepository;
 import com.neo4j_ecom.demo.repository.ProductRepository;
 import com.neo4j_ecom.demo.service.FileService;
@@ -30,9 +33,13 @@ public class ProductBannerServiceImpl implements ProductBannerService {
 
     private final ProductRepository productRepository;
 
+    private final CategoryRepository categoryRepository;
+
     private final FileService fileService;
 
     private final ProductBannerRepository productBannerRepository;
+
+    private final ProductBannerMapper productBannerMapper;
 
     @Value("${file.image.folder.product-banner}")
     private String folder;
@@ -41,170 +48,77 @@ public class ProductBannerServiceImpl implements ProductBannerService {
     private String baseURI;
 
     @Override
-    @Transactional
-    public ProductBannerResponse handleCreateBanner(ProductBannerRequest request, String productId, List<MultipartFile> files) throws URISyntaxException, IOException {
+    public ProductBannerResponse handleCreateBanner(ProductBannerRequest request)  {
 
-        Product product = productRepository.findById(productId).orElseThrow(
-                () -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        List<Product> products = productRepository.findAllById(request.getProductIds());
 
-        ProductBanner productBanner = this.toProductBanner(request);
-        productBanner.setProductName(product.getName());
-
-
-        if (files != null && files.size() > 0) {
-
-            log.info("folder {}", folder);
-
-            //create folder if not exists
-//            fileService.createUploadedFolder(baseURI + folder);
-
-
-            List<String> bannerImages = new ArrayList<>();
-            for (MultipartFile file : files) {
-
-                //validate file
-                fileService.validateFile(file);
-
-                //store file
-//                String bannerImage = fileService.storeFile(file, folder);
-                String bannerImage = fileService.storeFileFirebase(file, "products/banners");
-
-//                String url = baseURI + folder + "/" + bannerImage;
-                //add banner image
-                bannerImages.add(bannerImage);
-
-                String finalNameTrimmed = file.getOriginalFilename().replaceAll("\\s", "");
-
-                log.info("file name in handleCreateBanner {}", finalNameTrimmed);
-                //set primary banner
-                if (Objects.equals(finalNameTrimmed, request.getPrimaryBanner())) {
-                    productBanner.setPrimaryBanner(bannerImage);
-                }
-
-            }
-
-            //set banner images
-            if (bannerImages.size() > 0) {
-                productBanner.setBannerImages(bannerImages);
-            }
-
-            //set primary banner if only one product banner
-            if (productBanner.getBannerImages().size() > 0) {
-                productBanner.setPrimaryBanner(productBanner.getBannerImages().get(0));
-            }
+        Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+        if (products.size() != request.getProductIds().size()) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        ProductBanner savedProductBanner =  productBannerRepository.save(productBanner);
+        ProductBanner productBanner = this.productBannerMapper.toEntity(request);
+        productBanner.setProducts(products);
+        productBanner.setCategory(category);
+        ProductBanner savedProductBanner = productBannerRepository.save(productBanner);
 
-        List<ProductBanner> productBannerList = product.getProductBanners();
-        productBannerList.add(productBanner);
-
-        productRepository.save(product);
-
-        return this.toProductBannerResponse(savedProductBanner);
-    }
-
-    @Override
-    public List<ProductBannerResponse> handleGetBannersByProductId(String productId) {
-
-        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        List<ProductBanner> productBanners = product.getProductBanners();
-
-        if (productBanners != null && productBanners.size() > 0) {
-
-            List<ProductBannerResponse> productBannerResponses = new ArrayList<>();
-            for (ProductBanner banner : productBanners) {
-                productBannerResponses.add(this.toProductBannerResponse(banner));
-            }
-            return productBannerResponses;
-
-        } else {
-
-            throw new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND);
+        for (Product product : products) {
+            product.getProductBanners().add(savedProductBanner);
+            productRepository.save(product);
         }
+
+        return this.productBannerMapper.toResponse(savedProductBanner);
     }
 
+
     @Override
-    public ProductBannerResponse handleUpdateBanner(String productId, String bannerId, ProductBannerRequest request, List<MultipartFile> files) throws URISyntaxException, IOException {
+    public ProductBannerResponse handleUpdateBanner(String bannerId, ProductBannerRequest request) {
 
         ProductBanner productBanner = productBannerRepository.findById(bannerId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
         ProductBanner productBannerUpdate = this.toUpdateProductBanner(productBanner, request);
 
-        List<String> bannerImages = new ArrayList<>();
-        if (files != null && files.size() > 0) {
-
-            log.info("folder {}", folder);
-
-            for (MultipartFile file : files) {
-                //validate file
-                fileService.validateFile(file);
-                //store file
-//                String bannerImage = fileService.storeFile(file, folder);
-//                String url = baseURI + folder + "/" + bannerImage;
-                String url = fileService.storeFileFirebase(file, "products/banners");
-                //add banner image
-                bannerImages.add(url);
-            }
-
-            if (bannerImages.size() > 0) {
-                productBannerUpdate.setBannerImages(bannerImages);
-            }
-
-            if (productBannerUpdate.getBannerImages().size() > 0) {
-                productBannerUpdate.setPrimaryBanner(productBannerUpdate.getBannerImages().get(0));
-            }
-        }
         ProductBanner productBannerSaved = productBannerRepository.save(productBannerUpdate);
-        List<ProductBanner> productBannerList = product.getProductBanners();
-        productBannerList.add(productBannerSaved);
 
-        productRepository.save(product);
+        for ( Product product : productBannerSaved.getProducts()) {
+            List<ProductBanner> productBanners = product.getProductBanners();
+            productBanners.remove(productBanner);
+            product.getProductBanners().add(productBannerSaved);
+            productRepository.save(product);
+        }
 
-        return this.toProductBannerResponse(productBannerSaved);
+        return this.productBannerMapper.toResponse(productBannerSaved);
     }
 
     private ProductBanner toUpdateProductBanner(ProductBanner productBanner, ProductBannerRequest request) {
 
-        if (request.getPrimaryBanner() != null) {
-            productBanner.setPrimaryBanner(request.getPrimaryBanner());
+
+        if (request.getProductIds() != null && request.getProductIds().size() > 0) {
+            productBanner.setProducts(productRepository.findAllById(request.getProductIds()));
         }
 
-        if (request.getLinkUrl() != null) {
-            productBanner.setLinkUrl(request.getLinkUrl());
+        if (request.getImageUrl() != null) {
+            productBanner.setImageUrl(request.getImageUrl());
         }
 
-        if (request.getTitle() != null) {
-            productBanner.setTitle(request.getTitle());
+        if (request.getCategoryId() != null) {
+            productBanner.setCategory(categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND)));
+        }
+
+        if (request.getStartDate() != null) {
+            productBanner.setStartDate(request.getStartDate());
+        }
+
+        if (request.getEndDate() != null) {
+            productBanner.setEndDate(request.getEndDate());
+        }
+
+        if (request.getLocations() != null && request.getLocations().size() > 0) {
+            productBanner.setLocations(request.getLocations());
         }
 
         return productBanner;
-    }
-
-    @Override
-    public Void handleDeleteBannerByProductId(String productId) {
-
-        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        if (product.getProductBanners() == null) {
-            throw new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND);
-        }
-
-
-        List<ProductBanner> productBanners = product.getProductBanners();
-
-        product.setProductBanners(null);
-        productRepository.save(product);
-
-
-        productBannerRepository.deleteAll(productBanners);
-
-        return null;
     }
 
     @Override
@@ -213,9 +127,8 @@ public class ProductBannerServiceImpl implements ProductBannerService {
         ProductBanner productBanner = productBannerRepository.findById(bannerId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
 
-        return this.toProductBannerResponse(productBanner);
+        return this.productBannerMapper.toResponse(productBanner);
     }
-
 
     @Override
     public Void handleDeleteBannerById(String bannerId) {
@@ -228,73 +141,6 @@ public class ProductBannerServiceImpl implements ProductBannerService {
     }
 
     @Override
-    public Void handleDeleteBannerImage(String bannerId, String imgUrl) throws FileNotFoundException {
-
-        ProductBanner productBanner = productBannerRepository.findById(bannerId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
-
-        List<String> bannerImages = productBanner.getBannerImages();
-
-        for (String s : bannerImages) {
-            if (s.equals(imgUrl)) {
-                bannerImages.remove(s);
-                break;
-            }
-        }
-        productBanner.setBannerImages(bannerImages);
-
-        fileService.deleteFileFirebase(imgUrl);
-
-        productBannerRepository.save(productBanner);
-        return null;
-    }
-
-    @Override
-    public ProductBannerResponse handleUpdateBannerFiles(String bannerId, List<MultipartFile> files) throws URISyntaxException, IOException {
-
-        ProductBanner productBanner = productBannerRepository.findById(bannerId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
-
-        List<String> bannerImages = new ArrayList<>();
-        if (files != null && files.size() > 0) {
-
-            log.info("folder {}", folder);
-
-            for (MultipartFile file : files) {
-                //validate file
-                fileService.validateFile(file);
-                //store file
-                String url = fileService.storeFileFirebase(file, "products/banners");
-                //add banner image
-                bannerImages.add(url);
-            }
-
-            if (bannerImages.size() > 0) {
-                productBanner.setBannerImages(bannerImages);
-            }
-
-            if (productBanner.getBannerImages().size() == 1) {
-                productBanner.setPrimaryBanner(productBanner.getBannerImages().get(0));
-            }
-        }
-
-        productBannerRepository.save(productBanner);
-
-
-        return this.toProductBannerResponse(productBanner);
-    }
-
-    @Override
-    public ProductBannerResponse handleUpdateBannerPrimary(String bannerId, String url) {
-
-        ProductBanner productBanner = productBannerRepository.findById(bannerId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
-
-        productBanner.setPrimaryBanner(url);
-        productBannerRepository.save(productBanner);
-
-        return this.toProductBannerResponse(productBanner);
-
-    }
-
-    @Override
     public List<ProductBannerResponse> handleGetBannersByQuantity(int quantity) {
 
         log.info("quantity {}", quantity);
@@ -302,7 +148,7 @@ public class ProductBannerServiceImpl implements ProductBannerService {
 
         log.info("productBannerList {}", productBannerList);
 
-        return productBannerList.stream().map(this::toProductBannerResponse)
+        return productBannerList.stream().map(this.productBannerMapper::toResponse)
                 .collect(Collectors.toList());
 
     }
@@ -312,57 +158,15 @@ public class ProductBannerServiceImpl implements ProductBannerService {
 
         List<ProductBanner> productBannerList = productBannerRepository.findAll();
 
-        Set<String> setBannerImages = new HashSet<>();
-        for (ProductBanner productBanner : productBannerList) {
-
-            if (quantity == setBannerImages.size()) {
-                break;
-            }
-
-            if (productBanner.getBannerImages() == null) {
-                continue;
-            }
-
-            for (String imageLink : productBanner.getBannerImages()) {
-                String fileName = imageLink.substring(imageLink.lastIndexOf("/") + 1);
-
-                if (quantity == setBannerImages.size()) {
-                    break;
-                }
-
-                String id = fileName.substring(fileName.indexOf("F") + 1);
-                if (!setBannerImages.stream().anyMatch(s -> s.contains(id))) {
-                    setBannerImages.add(imageLink);
-                }
-            }
-
-        }
-
-        return new ArrayList<>(setBannerImages);
+        return productBannerList.stream().map(ProductBanner::getImageUrl).collect(Collectors.toList());
     }
 
+    @Override
+    public List<ProductBannerResponse> handleGetBanners() {
 
-    //mapper
-    private ProductBanner toProductBanner(ProductBannerRequest request) {
+        List<ProductBanner> productBannerList = productBannerRepository.findAll();
 
-        return ProductBanner.builder()
-                .title(request.getTitle())
-                .linkUrl(request.getLinkUrl())
-                .primaryBanner(request.getPrimaryBanner())
-                .build();
-    }
-
-    private ProductBannerResponse toProductBannerResponse(ProductBanner productBanner) {
-
-        return ProductBannerResponse.builder()
-                .id(productBanner.getId())
-                .title(productBanner.getTitle())
-                .linkUrl(productBanner.getLinkUrl())
-                .productName(productBanner.getProductName())
-                .bannerImages(productBanner.getBannerImages())
-                .primaryBanner(productBanner.getPrimaryBanner())
-                .build();
-
+        return productBannerList.stream().map(this.productBannerMapper::toResponse).collect(Collectors.toList());
     }
 
 

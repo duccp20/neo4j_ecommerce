@@ -25,37 +25,45 @@ public class ProductBannerController {
 
     private final ProductBannerService productBannerService;
 
-    @PostMapping(value = "/{productId}/banners")
+    @PostMapping(value = "/banners")
     public ResponseEntity<ApiResponse<ProductBannerResponse>> handleCreateBanner(
-            @PathVariable String productId,
             @Valid
-            @RequestPart ProductBannerRequest request,
-            @RequestPart(required = false) List<MultipartFile> files
-    ) throws URISyntaxException, IOException {
+            @RequestBody ProductBannerRequest request
+    ) {
 
-        log.info("productId: {}", productId);
         log.info("request: {}", request);
-        log.info("request: {}", files);
-
-
         SuccessCode successCode = SuccessCode.CREATED;
         return ResponseEntity.status(successCode.getCode()).body(
                 ApiResponse.<ProductBannerResponse>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(productBannerService.handleCreateBanner(request, productId, files))
+                        .data(productBannerService.handleCreateBanner(request)
+                        )
                         .build()
         );
     }
 
-    @GetMapping("/{productId}/banners")
-    public ResponseEntity<ApiResponse<List<ProductBannerResponse>>> handleGetBannersByProductId(@PathVariable String productId) {
+    @GetMapping("/banners")
+    public ResponseEntity<ApiResponse<List<ProductBannerResponse>>> handleGetBanners() {
         SuccessCode successCode = SuccessCode.FETCHED;
         return ResponseEntity.status(successCode.getCode()).body(
                 ApiResponse.<List<ProductBannerResponse>>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(productBannerService.handleGetBannersByProductId(productId))
+                        .data(productBannerService.handleGetBanners())
+                        .build()
+        );
+    }
+
+    @GetMapping("/banners/{bannerId}")
+    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleGetBanner(
+            @PathVariable String bannerId) {
+        SuccessCode successCode = SuccessCode.FETCHED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<ProductBannerResponse>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productBannerService.handleGetBannerById(bannerId))
                         .build()
         );
     }
@@ -84,27 +92,14 @@ public class ProductBannerController {
         );
     }
 
-    @GetMapping("/banners/{bannerId}")
-    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleGetBanner(
-            @PathVariable String bannerId) {
-        SuccessCode successCode = SuccessCode.FETCHED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<ProductBannerResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleGetBannerById(bannerId))
-                        .build()
-        );
-    }
 
 
-    @PutMapping("{productId}/banners")
+
+    @PutMapping("/banners/{bannerId}")
     public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBanner(
-            @PathVariable String productId,
-            @RequestParam String bannerId,
+            @PathVariable String bannerId,
             @Valid
-            @RequestPart ProductBannerRequest request,
-            @RequestPart List<MultipartFile> files
+            @RequestBody ProductBannerRequest request
 
     ) throws URISyntaxException, IOException {
         SuccessCode successCode = SuccessCode.UPDATED;
@@ -112,43 +107,10 @@ public class ProductBannerController {
                 ApiResponse.<ProductBannerResponse>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(productBannerService.handleUpdateBanner(productId, bannerId, request, files))
+                        .data(productBannerService.handleUpdateBanner(bannerId, request))
                         .build()
         );
     }
-
-    @PutMapping("/banners/{bannerId}/images")
-    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBannerFiles(
-            @PathVariable String bannerId,
-            @RequestPart List<MultipartFile> files
-    ) throws URISyntaxException, IOException {
-        SuccessCode successCode = SuccessCode.UPDATED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<ProductBannerResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleUpdateBannerFiles(bannerId, files))
-                        .build()
-        );
-    }
-
-    //update primary banner
-    @PutMapping("/banners/{bannerId}/primary-image")
-    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBannerPrimary(
-            @PathVariable String bannerId,
-            @RequestParam String url
-    ) throws URISyntaxException {
-        SuccessCode successCode = SuccessCode.UPDATED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<ProductBannerResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleUpdateBannerPrimary(bannerId, url))
-                        .build()
-        );
-    }
-
-
 
 
     @DeleteMapping("/banners/{bannerId}")
@@ -163,35 +125,4 @@ public class ProductBannerController {
                         ).build()
         );
     }
-
-    @DeleteMapping("/{productId}/banners")
-    public ResponseEntity<ApiResponse<Void>> handleDeleteBannerByProductId(
-            @PathVariable String productId) {
-        SuccessCode successCode = SuccessCode.DELETED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<Void>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleDeleteBannerByProductId(productId)
-                        ).build()
-        );
-    }
-
-
-    @DeleteMapping("/banners/{bannerId}/images")
-    public ResponseEntity<ApiResponse<Void>> handleDeleteBannerImage(
-            @PathVariable String bannerId,
-            @RequestParam String imgUrl
-    ) throws FileNotFoundException {
-        SuccessCode successCode = SuccessCode.DELETED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<Void>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleDeleteBannerImage(bannerId, imgUrl)
-                        ).build()
-        );
-    }
-
-
 }
