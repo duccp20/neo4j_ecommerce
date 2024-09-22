@@ -4,15 +4,22 @@ import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
+import com.neo4j_ecom.demo.model.dto.response.pagination.Meta;
+import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
+import com.neo4j_ecom.demo.model.dto.response.product.ProductPopular;
 import com.neo4j_ecom.demo.model.entity.Category;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
+import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.repository.CategoryRepository;
+import com.neo4j_ecom.demo.repository.ProductRepository;
 import com.neo4j_ecom.demo.service.CategoryService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +38,9 @@ public class CategoryServiceImpl implements CategoryService {
     CategoryRepository categoryRepository;
 
     CategoryMapper categoryMapper;
+
+    ProductRepository productRepository;
+    ProductMapper productMapper;
 
     @Override
     @Transactional
@@ -195,6 +206,30 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categoryResponses;
 
+    }
+
+    @Override
+    public PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer page, Integer size, String productId) {
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        Page<Product> productPage = productRepository.findByCategories_IdAndIdNot(categoryId, productId, pageRequest);
+
+        List<ProductPopular> productResponses = productPage.getContent().stream().map(productMapper::toPopular).collect(Collectors.toList());
+
+        Meta meta = Meta.builder()
+                .current(productPage.getNumber() + 1)
+                .pageSize(productPage.getNumberOfElements())
+                .totalPages(productPage.getTotalPages())
+                .totalItems(productPage.getTotalElements())
+                .isFirstPage(productPage.isFirst())
+                .isLastPage(productPage.isLast())
+                .build();
+
+        return PaginationResponse.builder()
+                .meta(meta)
+                .result(productResponses)
+                .build();
     }
 
     @Override
