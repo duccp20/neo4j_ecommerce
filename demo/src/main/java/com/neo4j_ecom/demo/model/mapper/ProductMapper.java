@@ -40,6 +40,7 @@ public class ProductMapper {
                 .countOfReviews(request.getReviewOptions() != null ? request.getReviewOptions().size() : 0)
                 .reviewOptions(request.getReviewOptions() != null ? request.getReviewOptions() : null)
                 .primaryVariantType(request.getPrimaryVariantType())
+                .sumSoldQuantity(request.getSoldQuantity() > 0 ? request.getSoldQuantity() : 0)
                 .build();
     }
 
@@ -60,6 +61,7 @@ public class ProductMapper {
         response.setName(product.getName());
         response.setPrimaryImage(product.getPrimaryImage());
         response.setCountOfReviews(product.getCountOfReviews());
+        response.setSumSoldQuantity(product.getSumSoldQuantity());
 
         if (product.getProductImages() != null && !product.getProductImages().isEmpty()) {
             response.setImages(product.getProductImages());
