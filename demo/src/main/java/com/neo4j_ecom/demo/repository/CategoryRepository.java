@@ -27,4 +27,6 @@ public interface CategoryRepository extends MongoRepository<Category, String> {
     List<Category> findByLevel(Integer level);
 
     List<Category> findByIsFeatured(boolean b);
+
+    Page<Category> findByIsFeaturedTrue(PageRequest pageRequest);
 }

@@ -30,4 +30,6 @@ public interface CategoryService{
     List<CategoryResponse> handleGetCategoriesByLevel(Integer level);
 
     PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer pageInt, Integer sizeInt, String productId);
+
+    PaginationResponse handleGetAllCategoriesFeaturedWithProducts(Integer pageInt, Integer sizeInt);
 }
