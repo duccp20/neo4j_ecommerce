@@ -154,6 +154,11 @@ public class CategoryServiceImpl implements CategoryService {
             }
 
             for (Product product : category.getProducts()) {
+
+                if (product == null) {
+                    continue;
+                }
+
                 sumSoldQuantity += product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0;
             }
             CategoryResponseTopSold res = CategoryResponseTopSold.builder()
