@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 @Builder
@@ -11,10 +13,11 @@ import java.util.List;
 @Getter
 public class ProductBannerResponse {
 
-    String id;
-    String title;
-    String linkUrl;
-    String productName;
-    List<String> bannerImages;
-    String primaryBanner;
+    private String id;
+    private String imageUrl;
+    private LocalDate startDate;
+    private LocalDate  endDate;
+    private List<String> productId;
+    private List<String> locations;
+    private String categoryId;
 }

@@ -11,25 +11,17 @@ import java.util.List;
 
 public interface ProductBannerService {
 
-    ProductBannerResponse handleCreateBanner(ProductBannerRequest request, String productId, List<MultipartFile> files) throws URISyntaxException, IOException;
+    ProductBannerResponse handleCreateBanner(ProductBannerRequest request);
 
     ProductBannerResponse handleGetBannerById(String bannerId);
 
-    List<ProductBannerResponse> handleGetBannersByProductId(String productId);
-
-    ProductBannerResponse handleUpdateBanner(String productId, String bannerId, ProductBannerRequest request, List<MultipartFile> files) throws URISyntaxException, IOException;
-
-    Void handleDeleteBannerByProductId(String productId);
+    ProductBannerResponse handleUpdateBanner(String bannerId, ProductBannerRequest request);
 
     Void handleDeleteBannerById(String bannerId);
 
-    Void handleDeleteBannerImage(String bannerId, String imgUrl) throws FileNotFoundException;
-    ProductBannerResponse handleUpdateBannerFiles(String bannerId, List<MultipartFile> files) throws URISyntaxException, IOException;
-
-    ProductBannerResponse handleUpdateBannerPrimary(String bannerId, String url);
-
     List<ProductBannerResponse> handleGetBannersByQuantity(int quantity);
 
-
     List<String> handleGetBannerImagesByQuantity(int quantity);
+
+    List<ProductBannerResponse> handleGetBanners();
 }
