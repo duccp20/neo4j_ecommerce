@@ -1,7 +1,8 @@
 package com.neo4j_ecom.demo.service;
 
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
-import com.neo4j_ecom.demo.model.dto.response.ProductResponse;
+import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
+import com.neo4j_ecom.demo.model.dto.response.product.ProductResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public interface ProductService {
 
     Void handleSetPrimaryImage(String productId, String imgUrl);
 
-    List<ProductResponse> handleGetProductPopularBySoldQuantity();
+    PaginationResponse handleGetProductPopularBySoldQuantity( int page, int size);
 
     Boolean handleProductExists(String name);
 }

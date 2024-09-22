@@ -1,6 +1,7 @@
-package com.neo4j_ecom.demo.model.dto.response;
+package com.neo4j_ecom.demo.model.dto.response.product;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ProductReviewResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ReviewResponse;
 import com.neo4j_ecom.demo.model.entity.ProductDimension;
