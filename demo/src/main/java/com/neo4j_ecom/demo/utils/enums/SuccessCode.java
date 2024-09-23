@@ -13,7 +13,10 @@ public enum SuccessCode {
     FETCHED(200, "Get Successfully" , HttpStatus.OK), UPLOADED( 200, "Uploaded Successfully", HttpStatus.OK),
     REGISTER(200, "User Registered Successfully", HttpStatus.OK),
     LOGIN(200, "Success", HttpStatus.OK),
-    LOGOUT(200, "You've been signed out!", HttpStatus.OK);
+    LOGOUT(200, "You've been signed out!", HttpStatus.OK),
+    TOKEN_REFRESH(200, "Token refreshed successfully", HttpStatus.OK);
+
+
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;

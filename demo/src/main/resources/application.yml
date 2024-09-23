@@ -37,4 +37,6 @@ bezkoder:
   app:
     jwtCookieName: ecommerce_accessed
     jwtSecret: "======================BezKoder=Spring==========================="
-    jwtExpirationMs: 30000
+    jwtExpirationMs: 86400000
+    jwtRefreshExpirationMs: 604800000
+

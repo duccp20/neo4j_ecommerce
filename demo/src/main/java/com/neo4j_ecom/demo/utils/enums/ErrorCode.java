@@ -49,7 +49,9 @@ public enum ErrorCode {
 
     //Auth
     EMAIL_ALREADY_EXISTS(409, "Mail Already Exists!", HttpStatus.CONFLICT),
-    LOGIN_FAILED(400, "Invalid username or password!", HttpStatus.BAD_REQUEST );
+    LOGIN_FAILED(400, "Invalid username or password!", HttpStatus.BAD_REQUEST ),
+    INVALID_REFRESH_TOKEN(401, "Invalid or expired refresh token", HttpStatus.BAD_GATEWAY);
+
 
     private final int code;
     private final String message;
