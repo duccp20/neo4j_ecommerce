@@ -7,4 +7,5 @@ import org.springframework.http.ResponseCookie;
 public class AuthResponse {
     private UserResponse user;
     private String token;
+
 }
