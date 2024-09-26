@@ -53,6 +53,7 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN(401, "Invalid or expired refresh token", HttpStatus.BAD_GATEWAY);
 
 
+
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;

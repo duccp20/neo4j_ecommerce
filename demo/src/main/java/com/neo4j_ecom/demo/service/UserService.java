@@ -6,4 +6,5 @@ import com.neo4j_ecom.demo.model.dto.response.UserResponse;
 
 public interface UserService {
     void registerUser(RegisterRequest registerRequest);
+    public UserResponse createUser(UserRequest request);
 }

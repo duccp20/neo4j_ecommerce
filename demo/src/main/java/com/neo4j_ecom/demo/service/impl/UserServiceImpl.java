@@ -2,8 +2,12 @@ package com.neo4j_ecom.demo.service.impl;
 
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.RegisterRequest;
+import com.neo4j_ecom.demo.model.dto.request.UserRequest;
+import com.neo4j_ecom.demo.model.dto.response.UserResponse;
+import com.neo4j_ecom.demo.model.entity.ERole;
 import com.neo4j_ecom.demo.model.entity.Role;
 import com.neo4j_ecom.demo.model.entity.User;
+import com.neo4j_ecom.demo.model.mapper.UserMapper;
 import com.neo4j_ecom.demo.repository.RoleRepository;
 import com.neo4j_ecom.demo.repository.UserRepository;
 import com.neo4j_ecom.demo.service.UserService;
@@ -25,7 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
-
+    UserMapper userMapper;
 
 
     @Override
@@ -56,4 +60,18 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
         userRepository.save(user);
     }
+
+    public UserResponse createUser(UserRequest request) {
+        User user = userMapper.toUser(request);
+        user.setPassword(encoder.encode(request.getPassword()));
+
+        HashSet<Role> roles = new HashSet<>();
+        roleRepository.findById(String.valueOf(ERole.ROLE_USER)).ifPresent(roles::add);
+
+        user.setRoles(roles);
+        user = userRepository.save(user);
+
+        return userMapper.toUserResponse(user);
+    }
+
 }
