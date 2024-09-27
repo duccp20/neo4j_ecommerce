@@ -29,6 +29,9 @@ public class JwtUtil {
     @Value("${bezkoder.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    @Value("${bezkoder.app.jwtRefreshExpirationMs}")
+    private int jwtRefreshExpirationMs;
+
     @Value("${bezkoder.app.jwtCookieName}")
     private String jwtCookie;
 
@@ -82,6 +85,14 @@ public class JwtUtil {
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(key(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+    public String generateRefreshToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtRefreshExpirationMs))
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
     }
