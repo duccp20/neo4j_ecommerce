@@ -18,6 +18,7 @@ import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
 import com.neo4j_ecom.demo.utils.enums.TokenRefreshException;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,9 +45,10 @@ public class AuthController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
 
+    private final JwtUtil jwtUtil;
+
     private final RefreshTokenServiceImpl refreshTokenService;
-    @Autowired
-    JwtUtil jwtUtil;
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         SuccessCode successCode = SuccessCode.REGISTER;
@@ -58,6 +60,7 @@ public class AuthController {
                         .build()
         );
     }
+
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         try {
@@ -82,8 +85,9 @@ public class AuthController {
                     roles
             );
 
-            Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken.getRefreshToken());
+            Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken.getRefreshToken());
             refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(true);
             refreshTokenCookie.setPath("/");
             refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
             response.addCookie(refreshTokenCookie);
@@ -101,44 +105,69 @@ public class AuthController {
                             .data(authResponse)
                             .build()
             );
-        }
-        catch (BadCredentialsException ex) {
+        } catch (BadCredentialsException ex) {
             throw new AppException(ErrorCode.LOGIN_FAILED);
         }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logoutUser() {
-        ResponseCookie cookie = jwtUtil.getCleanJwtCookie();
+    public ResponseEntity<?> logoutUser(HttpServletRequest request, HttpServletResponse
+            response)
+    {
+        Cookie[] cookies = request.getCookies();
+        for (int i = 0; i < cookies.length; ++i) {
+            if (cookies[i].getName().equals("refresh_token")) {
+                cookies[i].setValue(null);
+                cookies[i].setMaxAge(0);
+                cookies[i].setSecure(true);
+                cookies[i].setHttpOnly(true);
+                cookies[i].setPath("/");
+
+                response.addCookie(cookies[i]);
+                break;
+            }
+        }
+
         SuccessCode successCode = SuccessCode.LOGOUT;
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(ApiResponse.builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .build()
-                );
-    }
-
-    @GetMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@CookieValue("refreshToken") String requestRefreshToken) {
-        RefreshToken token = refreshTokenService.findByToken(requestRefreshToken);
-
-        refreshTokenService.verifyExpiration(token);
-
-        User user = token.getUser();
-
-        String newRefreshToken = String.valueOf(refreshTokenService.createRefreshToken(user.getId()));
-
-        SuccessCode successCode = SuccessCode.TOKEN_REFRESH;
         return ResponseEntity.ok(
                 ApiResponse.builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(new TokenRefreshResponse(newRefreshToken))
                         .build()
         );
+    }
+
+
+    @GetMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@CookieValue("refresh_token") String requestRefreshToken) {
+        RefreshToken oldRefreshToken = refreshTokenService.findByToken(requestRefreshToken);
+
+        refreshTokenService.verifyExpiration(oldRefreshToken);
+
+        this.jwtUtil.validateJwtToken(oldRefreshToken.getRefreshToken());
+
+        String accessToken = this.jwtUtil.generateTokenFromUsername(oldRefreshToken.getUser().getFirstName());
+
+        String refreshToken = this.jwtUtil.generateRefreshToken(oldRefreshToken.getUser().getFirstName());
+
+        oldRefreshToken.setRefreshToken(refreshToken);
+
+        Cookie refreshTokenCookie = new Cookie("refresh_token_1", oldRefreshToken.getRefreshToken());
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setPath("/123");
+        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
+
+        SuccessCode successCode = SuccessCode.TOKEN_REFRESH;
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body(ApiResponse.builder()
+                        .statusCode(successCode.getCode())
+                        .data(new TokenRefreshResponse(accessToken))
+                        .message(successCode.getMessage())
+                        .build()
+                );
     }
 
 
