@@ -23,8 +23,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
@@ -36,10 +36,23 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
+    private static final Set<String> whitelistedUrls = Set.of(
+            "/api/v1/auth/register",
+            "/api/v1/auth/login",
+            "/api/v1/auth/refresh-token"
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
+            String requestUrl = request.getRequestURI();
+            if (whitelistedUrls.stream().anyMatch(url -> requestUrl.startsWith(url))) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
