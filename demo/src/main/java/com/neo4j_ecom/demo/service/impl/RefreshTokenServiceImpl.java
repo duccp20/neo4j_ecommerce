@@ -8,9 +8,13 @@ import com.neo4j_ecom.demo.utils.enums.TokenRefreshException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 @RequiredArgsConstructor
@@ -40,7 +44,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         refreshToken = refreshTokenRepository.save(refreshToken);
         return refreshToken;
     }
-
     @Override
     public void verifyExpiration(RefreshToken token) {
         if (token.getExpiryDate().compareTo(Instant.now()) < 0) {

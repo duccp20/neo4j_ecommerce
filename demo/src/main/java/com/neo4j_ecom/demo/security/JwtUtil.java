@@ -2,6 +2,8 @@ package com.neo4j_ecom.demo.security;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import com.neo4j_ecom.demo.service.impl.UserDetailsImpl;
 import jakarta.servlet.http.Cookie;
@@ -17,7 +19,6 @@ import org.springframework.web.util.WebUtils;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-
 @Component
 public class JwtUtil {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
@@ -73,7 +74,6 @@ public class JwtUtil {
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims string is empty: {}", e.getMessage());
         }
-
         return false;
     }
 
@@ -85,4 +85,14 @@ public class JwtUtil {
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, String>> getRolesFromToken(String token) {
+        return (List<Map<String, String>>) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody()
+                .get("roles");
+    }
+
+
+
+
 }

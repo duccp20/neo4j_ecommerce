@@ -82,11 +82,10 @@ public class AuthController {
                     roles
             );
 
-            // Set refresh token in cookies
             Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken.getRefreshToken());
-            refreshTokenCookie.setHttpOnly(true); // Cookie chỉ được truy cập qua HTTP
-            refreshTokenCookie.setPath("/"); // Áp dụng cho tất cả các endpoint
-            refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7 ngày
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
             response.addCookie(refreshTokenCookie);
 
             AuthResponse authResponse = new AuthResponse();
@@ -130,7 +129,7 @@ public class AuthController {
 
         User user = token.getUser();
 
-        String newRefreshToken = this.jwtUtil.generateTokenFromUsername(user.getUsername());
+        String newRefreshToken = String.valueOf(refreshTokenService.createRefreshToken(user.getId()));
 
         SuccessCode successCode = SuccessCode.TOKEN_REFRESH;
         return ResponseEntity.ok(
