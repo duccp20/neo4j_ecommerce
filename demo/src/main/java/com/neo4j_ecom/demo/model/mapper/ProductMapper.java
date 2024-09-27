@@ -33,7 +33,6 @@ public class ProductMapper {
                 .brand(request.getBrandName() != null ? brandRepository.findByName(request.getBrandName()) : null)
                 .sku(request.getSKU())
                 .name(request.getName() != null ? request.getName().trim() : null)
-                .countOfReviews(request.getReviewOptions() != null ? request.getReviewOptions().size() : 0)
                 .reviewOptions(request.getReviewOptions() != null ? request.getReviewOptions() : null)
                 .primaryVariantType(request.getPrimaryVariantType())
                 .sumSoldQuantity(request.getSoldQuantity() > 0 ? request.getSoldQuantity() : 0)
@@ -150,6 +149,8 @@ public class ProductMapper {
                 .brandName(product.getBrand() != null ? product.getBrand().getName() : null)
                 .avgRating(product.getAvgRating() != null ? product.getAvgRating() : null)
                 .sumSoldQuantity(product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0)
+                .discountedPrice(product.getDiscountedPrice() != null ? product.getDiscountedPrice() : null)
+                .sellingPrice(product.getSellingPrice() != null ? product.getSellingPrice() : null)
                 .build();
     }
 }
