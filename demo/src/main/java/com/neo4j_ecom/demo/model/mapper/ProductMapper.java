@@ -147,7 +147,7 @@ public class ProductMapper {
                 .name(product.getName() != null ? product.getName() : null)
                 .image(product.getPrimaryImage() != null ? product.getPrimaryImage() : null)
                 .brandName(product.getBrand() != null ? product.getBrand().getName() : null)
-                .avgRating(product.getAvgRating() != null ? product.getAvgRating() : null)
+                .avgRating(product.getAvgRating() != null ? product.getAvgRating() : 0)
                 .sumSoldQuantity(product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0)
                 .discountedPrice(product.getDiscountedPrice() != null ? product.getDiscountedPrice() : null)
                 .sellingPrice(product.getSellingPrice() != null ? product.getSellingPrice() : null)
