@@ -32,6 +32,7 @@ public class ProductController {
     ProductService productService;
 
     @PostMapping
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ApiResponse<ProductResponse>> handleCreateProduct(
             @Valid
             @RequestBody ProductRequest request

@@ -51,6 +51,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 Pair.of("/api/v1/products", "GET"),
                 Pair.of("/api/v1/products/.*", "GET"),
                 Pair.of("/api/v1/products/banners", ".*"),
+                Pair.of("/api/v1/categories/top-selling", "GET"),
                 Pair.of("/api/v1/categories/featured/products?.*", "GET")
         );
 
