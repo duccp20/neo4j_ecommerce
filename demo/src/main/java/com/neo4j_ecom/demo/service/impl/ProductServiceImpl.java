@@ -223,10 +223,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void validateProductVariantPrices(ProductVariantRequest request) {
-        if (request.getDiscountPrice() != null &&
-                (request.getOriginalPrice().compareTo(request.getDiscountPrice()) >= 0 ||
+        if (request.getDiscountedPrice() != null &&
+                (request.getOriginalPrice().compareTo(request.getDiscountedPrice()) >= 0 ||
                         request.getOriginalPrice().compareTo(request.getSellingPrice()) >= 0 ||
-                        request.getDiscountPrice().compareTo(request.getSellingPrice()) >= 0)) {
+                        request.getDiscountedPrice().compareTo(request.getSellingPrice()) >= 0)) {
             throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
         } else if (request.getOriginalPrice().compareTo(request.getSellingPrice()) > 0) {
             throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
@@ -294,7 +294,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public PaginationResponse handleGetProductPopularBySoldQuantity(int page, int size) {
 
-        Page<Product> productPage = productRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "sumSoldQuantity")));
+        Sort sort = Sort.by(Sort.Direction.DESC, "sumSoldQuantity");
+        Page<Product> productPage = productRepository.findAll(PageRequest.of(page, size, sort));
         List<Product> products = productPage.getContent();
 
         List<ProductPopular> productPopulars = products.stream()
