@@ -53,3 +53,5 @@ bezkoder:
     jwtExpirationMs: 86400000 #1d
     jwtRefreshExpirationMs: 604800000 #1w
 
+
+domain: "https://neo4j-ecommerce.onrender.com/api/v1"
