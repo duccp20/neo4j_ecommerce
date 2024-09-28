@@ -82,6 +82,8 @@ public class AuthServiceImpl implements AuthService {
 
         String link = domain + "/auth/verify-account/confirmation?token=" + token + "&id=" + user.getId();
 
+        log.info("link: {}", link);
+
         emailService.sendMailWithLink(email, "Confirm Registration", "confirmRegistration", user.getFirstName() + " " + user.getLastName(), link);
 
     }

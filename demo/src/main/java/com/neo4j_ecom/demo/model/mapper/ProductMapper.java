@@ -148,15 +148,21 @@ public class ProductMapper {
 
     public ProductPopular toPopular(Product product) {
         List<ProductVariant> variants = product.getProductVariants() != null ? product.getProductVariants() : new ArrayList<>();
-        List<BigDecimal> sellingPrices = variants.stream().map(variant -> variant.getSellingPrice()).collect(Collectors.toList());
-        sellingPrices.add(product.getSellingPrice() != null ? product.getSellingPrice() : BigDecimal.ZERO);
-        List<BigDecimal> discountedPrices = variants.stream().map(variant -> variant.getDiscountedPrice()).collect(Collectors.toList());
-        discountedPrices.add(product.getDiscountedPrice() != null ? product.getDiscountedPrice() : BigDecimal.ZERO);
+        List<BigDecimal> sellingPrices = variants.stream().map(variant -> variant.getSellingPrice()).filter(Objects::nonNull).collect(Collectors.toList());
+
+       if (product.getSellingPrice() != null) {
+           sellingPrices.add(product.getSellingPrice());
+       }
+        List<BigDecimal> discountedPrices = variants.stream().map(variant -> variant.getDiscountedPrice()).filter(Objects::nonNull).collect(Collectors.toList());
+
+       if (product.getDiscountedPrice() != null) {
+           discountedPrices.add(product.getDiscountedPrice());
+       }
+
         BigDecimal minSellingPrice = sellingPrices.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
         BigDecimal maxSellingPrice = sellingPrices.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
-        BigDecimal minDiscountedPrice = discountedPrices.stream().filter(Objects::nonNull).min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
-        BigDecimal maxDiscountedPrice = discountedPrices.stream().filter(Objects::nonNull).max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
-
+        BigDecimal minDiscountedPrice = discountedPrices.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+        BigDecimal maxDiscountedPrice = discountedPrices.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
         return ProductPopular.builder()
                 .id(product.getId() != null ? product.getId() : null)
                 .name(product.getName() != null ? product.getName() : null)
