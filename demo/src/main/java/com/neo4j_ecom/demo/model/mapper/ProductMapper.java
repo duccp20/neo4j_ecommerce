@@ -1,16 +1,21 @@
 package com.neo4j_ecom.demo.model.mapper;
 
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
+import com.neo4j_ecom.demo.model.dto.request.ProductVariantRequest;
 import com.neo4j_ecom.demo.model.dto.response.product.ProductPopular;
 import com.neo4j_ecom.demo.model.dto.response.product.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.Category;
 import com.neo4j_ecom.demo.model.entity.Product;
+import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.repository.BrandRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -35,7 +40,8 @@ public class ProductMapper {
                 .name(request.getName() != null ? request.getName().trim() : null)
                 .reviewOptions(request.getReviewOptions() != null ? request.getReviewOptions() : null)
                 .primaryVariantType(request.getPrimaryVariantType())
-                .sumSoldQuantity(request.getSoldQuantity() > 0 ? request.getSoldQuantity() : 0)
+                .soldQuantity(request.getSoldQuantity())
+                .sumSoldQuantity(request.getSoldQuantity() + (request.getProductVariants() == null ? 0L : request.getProductVariants().stream().mapToLong(ProductVariantRequest::getSoldQuantity).sum()))
                 .build();
     }
 
@@ -56,7 +62,7 @@ public class ProductMapper {
         response.setName(product.getName());
         response.setPrimaryImage(product.getPrimaryImage());
         response.setCountOfReviews(product.getCountOfReviews());
-        response.setSumSoldQuantity(product.getSumSoldQuantity());
+        response.setSumSoldQuantity(product.getSoldQuantity() + (product.getProductVariants() == null ? 0 : product.getProductVariants().stream().mapToLong(ProductVariant::getSoldQuantity).sum()));
 
         if (product.getProductImages() != null && !product.getProductImages().isEmpty()) {
             response.setImages(product.getProductImages());
@@ -141,6 +147,15 @@ public class ProductMapper {
     }
 
     public ProductPopular toPopular(Product product) {
+        List<ProductVariant> variants = product.getProductVariants() != null ? product.getProductVariants() : new ArrayList<>();
+        List<BigDecimal> sellingPrices = variants.stream().map(variant -> variant.getSellingPrice()).collect(Collectors.toList());
+        sellingPrices.add(product.getSellingPrice() != null ? product.getSellingPrice() : BigDecimal.ZERO);
+        List<BigDecimal> discountedPrices = variants.stream().map(variant -> variant.getDiscountedPrice()).collect(Collectors.toList());
+        discountedPrices.add(product.getDiscountedPrice() != null ? product.getDiscountedPrice() : BigDecimal.ZERO);
+        BigDecimal minSellingPrice = sellingPrices.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+        BigDecimal maxSellingPrice = sellingPrices.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+        BigDecimal minDiscountedPrice = discountedPrices.stream().filter(Objects::nonNull).min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+        BigDecimal maxDiscountedPrice = discountedPrices.stream().filter(Objects::nonNull).max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
 
         return ProductPopular.builder()
                 .id(product.getId() != null ? product.getId() : null)
@@ -148,9 +163,11 @@ public class ProductMapper {
                 .image(product.getPrimaryImage() != null ? product.getPrimaryImage() : null)
                 .brandName(product.getBrand() != null ? product.getBrand().getName() : null)
                 .avgRating(product.getAvgRating() != null ? product.getAvgRating() : 0)
-                .sumSoldQuantity(product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0)
-                .discountedPrice(product.getDiscountedPrice() != null ? product.getDiscountedPrice() : null)
-                .sellingPrice(product.getSellingPrice() != null ? product.getSellingPrice() : null)
+                .sumSoldQuantity(product.getSoldQuantity() + (product.getProductVariants() == null ? 0 : product.getProductVariants().stream().mapToLong(ProductVariant::getSoldQuantity).sum()))
+                .minSellingPrice(minSellingPrice)
+                .maxSellingPrice(maxSellingPrice)
+                .minDiscountedPrice(minDiscountedPrice)
+                .maxDiscountedPrice(maxDiscountedPrice)
                 .build();
     }
 }

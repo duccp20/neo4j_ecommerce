@@ -1,11 +1,13 @@
 package com.neo4j_ecom.demo.service.impl;
 
+import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ChangePasswordRequest;
 import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.repository.UserRepository;
 import com.neo4j_ecom.demo.service.AuthService;
 import com.neo4j_ecom.demo.service.EmailService;
 import com.neo4j_ecom.demo.service.UserService;
+import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -88,6 +90,10 @@ public class AuthServiceImpl implements AuthService {
     public void handleResetPassword(ChangePasswordRequest request) {
 
         User user = userService.findByEmail(request.getEmail());
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         user.setForgotPasswordToken(null);
         userRepository.save(user);

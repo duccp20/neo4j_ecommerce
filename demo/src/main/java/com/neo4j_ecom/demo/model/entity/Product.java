@@ -50,6 +50,7 @@ public class Product {
     private String sku;
     private List<String> productImages = new ArrayList<>();
     private String primaryImage;
+    private long soldQuantity;
     private ProductDimension productDimension;
     private List<ProductBanner> productBanners = new ArrayList<>();
     @DocumentReference(lazy = true)

@@ -20,6 +20,8 @@ public class ProductPopular {
     String brandName;
     Float avgRating;
     Long sumSoldQuantity;
-    BigDecimal discountedPrice;
-    BigDecimal sellingPrice;
+    BigDecimal minSellingPrice;
+    BigDecimal maxSellingPrice;
+    BigDecimal minDiscountedPrice;
+    BigDecimal maxDiscountedPrice;
 }
