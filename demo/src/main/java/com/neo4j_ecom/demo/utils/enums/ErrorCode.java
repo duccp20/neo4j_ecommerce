@@ -63,7 +63,7 @@ public enum ErrorCode {
     //user
     USER_NOT_FOUND(404, "User Not Found!", HttpStatus.NOT_FOUND),
     BAD_CREDENTIALS(401, "You have entered wrong credentials!", HttpStatus.UNAUTHORIZED),
-    USER_NOT_VERIFIED(401, "User Not Verified!", HttpStatus.UNAUTHORIZED),
+    USER_NOT_VERIFIED(401, "The Account Not Verified Yet, Please Verify Your Account!", HttpStatus.UNAUTHORIZED),
     PRODUCT_NOT_REQUIRED_PRICE(400, "Missing Required Product Price (SALE PRICE OR ORIGINAL PRICE)!", HttpStatus.BAD_REQUEST),
     INVALID_PASSWORD(400, "Invalid Password!", HttpStatus.BAD_REQUEST);
 

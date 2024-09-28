@@ -161,15 +161,15 @@ public class ProductMapper {
 
         BigDecimal minSellingPrice = sellingPrices.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
         BigDecimal maxSellingPrice = sellingPrices.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
-        BigDecimal minDiscountedPrice = discountedPrices.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
-        BigDecimal maxDiscountedPrice = discountedPrices.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+        BigDecimal minDiscountedPrice = discountedPrices.stream().filter(p -> p.compareTo(BigDecimal.ZERO) > 0).min(BigDecimal::compareTo).orElse(null);
+        BigDecimal maxDiscountedPrice = discountedPrices.stream().filter(p -> p.compareTo(BigDecimal.ZERO) > 0).max(BigDecimal::compareTo).orElse(null);
         return ProductPopular.builder()
                 .id(product.getId() != null ? product.getId() : null)
                 .name(product.getName() != null ? product.getName() : null)
                 .image(product.getPrimaryImage() != null ? product.getPrimaryImage() : null)
                 .brandName(product.getBrand() != null ? product.getBrand().getName() : null)
                 .avgRating(product.getAvgRating() != null ? product.getAvgRating() : 0)
-                .sumSoldQuantity(product.getSoldQuantity() + (product.getProductVariants() == null ? 0 : product.getProductVariants().stream().mapToLong(ProductVariant::getSoldQuantity).sum()))
+                .sumSoldQuantity(product.getSumSoldQuantity())
                 .minSellingPrice(minSellingPrice)
                 .maxSellingPrice(maxSellingPrice)
                 .minDiscountedPrice(minDiscountedPrice)

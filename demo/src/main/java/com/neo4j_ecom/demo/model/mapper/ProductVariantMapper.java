@@ -21,8 +21,8 @@ public class ProductVariantMapper {
             productVariant.setOriginalPrice(productVariantRequest.getOriginalPrice());
         }
 
-        if (productVariantRequest.getDiscountPrice() != null) {
-            productVariant.setDiscountedPrice(productVariantRequest.getDiscountPrice());
+        if (productVariantRequest.getDiscountedPrice() != null) {
+            productVariant.setDiscountedPrice(productVariantRequest.getDiscountedPrice());
         }
 
         if (productVariantRequest.getSoldQuantity() != null) {
