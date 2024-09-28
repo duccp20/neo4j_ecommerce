@@ -99,13 +99,18 @@ public class AuthController {
 
             SuccessCode successCode = SuccessCode.LOGIN;
 
+            AuthResponse authResponse = AuthResponse.builder()
+                    .token(token)
+                    .user(userResponse)
+                    .build();
+
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                     .body(
                             ApiResponse.builder()
                                     .statusCode(successCode.getCode())
                                     .message(successCode.getMessage())
-                                    .data(userResponse)
+                                    .data(authResponse)
                                     .build());
     }
 
