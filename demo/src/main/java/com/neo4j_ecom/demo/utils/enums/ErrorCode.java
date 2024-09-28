@@ -50,7 +50,15 @@ public enum ErrorCode {
     //Auth
     EMAIL_ALREADY_EXISTS(409, "Mail Already Exists!", HttpStatus.CONFLICT),
     LOGIN_FAILED(400, "Invalid username or password!", HttpStatus.BAD_REQUEST ),
-    INVALID_REFRESH_TOKEN(401, "Invalid or expired refresh token", HttpStatus.BAD_GATEWAY);
+
+
+    //auth
+    INVALID_REFRESH_TOKEN(401, "Invalid or expired refresh token", HttpStatus.BAD_GATEWAY),
+    ACCESS_DENIED(403, "Access Denied ! Do not have permission", HttpStatus.FORBIDDEN),
+    UNAUTHORIZED(401, "Unauthorized", HttpStatus.UNAUTHORIZED),
+
+    //user
+    USER_NOT_FOUND( 404, "User Not Found!", HttpStatus.NOT_FOUND);
 
 
 

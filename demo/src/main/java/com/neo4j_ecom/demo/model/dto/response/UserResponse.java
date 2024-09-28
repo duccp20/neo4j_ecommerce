@@ -19,12 +19,4 @@ public class UserResponse {
     @JsonIgnore
     private String password;
     private Set<String> roles;
-
-    public UserResponse(String id, String firstName,String lastName, String email, Set<String> roles) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.roles = roles;
-    }
 }

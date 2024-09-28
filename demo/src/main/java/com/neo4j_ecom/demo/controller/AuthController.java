@@ -9,8 +9,10 @@ import com.neo4j_ecom.demo.model.dto.response.AuthResponse;
 import com.neo4j_ecom.demo.model.dto.response.TokenRefreshResponse;
 import com.neo4j_ecom.demo.model.dto.response.UserResponse;
 import com.neo4j_ecom.demo.model.entity.RefreshToken;
+import com.neo4j_ecom.demo.model.entity.Role;
 import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.security.JwtUtil;
+import com.neo4j_ecom.demo.service.RefreshTokenService;
 import com.neo4j_ecom.demo.service.UserService;
 import com.neo4j_ecom.demo.service.impl.RefreshTokenServiceImpl;
 import com.neo4j_ecom.demo.service.impl.UserDetailsImpl;
@@ -22,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -40,6 +43,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("api/v1/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final UserService userService;
@@ -47,7 +51,7 @@ public class AuthController {
 
     private final JwtUtil jwtUtil;
 
-    private final RefreshTokenServiceImpl refreshTokenService;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
@@ -68,24 +72,24 @@ public class AuthController {
                     .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-            String token = jwtUtil.generateTokenFromUsername(userDetails.getEmail());
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-            Set<String> roles = userDetails.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toSet());
+            User user = userService.findByEmail(email);
 
-            UserResponse userResponse = new UserResponse(
-                    userDetails.getId(),
-                    userDetails.getFirstName(),
-                    userDetails.getLastName(),
-                    userDetails.getEmail(),
-                    roles
-            );
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+            String token = jwtUtil.generateTokenFromUsername(user.getEmail());
+            String refreshTokenJwt = refreshToken.getRefreshToken();
 
-            Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken.getRefreshToken());
+            UserResponse userResponse = UserResponse.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                    .build();
+
+            Cookie refreshTokenCookie = new Cookie("refresh_token", refreshTokenJwt);
             refreshTokenCookie.setHttpOnly(true);
             refreshTokenCookie.setSecure(true);
             refreshTokenCookie.setPath("/");
@@ -141,21 +145,24 @@ public class AuthController {
 
     @GetMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@CookieValue("refresh_token") String requestRefreshToken) {
+
+        log.info("requestRefreshToken: {}", requestRefreshToken);
         RefreshToken oldRefreshToken = refreshTokenService.findByToken(requestRefreshToken);
 
         refreshTokenService.verifyExpiration(oldRefreshToken);
 
         this.jwtUtil.validateJwtToken(oldRefreshToken.getRefreshToken());
 
-        String accessToken = this.jwtUtil.generateTokenFromUsername(oldRefreshToken.getUser().getFirstName());
+        String accessToken = this.jwtUtil.generateTokenFromUsername(oldRefreshToken.getUser().getEmail());
 
-        String refreshToken = this.jwtUtil.generateRefreshToken(oldRefreshToken.getUser().getFirstName());
+        String refreshToken = this.jwtUtil.generateRefreshToken(oldRefreshToken.getUser().getEmail());
 
         oldRefreshToken.setRefreshToken(refreshToken);
+        refreshTokenService.saveRefreshToken(oldRefreshToken);
 
-        Cookie refreshTokenCookie = new Cookie("refresh_token_1", oldRefreshToken.getRefreshToken());
+        Cookie refreshTokenCookie = new Cookie("refresh_token", oldRefreshToken.getRefreshToken());
         refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/123");
+        refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
 
         SuccessCode successCode = SuccessCode.TOKEN_REFRESH;

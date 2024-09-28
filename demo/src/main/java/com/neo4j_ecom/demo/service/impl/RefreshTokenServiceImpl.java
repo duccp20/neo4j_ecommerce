@@ -1,6 +1,7 @@
 package com.neo4j_ecom.demo.service.impl;
 
 import com.neo4j_ecom.demo.model.entity.RefreshToken;
+import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.repository.RefreshTokenRepository;
 import com.neo4j_ecom.demo.repository.UserRepository;
 import com.neo4j_ecom.demo.service.RefreshTokenService;
@@ -30,19 +31,17 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     private UserRepository userRepository;
     @Override
     public RefreshToken findByToken(String token) {
-        return refreshTokenRepository.findByRefreshToken(token).get();
+        return refreshTokenRepository.findByRefreshToken(token).orElseThrow(
+                () -> new TokenRefreshException(token, "Refresh token not found"));
     }
 
     @Override
-    public RefreshToken createRefreshToken(String userId) {
+    public RefreshToken createRefreshToken(User user) {
         RefreshToken refreshToken = new RefreshToken();
-
-        refreshToken.setUser(userRepository.findById(userId).get());
+        refreshToken.setUser(user);
         refreshToken.setExpiryDate(Instant.now().plusMillis(jwtRefreshExpirationMs));
-        refreshToken.setRefreshToken(UUID.randomUUID().toString());
-
-        refreshToken = refreshTokenRepository.save(refreshToken);
-        return refreshToken;
+        refreshToken.setRefreshToken(UUID.randomUUID().toString());;
+        return refreshTokenRepository.save(refreshToken);
     }
     @Override
     public void verifyExpiration(RefreshToken token) {
@@ -50,5 +49,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             refreshTokenRepository.delete(token);
             throw new TokenRefreshException(token.getRefreshToken(), "Refresh token was expired. Please make a new signin request");
         }
+    }
+
+    @Override
+    public void saveRefreshToken(RefreshToken oldRefreshToken) {
+        refreshTokenRepository.save(oldRefreshToken);
     }
 }
