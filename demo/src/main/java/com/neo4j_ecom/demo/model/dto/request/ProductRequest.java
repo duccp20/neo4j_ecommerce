@@ -28,15 +28,14 @@ public class ProductRequest {
     @Size(min = 5, max = 120, message = "Product name must be between 5 and 120 characters")
     String name;
     String brandName;
-    @NotNull(message = "Original price is required")
+
     @Digits(integer = Integer.MAX_VALUE,  fraction = 2, message = "The selling price must be a valid number with up 2 decimal places")
     @NumberFormat
     BigDecimal originalPrice;
 
-    @NumberFormat
     @Digits(integer = Integer.MAX_VALUE,  fraction = 2, message = "The selling price must be a valid number with up 2 decimal places")
     BigDecimal discountedPrice;
-    @NotNull(message = "Selling price is required")
+
     @NumberFormat
     @Digits(integer = Integer.MAX_VALUE,  fraction = 2, message = "The selling price must be a valid number with up 2 decimal places")
     BigDecimal sellingPrice;

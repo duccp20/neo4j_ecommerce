@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -50,7 +51,16 @@ public class GlobalException {
 
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiResponse> handleBadCredentialsException(BadCredentialsException e) {
+        ErrorCode errorCode = ErrorCode.BAD_CREDENTIALS;
+        ApiResponse apiResponse = ApiResponse.builder()
+                .statusCode(errorCode.getCode())
+                .message(errorCode.getMessage())
+                .build();
+        return ResponseEntity.status(errorCode.getCode()).body(apiResponse);
 
+    }
     @ExceptionHandler(MissingRequestCookieException.class)
     public ResponseEntity<ApiResponse> handleMissingRequestCookieException(MissingRequestCookieException ex, WebRequest request) {
 

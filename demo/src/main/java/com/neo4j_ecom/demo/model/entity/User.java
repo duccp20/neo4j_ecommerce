@@ -26,4 +26,10 @@ public class User {
     @JsonIgnore
     private String password;
     private Set<Role> roles;
+    @JsonIgnore
+    boolean hasVerified;
+    @JsonIgnore
+    private String forgotPasswordToken;
+    @JsonIgnore
+    private String verificationToken;
 }
