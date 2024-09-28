@@ -33,6 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -174,16 +175,18 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponse<Object>> forgotPassword(@RequestBody String email) {
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@RequestBody Map<String, String> emailMap) {
 
+        String email = emailMap.get("email");
         log.info("email in forgot password: {}", email);
         SuccessCode successCode = SuccessCode.SEND_MAIL_FORGOT_PASSWORD;
 
+        authService.handleForgotPassword(email);
+
         return ResponseEntity.ok()
-                .body(ApiResponse.builder()
+                .body(ApiResponse.<Void>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(authService.handleForgotPassword(email))
                         .build()
                 );
     }
