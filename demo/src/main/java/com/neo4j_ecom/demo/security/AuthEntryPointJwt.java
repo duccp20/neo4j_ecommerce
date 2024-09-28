@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
+import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,24 +31,25 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         LOGGER.error("Unauthorized error: {}", authException.getMessage());
 
-        int statusCode = HttpServletResponse.SC_UNAUTHORIZED;
-        String errorMessage = MESSAGE_UNAUTHORIZED;
+        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+        int statusCode = errorCode.getCode();
+        String errorMessage = errorCode.getMessage();
 
         if (authException instanceof InsufficientAuthenticationException) {
             statusCode = HttpServletResponse.SC_FORBIDDEN;
-            errorMessage = MESSAGE_FORBIDDEN;
+
+            ErrorCode errorCodeAccessDenied = ErrorCode.ACCESS_DENIED;
+            errorMessage = errorCodeAccessDenied.getMessage();
         }
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(statusCode);
 
-        final Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("status", statusCode);
-        responseBody.put("error", errorMessage);
-        responseBody.put("message", authException.getMessage());
-        responseBody.put("path", request.getServletPath());
-
+        final ApiResponse apiResponse = ApiResponse.builder()
+                .statusCode(statusCode)
+                .message(errorMessage)
+                .build();
         final ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.writeValue(response.getOutputStream(), responseBody);
+        objectMapper.writeValue(response.getOutputStream(), apiResponse);
     }
 }
