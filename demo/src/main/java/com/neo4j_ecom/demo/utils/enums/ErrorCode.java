@@ -44,27 +44,28 @@ public enum ErrorCode {
     INVALID_SORT_ORDER(400, "Invalid Sort Order!", HttpStatus.BAD_REQUEST),
 
     //brand
-    BRAND_ALREADY_EXISTS( 409, "Brand Already Exists!" , HttpStatus.CONFLICT),
-    BRAND_NOT_FOUND( 404, "Brand Not Found!",  HttpStatus.NOT_FOUND),
+    BRAND_ALREADY_EXISTS(409, "Brand Already Exists!", HttpStatus.CONFLICT),
+    BRAND_NOT_FOUND(404, "Brand Not Found!", HttpStatus.NOT_FOUND),
 
     //Auth
     EMAIL_ALREADY_EXISTS(409, "Mail Already Exists!", HttpStatus.CONFLICT),
-    LOGIN_FAILED(400, "Invalid username or password!", HttpStatus.BAD_REQUEST ),
+    LOGIN_FAILED(400, "Invalid username or password!", HttpStatus.BAD_REQUEST),
 
 
     //auth
     INVALID_REFRESH_TOKEN(401, "Invalid or expired refresh token", HttpStatus.BAD_GATEWAY),
 
-    REFRESH_TOKEN_NOT_FOUND( 404, "Refresh Token Not Found!", HttpStatus.NOT_FOUND),
+    REFRESH_TOKEN_NOT_FOUND(404, "Refresh Token Not Found!", HttpStatus.NOT_FOUND),
     ACCESS_DENIED(403, "Access Denied ! Do not have permission", HttpStatus.FORBIDDEN),
     UNAUTHORIZED(401, "Unauthorized", HttpStatus.UNAUTHORIZED),
-    MISSING_REQUEST_COOKIE( 400, "Missing Request Cookie!"  , HttpStatus.BAD_REQUEST),
+    MISSING_REQUEST_COOKIE(400, "Missing Request Cookie!", HttpStatus.BAD_REQUEST),
 
     //user
-    USER_NOT_FOUND( 404, "User Not Found!", HttpStatus.NOT_FOUND),
-    BAD_CREDENTIALS( 401, "You have entered wrong credentials!", HttpStatus.UNAUTHORIZED),
-    USER_NOT_VERIFIED( 401, "User Not Verified!" , HttpStatus.UNAUTHORIZED  ),
-    PRODUCT_NOT_REQUIRED_PRICE( 400, "Missing Required Product Price (SALE PRICE OR ORIGINAL PRICE)!" ,  HttpStatus.BAD_REQUEST);
+    USER_NOT_FOUND(404, "User Not Found!", HttpStatus.NOT_FOUND),
+    BAD_CREDENTIALS(401, "You have entered wrong credentials!", HttpStatus.UNAUTHORIZED),
+    USER_NOT_VERIFIED(401, "User Not Verified!", HttpStatus.UNAUTHORIZED),
+    PRODUCT_NOT_REQUIRED_PRICE(400, "Missing Required Product Price (SALE PRICE OR ORIGINAL PRICE)!", HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD(400, "Invalid Password!", HttpStatus.BAD_REQUEST);
 
 
     private final int code;

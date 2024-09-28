@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -293,11 +294,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public PaginationResponse handleGetProductPopularBySoldQuantity(int page, int size) {
 
-        Sort sort = Sort.by(Sort.Direction.DESC, "sumSoldQuantity");
-        Page<Product> productPage = productRepository.findAll(PageRequest.of(page, size, sort));
+        Page<Product> productPage = productRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "sumSoldQuantity")));
         List<Product> products = productPage.getContent();
 
-        List<ProductPopular> productPopulars = products.stream().map(productMapper::toPopular).collect(Collectors.toList());
+        List<ProductPopular> productPopulars = products.stream()
+                .map(productMapper::toPopular)
+                .collect(Collectors.toList());
 
         Meta meta = Meta.builder()
                 .current(productPage.getNumber() + 1)
@@ -327,7 +329,6 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-
         ProductResponse response = productMapper.toResponse(product);
 
         if (product.getCountOfReviews() > 0) {
@@ -337,6 +338,13 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if (product.getProductVariants() != null) {
+
+            List<ProductVariant> productVariants = product.getProductVariants();
+
+            if (response.getSellingPrice() == null && response.getDiscountedPrice() == null) {
+                response.setSellingPrice(productVariants.get(0).getSellingPrice());
+                response.setDiscountedPrice(productVariants.get(0).getDiscountedPrice());
+            }
 
             Map<ProductType, Set<String>> options = new HashMap<>();
             for (ProductVariant variant : product.getProductVariants()) {
@@ -477,5 +485,22 @@ public class ProductServiceImpl implements ProductService {
         return null;
     }
 
+    private Map<String, BigDecimal> getProductPrices(Product product) {
+        List<ProductVariant> variants = product.getProductVariants() != null ? product.getProductVariants() : new ArrayList<>();
+        List<BigDecimal> sellingPrices = variants.stream().map(variant -> variant.getSellingPrice()).collect(Collectors.toList());
+        sellingPrices.add(product.getSellingPrice() != null ? product.getSellingPrice() : BigDecimal.ZERO);
+        List<BigDecimal> discountedPrices = variants.stream().map(variant -> variant.getDiscountedPrice()).collect(Collectors.toList());
+        discountedPrices.add(product.getDiscountedPrice() != null ? product.getDiscountedPrice() : BigDecimal.ZERO);
+        BigDecimal minSellingPrice = sellingPrices.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+        BigDecimal maxSellingPrice = sellingPrices.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+        BigDecimal minDiscountedPrice = discountedPrices.stream().filter(Objects::nonNull).min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+        BigDecimal maxDiscountedPrice = discountedPrices.stream().filter(Objects::nonNull).max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
 
+        return Map.of(
+                "minSellingPrice", minSellingPrice,
+                "maxSellingPrice", maxSellingPrice,
+                "minDiscountedPrice", minDiscountedPrice,
+                "maxDiscountedPrice", maxDiscountedPrice
+        );
+    }
 }
