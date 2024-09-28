@@ -49,8 +49,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 Pair.of("/api/v1/auth/refresh-token", "GET"),
                 Pair.of("/api/v1/auth/logout", "POST"),
                 Pair.of("/api/v1/products", "GET"),
-                Pair.of("/api/v1/products/.*", ".*"),
-                Pair.of("/api/v1/products/banners", ".*")
+                Pair.of("/api/v1/products/.*", "GET"),
+                Pair.of("/api/v1/products/banners", ".*"),
+                Pair.of("/api/v1/categories/featured/products?.*", "GET")
         );
 
         return byPassTokens.stream()
