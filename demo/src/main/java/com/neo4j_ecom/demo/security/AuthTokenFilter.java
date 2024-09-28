@@ -3,9 +3,6 @@ package com.neo4j_ecom.demo.security;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
@@ -48,6 +45,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 Pair.of("/api/v1/auth/register", "POST"),
                 Pair.of("/api/v1/auth/refresh-token", "GET"),
                 Pair.of("/api/v1/auth/logout", "POST"),
+                Pair.of("/api/v1/auth/forgot-password", "POST"),
+                Pair.of("/api/v1/auth/forgot-password/confirmation.*", "GET"),
+                Pair.of("/api/v1/auth/reset-password", "POST"),
+                Pair.of("/api/v1/auth/verify-account", "POST"),
+                Pair.of("/api/v1/auth/verify-account/confirmation.*", "GET"),
                 Pair.of("/api/v1/products", "GET"),
                 Pair.of("/api/v1/products/.*", "GET"),
                 Pair.of("/api/v1/products/banners", ".*"),
@@ -55,7 +57,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 Pair.of("/api/v1/categories/featured/products?.*", "GET"),
                 Pair.of("/api/v1/files/upload", "POST"),
                 Pair.of("/api/v1/files/delete", "DELETE"),
-                Pair.of("/api/v1/categories.*", "GET")
+                Pair.of("/api/v1/categories.*", "GET"),
+                Pair.of("/api/v1/brands", "GET")
         );
 
         return byPassTokens.stream()

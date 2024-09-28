@@ -13,8 +13,6 @@ import com.neo4j_ecom.demo.repository.UserRepository;
 import com.neo4j_ecom.demo.service.UserService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +41,7 @@ public class UserServiceImpl implements UserService {
         user.setLastName(registerRequest.getLastName());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(encoder.encode(registerRequest.getPassword()));
+        user.setHasVerified(false);
 
         Set<Role> roles = new HashSet<>();
         if (registerRequest.getRoles() != null && !registerRequest.getRoles().isEmpty()) {
@@ -77,6 +76,40 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    @Override
+    public void updateForgotPasswordToken(String token, String id) {
+        Optional<User> user = userRepository.findById(id);
+        user.ifPresent(u -> {
+            u.setForgotPasswordToken(token);
+            userRepository.save(u);
+        });
+    }
+
+    @Override
+    public User findById(String id) {
+        return userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    @Override
+    public void updatePassword(String newPass, User user) {
+        user.setPassword(encoder.encode(newPass));
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateVerificationToken(String token, String id) {
+        Optional<User> user = userRepository.findById(id);
+        user.ifPresent(u -> {
+            u.setVerificationToken(token);
+            userRepository.save(u);
+        });
+    }
+
+    @Override
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 
 }
