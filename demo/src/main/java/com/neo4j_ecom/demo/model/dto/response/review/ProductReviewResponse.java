@@ -27,6 +27,7 @@ public class ProductReviewResponse {
     private List<ReviewOption> options;
     private String productId;
     private String reviewerId;
+    private String reviewerName;
     private Instant createdAt;
     private Instant updatedAt;
 }

@@ -8,18 +8,21 @@ import com.neo4j_ecom.demo.model.dto.response.review.ProductReviewResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ReviewResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
+import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.repository.ProductRepository;
 import com.neo4j_ecom.demo.repository.ProductReviewRepository;
 import com.neo4j_ecom.demo.repository.ProductVariantRepository;
 import com.neo4j_ecom.demo.service.ProductReviewService;
+import com.neo4j_ecom.demo.service.UserService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -42,6 +45,8 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     private final ProductMapper productMapper;
 
+    private final UserService userService;
+
     @Override
     public ProductReviewResponse createReview(String productId, ProductReviewRequest review) {
 
@@ -50,10 +55,13 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         log.info("Product found: {}", product);
 
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userService.findByEmail(email);
+
         ProductReview productReview = reviewMapper.toEntity(review);
         productReview.setProduct(product);
-        //missing filed user...do it later
-        productReview.setReviewer(null);
+        productReview.setReviewer(user);
         ProductReview savedProductReview = productReviewRepository.save(productReview);
 
 
