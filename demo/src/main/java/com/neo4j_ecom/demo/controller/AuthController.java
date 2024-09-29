@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -49,6 +51,9 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
 
     private final AuthService authService;
+
+    @Value("${domain}")
+    private String domain;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
@@ -174,16 +179,18 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponse<Object>> forgotPassword(@RequestBody String email) {
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@RequestBody Map<String, String> emailMap) {
 
+        String email = emailMap.get("email");
         log.info("email in forgot password: {}", email);
         SuccessCode successCode = SuccessCode.SEND_MAIL_FORGOT_PASSWORD;
 
+        authService.handleForgotPassword(email);
+
         return ResponseEntity.ok()
-                .body(ApiResponse.builder()
+                .body(ApiResponse.<Void>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(authService.handleForgotPassword(email))
                         .build()
                 );
     }
@@ -197,7 +204,8 @@ public class AuthController {
 
             log.info("successfully verified in forgot password token");
 
-            return new RedirectView("https://www.saokim.com.vn/project/du-an/thiet-ke-logo-va-nhan-dien-thuong-hieu-thanh-cong");
+
+            return new RedirectView( "http://localhost:5173/reset?email=" + user.getEmail());
 
         } else {
 

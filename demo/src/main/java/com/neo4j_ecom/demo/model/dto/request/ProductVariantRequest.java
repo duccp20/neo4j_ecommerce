@@ -16,7 +16,7 @@ public class ProductVariantRequest {
     private String sku;
     private BigDecimal sellingPrice;
     private BigDecimal originalPrice;
-    private BigDecimal discountPrice;
+    private BigDecimal discountedPrice;
     private Long soldQuantity;
     private List<String> images;
     private List<VariantOption> variantOptions;
