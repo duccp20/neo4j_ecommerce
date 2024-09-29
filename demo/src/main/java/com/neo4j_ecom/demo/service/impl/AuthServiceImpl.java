@@ -51,28 +51,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Object verifyForgotPasswordToken(String token, String id) {
-        User user = userService.findById(id);
-
-        if (user.getForgotPasswordToken().equals(token)) {
-
-            user.setForgotPasswordToken(null);
-
-            log.info("successfully verified in forgot password token");
-
-            return new RedirectView("https://www.youtube.com/watch?v=Llw9Q6akRo4&list=RDMMy576-ONm5II&index=25");
-
-        } else {
-            user.setForgotPasswordToken(null);
-
-            log.info("failed verified in forgot password token");
-
-            return new RedirectView("https://www.youtube.com/watch?v=-vtBgNxMyZI&list=RDMMy576-ONm5II&index=32");
-
-        }
-    }
-
-    @Override
     public void verifyAccount(String email) {
 
         User user = userService.findByEmail(email);
