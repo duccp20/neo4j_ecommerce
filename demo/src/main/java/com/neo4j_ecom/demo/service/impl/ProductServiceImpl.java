@@ -368,7 +368,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> handleGetAllProducts() {
 
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"));
 
         return products.stream().map(productMapper::toResponse).collect(Collectors.toList());
     }
