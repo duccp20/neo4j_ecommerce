@@ -81,13 +81,25 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductResponse handleCreateProduct(ProductRequest request, List<MultipartFile> files) throws URISyntaxException, IOException {
 
-        this.validateProductPrices(request);
 
         boolean existedProduct = productRepository.existsByName(request.getName().trim());
 
         if (existedProduct) {
             throw new AppException(ErrorCode.PRODUCT_ALREADY_EXISTS);
         }
+
+        if (!request.getHasVariants()) {
+            if (request.getOriginalPrice() == null || request.getSellingPrice() == null) {
+                throw new AppException(ErrorCode.PRODUCT_NOT_REQUIRED_PRICE);
+            }
+
+            this.validateProductPrices(request);
+        } else {
+            request.setOriginalPrice(null);
+            request.setSellingPrice(null);
+            request.setDiscountedPrice(null);
+        }
+
 
         boolean existedBrand = brandRepository.existsByName(request.getBrandName().trim());
 
@@ -104,6 +116,10 @@ public class ProductServiceImpl implements ProductService {
         if (request.getHasVariants() && request.getProductVariants() != null) {
             List<ProductVariant> productVariants = new ArrayList<>();
             for (ProductVariantRequest productVariantRequest : request.getProductVariants()) {
+
+                if (productVariantRequest.getOriginalPrice() == null || productVariantRequest.getSellingPrice() == null) {
+                    throw new AppException(ErrorCode.PRODUCT_NOT_REQUIRED_PRICE);
+                }
 
                 this.validateProductVariantPrices(productVariantRequest);
                 ProductVariant productVariant = variantMapper.toEntity(productVariantRequest);

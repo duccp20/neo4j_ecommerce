@@ -22,9 +22,9 @@ public class ProductMapper {
     public Product toEntity(ProductRequest request) {
 
         return Product.builder()
-                .originalPrice(request.getOriginalPrice())
-                .sellingPrice(request.getSellingPrice())
-                .discountedPrice(request.getDiscountedPrice())
+                .originalPrice(request.getOriginalPrice() == null ? null : request.getOriginalPrice())
+                .sellingPrice(request.getSellingPrice() == null ? null : request.getSellingPrice())
+                .discountedPrice(request.getDiscountedPrice() == null ? null : request.getDiscountedPrice())
                 .quantityAvailable(request.getQuantityAvailable() > 0 ? request.getQuantityAvailable() : null)
                 .sellingType(request.getSellingType())
                 .description(request.getDescription() != null ? request.getDescription().trim() : null)

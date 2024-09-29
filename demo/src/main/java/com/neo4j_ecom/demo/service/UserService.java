@@ -10,4 +10,14 @@ public interface UserService {
     public UserResponse createUser(UserRequest request);
 
     User findByEmail(String email);
+
+    void updateForgotPasswordToken(String token, String id);
+
+    User findById(String id);
+
+    void updatePassword(String newPass,  User user);
+
+    void updateVerificationToken(String token, String id);
+
+    User saveUser(User user);
 }
