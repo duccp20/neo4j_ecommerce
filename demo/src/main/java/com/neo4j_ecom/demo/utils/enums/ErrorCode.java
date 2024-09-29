@@ -53,7 +53,7 @@ public enum ErrorCode {
 
 
     //auth
-    INVALID_REFRESH_TOKEN(401, "Invalid or expired refresh token", HttpStatus.BAD_GATEWAY),
+    INVALID_REFRESH_TOKEN(401, "Invalid or expired token", HttpStatus.BAD_GATEWAY),
 
     REFRESH_TOKEN_NOT_FOUND(404, "Refresh Token Not Found!", HttpStatus.NOT_FOUND),
     ACCESS_DENIED(403, "Access Denied ! Do not have permission", HttpStatus.FORBIDDEN),

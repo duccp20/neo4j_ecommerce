@@ -67,9 +67,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void handleResetPassword(ChangePasswordRequest request) {
+    public void handleResetPassword(ChangePasswordRequest request, String token) {
 
         User user = userService.findByEmail(request.getEmail());
+
+        if (user.getForgotPasswordToken() == null || !user.getForgotPasswordToken().equals(token)) {
+            throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
 
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new AppException(ErrorCode.WRONG_INPUT);
