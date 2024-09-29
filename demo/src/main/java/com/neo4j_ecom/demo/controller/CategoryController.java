@@ -81,6 +81,7 @@ public class CategoryController {
     }
 
     @PutMapping({"/{id}"})
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<CategoryResponse>> handleUpdateCategory(
             @PathVariable String id,
             @Valid
@@ -212,6 +213,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> handleDeleteCategory(
             @PathVariable String id
     ) {
