@@ -211,7 +211,7 @@ public class AuthController {
 
             log.info("failed verified in forgot password token");
 
-            return new RedirectView("https://newshop.vn/tin-tuc/5-cuon-sach-chia-se-bi-quyet-vuon-len-thanh-cong-tu-that-bai-id932.html");
+            return new RedirectView("http://localhost:5173/confirm-failure");
         }
     }
 
@@ -278,13 +278,13 @@ public class AuthController {
             userService.saveUser(user);
             log.info("successfully verified in confirm account token");
 
-            return new RedirectView("https://www.saokim.com.vn/project/du-an/thiet-ke-logo-va-nhan-dien-thuong-hieu-thanh-cong");
+            return new RedirectView("http://localhost:5173/confirm-success");
 
         } else {
 
             log.info("failed verified in confirm account token");
 
-            return new RedirectView("https://newshop.vn/tin-tuc/5-cuon-sach-chia-se-bi-quyet-vuon-len-thanh-cong-tu-that-bai-id932.html");
+            return new RedirectView("http://localhost:5173/confirm-failure");
         }
     }
 }
