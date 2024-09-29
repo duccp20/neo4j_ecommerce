@@ -205,7 +205,7 @@ public class AuthController {
             log.info("successfully verified in forgot password token");
 
 
-            return new RedirectView( "http://localhost:5173/reset?email=" + user.getEmail());
+            return new RedirectView("http://localhost:5173/reset?email=" + user.getEmail());
 
         } else {
 
@@ -228,6 +228,28 @@ public class AuthController {
                         .build()
                 );
 
+    }
+
+    @GetMapping("/account")
+    public ResponseEntity<ApiResponse<UserResponse>> getAccount() {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByEmail(email);
+
+        UserResponse userResponse = UserResponse.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                .build();
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.<UserResponse>builder()
+                        .statusCode(SuccessCode.FETCHED.getCode())
+                        .message(SuccessCode.FETCHED.getMessage())
+                        .data(userResponse)
+                        .build()
+                );
     }
 
     @PostMapping("/verify-account")
