@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -76,12 +77,16 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductVariantMapper variantMapper;
 
+    private final UserService userService;
+
 
     //===================== PRODUCT ====================
     @Override
     @Transactional
     public ProductResponse handleCreateProduct(ProductRequest request, List<MultipartFile> files) throws URISyntaxException, IOException {
 
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByEmail(email);
 
         boolean existedProduct = productRepository.existsByName(request.getName().trim());
 
@@ -107,7 +112,7 @@ public class ProductServiceImpl implements ProductService {
         if (!existedBrand) {
             brandRepository.save(Brand.builder()
                     .name(request.getBrandName().trim())
-                    .exclusiveShopId("999")
+                    .exclusiveShopId(user.getId())
                     .build());
         }
 
