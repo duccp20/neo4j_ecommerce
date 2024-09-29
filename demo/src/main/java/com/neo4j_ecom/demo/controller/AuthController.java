@@ -198,6 +198,11 @@ public class AuthController {
     @GetMapping("/forgot-password/confirmation")
     public Object verifyForgotPasswordToken(@RequestParam String token, @RequestParam String id) {
 
+
+        if (token == null || id == null) {
+            return new RedirectView("http://localhost:5173/confirm-failure");
+        }
+
         User user = userService.findById(id);
 
         if (user.getForgotPasswordToken().equals(token)) {
@@ -205,7 +210,7 @@ public class AuthController {
             log.info("successfully verified in forgot password token");
 
 
-            return new RedirectView("http://localhost:5173/reset?email=" + user.getEmail());
+            return new RedirectView("http://localhost:5173/reset?email=" + user.getEmail() + "&token=" + token);
 
         } else {
 
@@ -216,11 +221,13 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<Object>> handleResetPassword(@RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<ApiResponse<Object>> handleResetPassword(
+            @RequestParam String token,
+            @RequestBody ChangePasswordRequest request) {
 
         SuccessCode successCode = SuccessCode.CHANGE_PASSWORD;
 
-        authService.handleResetPassword(request);
+        authService.handleResetPassword(request, token);
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .statusCode(successCode.getCode())
@@ -267,6 +274,10 @@ public class AuthController {
 
     @GetMapping("/verify-account/confirmation")
     public Object verifyAccount(@RequestParam String token, @RequestParam String id) {
+
+        if (token == null || id == null) {
+            return new RedirectView("http://localhost:5173/confirm-failure");
+        }
 
         User user = userService.findById(id);
 

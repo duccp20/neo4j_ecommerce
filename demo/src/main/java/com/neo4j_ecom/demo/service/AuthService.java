@@ -7,5 +7,5 @@ public interface AuthService {
 
     void verifyAccount(String email);
 
-    void handleResetPassword(ChangePasswordRequest request);
+    void handleResetPassword(ChangePasswordRequest request, String token);
 }
