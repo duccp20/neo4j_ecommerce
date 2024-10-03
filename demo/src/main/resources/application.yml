@@ -41,6 +41,18 @@ firebase:
   link-base: https://firebasestorage.googleapis.com/v0/b/ecom-accessed.appspot.com/o/
   bucket: ecom-accessed.appspot.com
 
+#AWS S3
+aws:
+  access:
+    key:
+      id: AKIA5XRONFGNHZ33J56Y
+  secret:
+    access:
+      key: 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
+  s3:
+    bucket:
+      name: ecommercespringbootneo4j
+  region: ap-southeast-2
 
 logging:
   level:

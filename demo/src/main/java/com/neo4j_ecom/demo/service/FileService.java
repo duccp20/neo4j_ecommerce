@@ -18,4 +18,8 @@ public interface FileService {
     String storeFileFirebase(MultipartFile file, String folder) throws URISyntaxException, IOException;
 
     void deleteFileFirebase(String path) throws FileNotFoundException;
+
+
+    String storeFileS3(MultipartFile file, String folder) throws URISyntaxException, IOException, InterruptedException;
+
 }

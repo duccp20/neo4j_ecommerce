@@ -1,5 +1,10 @@
 package com.neo4j_ecom.demo.service.impl;
 
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.Upload;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
@@ -30,11 +35,19 @@ import java.util.List;
 @Slf4j
 public class FileServiceImpl implements FileService {
 
+    private final TransferManager transferManager;
     @Value("${file.image.base-uri}")
     private String baseURI;
 
     @Value("${firebase.link-base}")
     String linkBase;
+
+    @Value("${aws.s3.bucket.name}")
+    String bucketName;
+
+    public FileServiceImpl(TransferManager transferManager) {
+        this.transferManager = transferManager;
+    }
 
 
     @Override
@@ -135,6 +148,21 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    public String storeFileS3(MultipartFile file, String folder) throws URISyntaxException, IOException, InterruptedException {
+        String finalName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
+        log.info("finalName in storeFile: {}", finalName);
+        finalName = folder + finalName.replaceAll("\\s", "");
+        InputStream inputStream = file.getInputStream();
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName,folder, inputStream, new ObjectMetadata())
+                .withCannedAcl(CannedAccessControlList.PublicRead);
+
+        Upload upload = transferManager.upload(putObjectRequest);
+        upload.waitForCompletion();
+        String link = transferManager.getAmazonS3Client().getUrl(bucketName,finalName).toString();
+        return link;
+    }
+
+    @Override
     public void deleteFileFirebase(String path) throws FileNotFoundException {
         try {
 
@@ -152,6 +180,8 @@ public class FileServiceImpl implements FileService {
             throw new AppException(ErrorCode.FILE_NOT_FOUND);
         }
     }
+
+
 
     private String extractFileNameFromUrl(String fileUrl) {
         // Extract the part after "/o/" and decode the URL-encoded characters
