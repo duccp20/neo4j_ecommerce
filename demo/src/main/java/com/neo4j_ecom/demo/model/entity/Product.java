@@ -11,10 +11,7 @@ import com.neo4j_ecom.demo.model.entity.Specfication.SpecificationOption;
 import com.neo4j_ecom.demo.utils.enums.ProductType;
 import com.neo4j_ecom.demo.utils.enums.ReviewType;
 import com.neo4j_ecom.demo.utils.enums.SellingType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -28,13 +25,14 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 @Document("products")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Product {
+public class Product extends BaseEntity {
 
     @Id
     private String id;
@@ -72,9 +70,4 @@ public class Product {
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private long sumSoldQuantity;
-    @CreatedDate
-    private Instant createdAt;
-    @LastModifiedDate
-    private Instant updatedAt;
-
 }

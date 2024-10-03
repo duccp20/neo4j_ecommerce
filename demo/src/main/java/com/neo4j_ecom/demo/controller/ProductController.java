@@ -157,6 +157,7 @@ public class ProductController {
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ApiResponse<Void>> handleDeleteProduct(@PathVariable String id) {
         log.info("id product : {}", id);
         SuccessCode successCode = SuccessCode.DELETED;
