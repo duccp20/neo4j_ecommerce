@@ -23,4 +23,5 @@ public interface FileService {
 
     List<String> storeFileS3(List<File> files, String folder) throws URISyntaxException, IOException, InterruptedException;
 
+    void deleteFileS3(List<String> imageURLs) throws FileNotFoundException;
 }

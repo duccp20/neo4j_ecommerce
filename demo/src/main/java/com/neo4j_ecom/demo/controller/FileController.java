@@ -23,7 +23,7 @@ public class FileController {
     private final FileService fileService;
 
     @PostMapping("/upload")
-    public ResponseEntity<ApiResponse<String>> uploadFile(
+    public ResponseEntity<ApiResponse<List<String>>> uploadFile(
             @RequestParam("folder") String folder,
             @RequestParam("file") MultipartFile[] files
     ) throws URISyntaxException, IOException, InterruptedException {
@@ -35,19 +35,19 @@ public class FileController {
         }
         List<String> fileURLs = fileService.storeFileS3(fileList,folder);
         SuccessCode successCode = SuccessCode.UPLOADED;
-        return ResponseEntity.ok(ApiResponse.<String>builder()
+        return ResponseEntity.ok(ApiResponse.<List<String>>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(fileURLs.toString())
+                        .data(fileURLs)
                 .build());
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<ApiResponse<String>> deleteFile(
-            @RequestParam("path") String path
+    public ResponseEntity<ApiResponse<List<String>>> deleteFile(
+           @RequestBody List<String> imageURLs
     ) throws FileNotFoundException {
-        fileService.deleteFileFirebase(path);
-        return ResponseEntity.ok(ApiResponse.<String>builder()
+        fileService.deleteFileS3(imageURLs);
+        return ResponseEntity.ok(ApiResponse.<List<String>>builder()
                         .statusCode(SuccessCode.DELETED.getCode())
                         .message(SuccessCode.DELETED.getMessage())
                 .build());

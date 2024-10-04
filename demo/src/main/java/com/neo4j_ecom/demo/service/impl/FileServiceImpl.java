@@ -41,6 +41,8 @@ public class FileServiceImpl implements FileService {
 
     private final TransferManager transferManager;
     private final ExecutorService executorService;
+    private final AmazonS3 amazonS3;
+
     @Value("${file.image.base-uri}")
     private String baseURI;
 
@@ -54,6 +56,7 @@ public class FileServiceImpl implements FileService {
         this.transferManager = transferManager;
         this.executorService = executorService;
         this.bucketName = bucketName;
+        this.amazonS3 = amazonS3;
 
     }
 
@@ -162,7 +165,7 @@ public class FileServiceImpl implements FileService {
             futures.add(executorService.submit(()->{
                 String finalName = System.currentTimeMillis() + "-" + file.getName();
                 log.info("finalName in storeFile: {}", finalName);
-                finalName = folder + finalName.replaceAll("\\s", "");
+                finalName = folder + "/" + finalName.replaceAll("\\s", "");
                 //InputStream inputStream = file.getInputStream();
                 PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, finalName, file)
                         .withCannedAcl(CannedAccessControlList.PublicRead);
@@ -182,6 +185,16 @@ public class FileServiceImpl implements FileService {
             }
         }
         return urls;
+    }
+
+    @Override
+    public void deleteFileS3(List<String> imageURLs) throws FileNotFoundException {
+        for (String imageURL : imageURLs) {
+            String objectKey = URLEncoder.encode(getFileKey(imageURL), StandardCharsets.UTF_8);
+            if (objectKey!=null){
+                amazonS3.deleteObject(bucketName, objectKey);
+            }
+        }
     }
 
     @Override
@@ -209,6 +222,11 @@ public class FileServiceImpl implements FileService {
         // Extract the part after "/o/" and decode the URL-encoded characters
         String fileName = fileUrl.split("/o/")[1].split("\\?alt=media")[0];
         return fileName.replace("%2F", "/");  // Replace URL-encoded %2F with /
+    }
+
+    public String getFileKey(String url){
+        int index = url.indexOf(".com/") + 5;
+        return url.substring(index);
     }
 
 }
