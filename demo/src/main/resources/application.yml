@@ -45,14 +45,14 @@ firebase:
 aws:
   access:
     key:
-      id: AKIA5XRONFGNHZ33J56Y
+      id: ${AWS_ACCESS_KEY_ID}
   secret:
     access:
-      key: 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
+      key: ${AWS_SECRET_ACCESS_KEY}
   s3:
     bucket:
-      name: ecommercespringbootneo4j
-  region: ap-southeast-2
+      name: ${AWS_S3_BUCKET_NAME}
+  region: ${AWS_REGION}
 
 logging:
   level:
