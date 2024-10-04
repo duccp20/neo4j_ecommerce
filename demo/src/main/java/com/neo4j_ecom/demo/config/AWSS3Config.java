@@ -12,12 +12,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Configuration
 @Slf4j
 public class AWSS3Config {
-    @Value("${aws.secret.access.key}")
+    @Value("${aws.access.key.id}")
     private String awsAccessKey;
     @Value("${aws.secret.access.key}")
     private String awsSecretAccessKey;
@@ -32,7 +33,10 @@ public class AWSS3Config {
                 .withExecutorFactory(()-> Executors.newFixedThreadPool(10))
                 .build();
     }
-
+    @Bean
+    public ExecutorService executorService() {
+        return Executors.newFixedThreadPool(30);
+    }
     @Bean
     public AmazonS3 amazonS3() {
 

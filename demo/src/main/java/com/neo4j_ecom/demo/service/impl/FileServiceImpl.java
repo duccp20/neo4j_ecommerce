@@ -1,7 +1,7 @@
 package com.neo4j_ecom.demo.service.impl;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
@@ -28,25 +28,33 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Service
 @Slf4j
 public class FileServiceImpl implements FileService {
 
     private final TransferManager transferManager;
+    private final ExecutorService executorService;
     @Value("${file.image.base-uri}")
     private String baseURI;
 
     @Value("${firebase.link-base}")
     String linkBase;
-
-    @Value("${aws.s3.bucket.name}")
+//
+//    @Value("${aws.s3.bucket.name}")
     String bucketName;
 
-    public FileServiceImpl(TransferManager transferManager) {
+    public FileServiceImpl(TransferManager transferManager, ExecutorService executorService, AmazonS3 amazonS3,  @Value("${aws.s3.bucket.name}") String bucketName) {
         this.transferManager = transferManager;
+        this.executorService = executorService;
+        this.bucketName = bucketName;
+
     }
 
 
@@ -148,18 +156,32 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String storeFileS3(MultipartFile file, String folder) throws URISyntaxException, IOException, InterruptedException {
-        String finalName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
-        log.info("finalName in storeFile: {}", finalName);
-        finalName = folder + finalName.replaceAll("\\s", "");
-        InputStream inputStream = file.getInputStream();
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName,folder, inputStream, new ObjectMetadata())
-                .withCannedAcl(CannedAccessControlList.PublicRead);
+    public List<String> storeFileS3(List<File> files, String folder) throws URISyntaxException, IOException, InterruptedException {
+        List<Future<String>> futures = new ArrayList<>();
+        for (File file : files) {
+            futures.add(executorService.submit(()->{
+                String finalName = System.currentTimeMillis() + "-" + file.getName();
+                log.info("finalName in storeFile: {}", finalName);
+                finalName = folder + finalName.replaceAll("\\s", "");
+                //InputStream inputStream = file.getInputStream();
+                PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, finalName, file)
+                        .withCannedAcl(CannedAccessControlList.PublicRead);
 
-        Upload upload = transferManager.upload(putObjectRequest);
-        upload.waitForCompletion();
-        String link = transferManager.getAmazonS3Client().getUrl(bucketName,finalName).toString();
-        return link;
+                Upload upload = transferManager.upload(putObjectRequest);
+                upload.waitForCompletion();
+
+                return transferManager.getAmazonS3Client().getUrl(bucketName,finalName).toString();
+            }));
+        }
+        List<String> urls = new ArrayList<>();
+        for (Future<String> future : futures) {
+            try {
+                urls.add(future.get()); // Nhận kết quả URL của từng tệp
+            } catch (Exception e) {
+                throw new RuntimeException("Error in parallel upload", e);
+            }
+        }
+        return urls;
     }
 
     @Override

@@ -8,9 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,14 +25,20 @@ public class FileController {
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse<String>> uploadFile(
             @RequestParam("folder") String folder,
-            @RequestPart("file") MultipartFile file
-    ) throws URISyntaxException, IOException {
-
+            @RequestParam("file") MultipartFile[] files
+    ) throws URISyntaxException, IOException, InterruptedException {
+        List<File> fileList = new ArrayList<>();
+        for (MultipartFile file : files) {
+            File localFile = File.createTempFile("image_", file.getOriginalFilename());
+            file.transferTo(localFile);
+            fileList.add(localFile);
+        }
+        List<String> fileURLs = fileService.storeFileS3(fileList,folder);
         SuccessCode successCode = SuccessCode.UPLOADED;
         return ResponseEntity.ok(ApiResponse.<String>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(fileService.storeFileFirebase(file, folder))
+                        .data(fileURLs.toString())
                 .build());
     }
 
