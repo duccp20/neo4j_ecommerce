@@ -4,8 +4,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-src/main/resources/.env
-
 ### STS ###
 .apt_generated
 .classpath
@@ -35,3 +33,4 @@ build/
 .vscode/
 
 ### .env ###
+!/src/main/resources/.env
