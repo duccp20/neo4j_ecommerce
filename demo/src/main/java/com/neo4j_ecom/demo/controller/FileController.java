@@ -13,7 +13,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,12 +29,17 @@ public class FileController {
             @RequestParam("folder") String folder,
             @RequestParam("file") MultipartFile[] files
     ) throws URISyntaxException, IOException, InterruptedException {
-        List<File> fileList = new ArrayList<>();
-        for (MultipartFile file : files) {
-            File localFile = File.createTempFile("image_", file.getOriginalFilename());
-            file.transferTo(localFile);
-            fileList.add(localFile);
-        }
+        List<File> fileList = Arrays.stream(files)
+                .map(file -> {
+                    try {
+                        File localFile = File.createTempFile("image_", file.getOriginalFilename());
+                        file.transferTo(localFile);
+                        return localFile;
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error saving file", e);
+                    }
+                })
+                .collect(Collectors.toList());
         List<String> fileURLs = fileService.storeFileS3(fileList,folder);
         SuccessCode successCode = SuccessCode.UPLOADED;
         return ResponseEntity.ok(ApiResponse.<List<String>>builder()
