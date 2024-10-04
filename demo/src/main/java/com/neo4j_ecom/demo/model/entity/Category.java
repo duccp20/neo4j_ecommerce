@@ -22,13 +22,14 @@ import java.time.Instant;
 import java.util.List;
 
 
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 @Document(value = "categories")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Category {
+public class Category extends BaseEntity {
     @Id
     private String id;
     private String name;
@@ -43,11 +44,4 @@ public class Category {
     private List<ProductType> variantOptions;
     private List<ProductType> specificationOptions;
     private Boolean isFeatured;
-    private Status status;
-    @CreatedDate
-    private Instant createdOn;
-    @LastModifiedDate
-    private Instant lastModifiedOn;
-
-
 }

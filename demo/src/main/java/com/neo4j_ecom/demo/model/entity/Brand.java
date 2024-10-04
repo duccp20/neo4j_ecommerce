@@ -5,10 +5,7 @@ import com.neo4j_ecom.demo.utils.enums.Status;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
@@ -16,13 +13,14 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 @Document(value = "brands")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Brand {
+public class Brand extends BaseEntity {
 
     @Id
     private String id;
@@ -35,7 +33,6 @@ public class Brand {
     @DocumentReference(lazy = true)
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Product> products;
-    private Status status;
     private String exclusiveShopId;
 
 

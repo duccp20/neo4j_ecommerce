@@ -11,13 +11,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
 @Document("product_banners")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductBanner {
+public class ProductBanner extends BaseEntity {
 
     @Id
     private String id;

@@ -4,7 +4,7 @@ import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.RegisterRequest;
 import com.neo4j_ecom.demo.model.dto.request.UserRequest;
 import com.neo4j_ecom.demo.model.dto.response.UserResponse;
-import com.neo4j_ecom.demo.model.entity.ERole;
+import com.neo4j_ecom.demo.utils.enums.ERole;
 import com.neo4j_ecom.demo.model.entity.Role;
 import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.model.mapper.UserMapper;
