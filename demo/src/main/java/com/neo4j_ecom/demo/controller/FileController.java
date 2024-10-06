@@ -8,9 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,25 +25,36 @@ public class FileController {
     private final FileService fileService;
 
     @PostMapping("/upload")
-    public ResponseEntity<ApiResponse<String>> uploadFile(
+    public ResponseEntity<ApiResponse<List<String>>> uploadFile(
             @RequestParam("folder") String folder,
-            @RequestPart("file") MultipartFile file
-    ) throws URISyntaxException, IOException {
-
+            @RequestParam("file") MultipartFile[] files
+    ) throws URISyntaxException, IOException, InterruptedException {
+        List<File> fileList = Arrays.stream(files)
+                .map(file -> {
+                    try {
+                        File localFile = File.createTempFile("image_", file.getOriginalFilename());
+                        file.transferTo(localFile);
+                        return localFile;
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error saving file", e);
+                    }
+                })
+                .collect(Collectors.toList());
+        List<String> fileURLs = fileService.storeFileS3(fileList,folder);
         SuccessCode successCode = SuccessCode.UPLOADED;
-        return ResponseEntity.ok(ApiResponse.<String>builder()
+        return ResponseEntity.ok(ApiResponse.<List<String>>builder()
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
-                        .data(fileService.storeFileFirebase(file, folder))
+                        .data(fileURLs)
                 .build());
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<ApiResponse<String>> deleteFile(
-            @RequestParam("path") String path
+    public ResponseEntity<ApiResponse<List<String>>> deleteFile(
+           @RequestBody List<String> imageURLs
     ) throws FileNotFoundException {
-        fileService.deleteFileFirebase(path);
-        return ResponseEntity.ok(ApiResponse.<String>builder()
+        fileService.deleteFileS3(imageURLs);
+        return ResponseEntity.ok(ApiResponse.<List<String>>builder()
                         .statusCode(SuccessCode.DELETED.getCode())
                         .message(SuccessCode.DELETED.getMessage())
                 .build());
