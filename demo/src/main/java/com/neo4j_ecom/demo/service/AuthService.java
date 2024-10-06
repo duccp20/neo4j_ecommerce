@@ -8,4 +8,5 @@ public interface AuthService {
     void verifyAccount(String email);
 
     void handleResetPassword(ChangePasswordRequest request, String token);
+    String getCurrentUserEmail();
 }

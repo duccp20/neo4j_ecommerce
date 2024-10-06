@@ -5,14 +5,14 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Permission {
+public class Permission extends BaseEntity {
     @Id
     String name;
-
     String description;
 }

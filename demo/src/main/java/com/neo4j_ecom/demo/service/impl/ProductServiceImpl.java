@@ -20,6 +20,7 @@ import com.neo4j_ecom.demo.repository.*;
 import com.neo4j_ecom.demo.service.*;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.ProductType;
+import com.neo4j_ecom.demo.utils.enums.Status;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,6 +79,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductVariantMapper variantMapper;
 
     private final UserService userService;
+
+    private final AuthService authService;
 
 
     //===================== PRODUCT ====================
@@ -289,10 +292,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Void handleDeleteProduct(String id) {
 
+
         Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        productRepository.delete(product);
+        if (!authService.getCurrentUserEmail().equals(product.getUpdatedBy())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
 
+        product.setStatus(Status.DELETED);
+
+        productRepository.save(product);
+        ;
         return null;
     }
 
