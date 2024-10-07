@@ -27,7 +27,7 @@ public class ProductRequest {
     @NotBlank(message = "Product name is not be empty")
     @Size(min = 5, max = 120, message = "Product name must be between 5 and 120 characters")
     String name;
-    String brandName;
+    String brandId;
 
     @Digits(integer = Integer.MAX_VALUE,  fraction = 2, message = "The selling price must be a valid number with up 2 decimal places")
     @NumberFormat
@@ -64,7 +64,6 @@ public class ProductRequest {
     ProductType primaryVariantType;
     List<ProductVariantRequest> productVariants;
     List<SpecificationOption> specifications;
-    List<ReviewOption> reviewOptions = new ArrayList<>();
     public void setName(String name) {
         this.name = name != null ? name.trim() : null;
     }

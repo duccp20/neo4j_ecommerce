@@ -20,6 +20,7 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableWebSecurity
 public class SecurityConfig {
 
+
     @Value("T3IRxlGwJRK56Cl06QycpnByk6Phkd9g1B1pUL+6JOGfMY/dxcPV28ctNv1ghGE9")
     private String  SIGNER_KEY;
 
@@ -31,11 +32,16 @@ public class SecurityConfig {
 
     private final String[] ADMIN_ENDPOINT = {
 
+
+    private final String[] PUBLIC_ENDPOINTS = {
+            "/**"
     };
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+
                 .csrf(AbstractHttpConfigurer:: disable)
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers( PUBLIC_ENDPOINTS).permitAll()
@@ -67,6 +73,29 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authEntryPointJwt)
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

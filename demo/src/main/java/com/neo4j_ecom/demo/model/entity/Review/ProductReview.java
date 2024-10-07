@@ -1,7 +1,11 @@
 package com.neo4j_ecom.demo.model.entity.Review;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.neo4j_ecom.demo.model.Auth.Account;
+
+import com.neo4j_ecom.demo.model.entity.BaseEntity;
+
 import com.neo4j_ecom.demo.model.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +28,7 @@ import java.util.List;
 @Data
 @Document("product_reviews")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductReview {
+public class ProductReview extends BaseEntity {
 
     @Id
     private String id;
@@ -42,4 +46,6 @@ public class ProductReview {
     private Instant createdAt;
     @LastModifiedDate
     private Instant updatedAt;
+
+    private User reviewer;
 }

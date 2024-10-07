@@ -39,7 +39,7 @@ public class Category extends BaseEntity {
     @JsonIgnoreProperties({"products", "parent", "children"})
     private Category parent;
     @DocumentReference(lazy = true)
-    @JsonIgnoreProperties({"products", "parent", "children"})
+    @JsonIgnoreProperties("parent")
     private List<Category> children;
     @DocumentReference(lazy = true)
     @JsonIgnoreProperties("categories")

@@ -1,6 +1,8 @@
 package com.neo4j_ecom.demo.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.neo4j_ecom.demo.utils.enums.Status;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -17,7 +19,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Data
+@Setter
+@Getter
 @Document(value = "brands")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Brand extends BaseEntity {
@@ -32,8 +35,6 @@ public class Brand extends BaseEntity {
     private String description;
     @DocumentReference(lazy = true)
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JsonIgnoreProperties("brand")
     private List<Product> products;
-    private String exclusiveShopId;
-
-
 }

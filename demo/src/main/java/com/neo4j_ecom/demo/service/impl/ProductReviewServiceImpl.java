@@ -36,7 +36,6 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
 
     private final ProductReviewRepository productReviewRepository;
-
     private final ProductRepository productRepository;
     private final ProductVariantRepository variantRepository;
 
