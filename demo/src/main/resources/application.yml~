@@ -39,7 +39,7 @@ file:
 
 firebase:
   secret: ${FIREBASE_CONFIG}
-  link-base: https://firebasestorage.googleapis.com/v0/b/ecom-accessed.appspot.com/o
+  link: https://firebasestorage.googleapis.com/v0/b/ecom-accessed.appspot.com/o
   bucket: ecom-accessed.appspot.com
 
 #AWS S3
