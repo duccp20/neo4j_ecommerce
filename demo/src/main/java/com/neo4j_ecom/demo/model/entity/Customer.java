@@ -2,6 +2,7 @@ package com.neo4j_ecom.demo.model.entity;
 
 
 import com.neo4j_ecom.demo.model.Auth.Account;
+import com.neo4j_ecom.demo.utils.enums.ERole;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
