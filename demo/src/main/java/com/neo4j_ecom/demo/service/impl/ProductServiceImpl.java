@@ -1,6 +1,7 @@
 package com.neo4j_ecom.demo.service.impl;
 
 import com.neo4j_ecom.demo.exception.AppException;
+import com.neo4j_ecom.demo.model.Auth.Account;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.request.ProductVariantRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
@@ -18,6 +19,8 @@ import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductVariantMapper;
 import com.neo4j_ecom.demo.repository.*;
 import com.neo4j_ecom.demo.service.*;
+import com.neo4j_ecom.demo.service.Authentication.AuthenticationService;
+import com.neo4j_ecom.demo.service.Authentication.Impl.AccountServiceImpl;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.ProductType;
 import com.neo4j_ecom.demo.utils.enums.Status;
@@ -78,9 +81,9 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductVariantMapper variantMapper;
 
-    private final UserService userService;
+    private final AccountServiceImpl accountService;
 
-    private final AuthService authService;
+    private final AuthenticationService authService;
 
 
     //===================== PRODUCT ====================
@@ -89,7 +92,8 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse handleCreateProduct(ProductRequest request, List<MultipartFile> files) throws URISyntaxException, IOException {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userService.findByEmail(email);
+        Account account = accountService.findAccountByEmail(email).orElseThrow(()->
+                new AppException(ErrorCode.USER_NOT_FOUND));
 
         boolean existedProduct = productRepository.existsByName(request.getName().trim());
 
@@ -115,7 +119,7 @@ public class ProductServiceImpl implements ProductService {
         if (!existedBrand) {
             brandRepository.save(Brand.builder()
                     .name(request.getBrandName().trim())
-                    .exclusiveShopId(user.getId())
+                    .exclusiveShopId(account.getId())
                     .build());
         }
 
@@ -295,9 +299,9 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        if (!authService.getCurrentUserEmail().equals(product.getUpdatedBy())) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
+//        if (!authService.getCurrentUserEmail().equals(product.getUpdatedBy())) {
+//            throw new AppException(ErrorCode.UNAUTHORIZED);
+//        }
 
         product.setStatus(Status.DELETED);
 

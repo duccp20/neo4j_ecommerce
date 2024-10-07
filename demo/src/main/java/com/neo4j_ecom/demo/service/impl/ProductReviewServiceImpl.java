@@ -6,16 +6,16 @@ import com.neo4j_ecom.demo.model.dto.response.pagination.Meta;
 import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ProductReviewResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ReviewResponse;
+import com.neo4j_ecom.demo.model.Auth.Account;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
-import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.repository.ProductRepository;
 import com.neo4j_ecom.demo.repository.ProductReviewRepository;
 import com.neo4j_ecom.demo.repository.ProductVariantRepository;
+import com.neo4j_ecom.demo.service.Authentication.Impl.AccountServiceImpl;
 import com.neo4j_ecom.demo.service.ProductReviewService;
-import com.neo4j_ecom.demo.service.UserService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +44,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     private final ProductMapper productMapper;
 
-    private final UserService userService;
+    private final AccountServiceImpl accountService;
 
     @Override
     public ProductReviewResponse createReview(String productId, ProductReviewRequest review) {
@@ -57,11 +56,12 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userService.findByEmail(email);
+        Account account = accountService.findAccountByEmail(email).orElseThrow(() ->
+                new AppException(ErrorCode.USER_NOT_FOUND));
 
         ProductReview productReview = reviewMapper.toEntity(review);
         productReview.setProduct(product);
-        productReview.setReviewer(user);
+        productReview.setReviewer(account);
         ProductReview savedProductReview = productReviewRepository.save(productReview);
 
 

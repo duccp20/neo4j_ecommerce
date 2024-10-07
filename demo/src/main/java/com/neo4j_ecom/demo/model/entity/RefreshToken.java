@@ -1,5 +1,6 @@
 package com.neo4j_ecom.demo.model.entity;
 
+import com.neo4j_ecom.demo.model.Auth.Account;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +16,7 @@ import java.time.Instant;
 public class RefreshToken {
     @Id
     private String id;
-    private User user;
+    private Account account;
     private String refreshToken;
     private Instant expiryDate;
 }

@@ -48,10 +48,10 @@ logging:
 
 bezkoder:
   app:
-    jwtCookieName: ecommerce_accessed
-    jwtSecret: "54d7002a805c89c6ab795138627f6bfab65f675806ae372ac8a00cb26a0cb6014d812a84cd2f811722421044c8142db9cdc730627b47d114d0e4f4b64db84c27"
-    jwtExpirationMs: 86400000 #1d
-    jwtRefreshExpirationMs: 604800000 #1w
+
+
+    #1d
+    #1w
 
 
 domain: "https://neo4j-ecommerce.onrender.com/api/v1"

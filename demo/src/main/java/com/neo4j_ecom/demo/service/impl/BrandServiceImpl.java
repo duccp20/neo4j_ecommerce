@@ -1,12 +1,11 @@
 package com.neo4j_ecom.demo.service.impl;
 
 import com.neo4j_ecom.demo.exception.AppException;
+import com.neo4j_ecom.demo.model.Auth.Account;
 import com.neo4j_ecom.demo.model.entity.Brand;
-import com.neo4j_ecom.demo.model.entity.Product;
-import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.repository.BrandRepository;
+import com.neo4j_ecom.demo.service.Authentication.Impl.AccountServiceImpl;
 import com.neo4j_ecom.demo.service.BrandService;
-import com.neo4j_ecom.demo.service.UserService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +20,7 @@ public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
 
-    private final UserService userService;
+    private final AccountServiceImpl accountService;
 
     @Override
     public Brand handleCreateBrand(Brand brand) {
@@ -43,10 +42,12 @@ public class BrandServiceImpl implements BrandService {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userService.findByEmail(email);
+        Account account = accountService.findAccountByEmail(email).orElseThrow(()->
+                new AppException(ErrorCode.USER_NOT_FOUND));
+
         List<Brand> brands = brandRepository.findAll();
 
-        brands = brands.stream().filter(brand -> brand.getExclusiveShopId() == null || brand.getExclusiveShopId().equals(user.getId())).collect(Collectors.toList());
+        brands = brands.stream().filter(brand -> brand.getExclusiveShopId() == null || brand.getExclusiveShopId().equals(account.getId())).collect(Collectors.toList());
         brands.forEach(brand -> brand.setProducts(null));
         return brands;
     }

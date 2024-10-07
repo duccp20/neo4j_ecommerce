@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.neo4j_ecom.demo.model.entity.User;
+import com.neo4j_ecom.demo.model.Auth.Account;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,7 +31,7 @@ public class UserDetailsImpl implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(String id, String firstName, String lastName, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(String id, String firstName, String lastName, String email, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -62,17 +62,16 @@ public class UserDetailsImpl implements UserDetails {
         return lastName;
     }
 
-    public static UserDetailsImpl build(User user) {
-        List<GrantedAuthority> authorities = user.getRoles().stream()
+    public static UserDetailsImpl build(Account account) {
+        List<GrantedAuthority> authorities = account.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
 
         return new UserDetailsImpl(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getPassword(),
+                account.getId(),
+                account.getFullName(),
+                account.getEmail(),
+                account.getPassword(),
                 authorities);
     }
     @Override
