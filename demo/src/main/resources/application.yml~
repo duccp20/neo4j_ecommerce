@@ -5,8 +5,8 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://ecommerce:Password1!@ecommerce-accessed.zemx8.mongodb.net
-      database: accessed_ecommerce_v2
+      uri: ${MONGODB_URI}
+      database: ${MONGODB_DATABASE}
 
   servlet:
     multipart:
@@ -17,7 +17,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: phuocduc2k3@gmail.com
+    username: ${EMAIL_SENDER}
     password: clrfcjegnehsnmpm
     properties:
       mail:
@@ -39,7 +39,7 @@ file:
 
 firebase:
   secret: ${FIREBASE_CONFIG}
-  link: https://firebasestorage.googleapis.com/v0/b/ecom-accessed.appspot.com/o
+  link-base: https://firebasestorage.googleapis.com/v0/b/ecom-accessed.appspot.com/o
   bucket: ecom-accessed.appspot.com
 
 #AWS S3

@@ -5,8 +5,8 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://ecommerce:Password1!@ecommerce-accessed.zemx8.mongodb.net
-      database: accessed_ecommerce_v2
+      uri: ${MONGODB_URI}
+      database: ${MONGODB_DATABASE}
 
   servlet:
     multipart:
@@ -17,8 +17,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: phuocduc2k3@gmail.com
-    password: clrfcjegnehsnmpm
+    username: ${EMAIL_SENDER}
+    password: ${EMAIL_SENDER_PASSWORD}
     properties:
       mail:
         smtp:
