@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class ProductMapper {
 
     private final BrandRepository brandRepository;
-    private final CategoryMapper categoryMapper;
 
     public Product toEntity(ProductRequest request) {
 
@@ -35,10 +34,9 @@ public class ProductMapper {
                 .description(request.getDescription() != null ? request.getDescription().trim() : null)
                 .primaryImage(request.getPrimaryImage())
                 .avgRating(request.getRating())
-                .brand(request.getBrandName() != null ? brandRepository.findByName(request.getBrandName()) : null)
+                .brand(request.getBrandId() != null ? brandRepository.findById(request.getBrandId()).get() : null)
                 .sku(request.getSKU())
                 .name(request.getName() != null ? request.getName().trim() : null)
-                .reviewOptions(request.getReviewOptions() != null ? request.getReviewOptions() : null)
                 .primaryVariantType(request.getPrimaryVariantType())
                 .soldQuantity(request.getSoldQuantity())
                 .sumSoldQuantity(request.getSoldQuantity() + (request.getProductVariants() == null ? 0L : request.getProductVariants().stream().mapToLong(ProductVariantRequest::getSoldQuantity).sum()))
@@ -110,9 +108,6 @@ public class ProductMapper {
         }
 
 
-        if (product.getReviewOptions() != null && !product.getReviewOptions().isEmpty()) {
-            response.setReviewOptions(product.getReviewOptions());
-        }
 
         if (product.getPrimaryVariantType() != null) {
             response.setPrimaryVariantType(product.getPrimaryVariantType());

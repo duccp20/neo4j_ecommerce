@@ -17,7 +17,7 @@ import java.util.Base64;
 public class FirebaseConfig {
 
 
-    @Value("${firebase.secret-base64}")
+    @Value("${firebase.secret}")
     private String secretBase64;
     @Bean
     public FirebaseApp initializeFirebase() throws IOException {
