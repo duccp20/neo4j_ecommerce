@@ -31,10 +31,6 @@ public class BrandServiceImpl implements BrandService {
             throw new AppException(ErrorCode.BRAND_ALREADY_EXISTS);
         }
 
-        if (brand.getExclusiveShopId() != null) {
-            brand.setExclusiveShopId(brand.getExclusiveShopId());
-        }
-
         return brandRepository.save(brand);
     }
 
@@ -46,7 +42,6 @@ public class BrandServiceImpl implements BrandService {
         User user = userService.findByEmail(email);
         List<Brand> brands = brandRepository.findAll();
 
-        brands = brands.stream().filter(brand -> brand.getExclusiveShopId() == null || brand.getExclusiveShopId().equals(user.getId())).collect(Collectors.toList());
         brands.forEach(brand -> brand.setProducts(null));
         return brands;
     }

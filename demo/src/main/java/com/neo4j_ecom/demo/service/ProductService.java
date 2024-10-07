@@ -3,32 +3,38 @@ package com.neo4j_ecom.demo.service;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.model.dto.response.product.ProductResponse;
+import com.neo4j_ecom.demo.model.entity.Product;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public interface ProductService {
-    ProductResponse handleCreateProduct(ProductRequest request, List<MultipartFile> files) throws URISyntaxException, IOException;
+    Product createProduct(ProductRequest request);
+    Optional<Product> findById(String id);
 
-    String handleCreateProductImage(MultipartFile file) throws URISyntaxException;
+    String createProductImage(MultipartFile file) throws URISyntaxException;
 
-    ProductResponse handleGetProductById(String id);
+    Map<String, Object> getProductById(String id);
 
-    List<ProductResponse> handleGetAllProducts();
+    List<ProductResponse> getAllProducts();
 
-    ProductResponse handleUpdateProduct(String id, ProductRequest request);
+    ProductResponse updateProduct(String id, ProductRequest request);
 
-    Void handleDeleteProduct(String id);
+    Void deleteProduct(String id);
 
-    List<String> HandleCreateProductImages(String productId, List<MultipartFile> files) throws URISyntaxException, IOException;
+    List<String> createProductImages(String productId, List<MultipartFile> files) throws URISyntaxException, IOException;
 
-    Void handleDeleteProductImage(String id, String imgUrl);
+    Void deleteProductImage(String id, String imgUrl);
 
-    Void handleSetPrimaryImage(String productId, String imgUrl);
+    Void setPrimaryImage(String productId, String imgUrl);
 
-    PaginationResponse handleGetProductPopularBySoldQuantity( int page, int size);
+    PaginationResponse getProductPopularBySoldQuantity( int page, int size);
 
-    Boolean handleProductExists(String name);
+    Boolean productExists(String name);
+
+
 }
