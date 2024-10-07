@@ -1,4 +1,7 @@
 HELP.md
+### .env ###
+!/src/main/resources/.env
+
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -33,3 +36,6 @@ build/
 .vscode/
 
 ### .env ###
+.env
+
+
