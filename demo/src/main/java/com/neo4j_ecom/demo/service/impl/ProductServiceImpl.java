@@ -181,11 +181,10 @@ public class ProductServiceImpl implements ProductService {
                 categoryRepository.save(category);
             }
         }
-
-        //save product to brand
-        Brand brand = product.getBrand();
-        brand.getProducts().add(savedProduct);
-        brandRepository.save(brand);
+//        //save product to brand
+//        Brand brand = product.getBrand();
+//        brand.getProducts().add(savedProduct);
+        //brandRepository.save(brand);
 
 
         return savedProduct;

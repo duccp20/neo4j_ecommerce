@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ProductReviewResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ReviewResponse;
+import com.neo4j_ecom.demo.model.entity.Brand;
 import com.neo4j_ecom.demo.model.entity.ProductDimension;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.entity.Review.ReviewOption;
@@ -38,7 +39,7 @@ public class ProductResponse {
     BigDecimal sellingPrice;
     long sumSoldQuantity;
     long quantityAvailable;
-    String brandName;
+    Brand brand;
     String description;
     ProductDimension productDimension;
     SellingType sellingType;

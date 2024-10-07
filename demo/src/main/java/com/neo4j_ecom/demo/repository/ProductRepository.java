@@ -44,6 +44,8 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     Page<Product> findByCategories_Id(String categoryId, PageRequest pageRequest);
 
     Page<Product> findByCategories_IdAndIdNot(String categoryId, String productId, PageRequest pageRequest);
+
+    Page<Product> findByBrand_Id(String brandId, PageRequest pageRequest);
 }
 
 

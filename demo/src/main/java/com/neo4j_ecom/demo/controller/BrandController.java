@@ -1,9 +1,13 @@
 package com.neo4j_ecom.demo.controller;
 
 
+import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
+import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.model.entity.Brand;
+import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.service.BrandService;
+import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +64,40 @@ public class BrandController {
                         .data(brandService.handleGetBrandById(id))
                         .message(successCode.getMessage())
                         .statusCode(successCode.getCode())
+                        .build()
+        );
+    }
+
+    @GetMapping("/{brandId}/products")
+    public ResponseEntity<ApiResponse<PaginationResponse>> handleGetProductsByBrandId(
+            @PathVariable String brandId,
+            @RequestParam(defaultValue = "0") String page,
+            @RequestParam(defaultValue = "20")String size) {
+        log.info("page: {}", page);
+        log.info("size: {}", size);
+
+        Integer pageInt = Integer.parseInt(page);
+        Integer sizeInt = Integer.parseInt(size);
+
+
+        try {
+            Integer.parseInt(page);
+            Integer.parseInt(size);
+        } catch (NumberFormatException e) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+        if (pageInt < 0 || sizeInt < 0) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+        SuccessCode successCode = SuccessCode.FETCHED;
+
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<PaginationResponse>builder()
+                        .message(successCode.getMessage())
+                        .statusCode(successCode.getCode())
+                        .data(brandService.handleGetProductsByBrand(brandId,pageInt,sizeInt))
                         .build()
         );
     }

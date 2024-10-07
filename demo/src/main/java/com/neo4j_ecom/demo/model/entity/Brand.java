@@ -1,5 +1,6 @@
 package com.neo4j_ecom.demo.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -33,8 +34,8 @@ public class Brand extends BaseEntity {
     @NotNull(message = "Brand name is required")
     private String name;
     private String description;
-    @DocumentReference(lazy = true)
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    @JsonIgnoreProperties("brand")
-    private List<Product> products;
+//    @DocumentReference(lazy = true)
+//    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+//    @JsonIgnore
+//    private List<Product> products;
 }

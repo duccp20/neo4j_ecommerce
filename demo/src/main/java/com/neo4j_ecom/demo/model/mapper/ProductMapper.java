@@ -55,7 +55,7 @@ public class ProductMapper {
         response.setDescription(product.getDescription() != null ? product.getDescription() : null);
         response.setAvgRating(product.getAvgRating() != null ? product.getAvgRating() : null);
         response.setSumSoldQuantity(product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0);
-        response.setBrandName(product.getBrand() != null ? product.getBrand().getName() : null);
+        response.setBrand(product.getBrand() != null ? product.getBrand() : null);
         response.setSKU(product.getSku());
         response.setName(product.getName());
         response.setPrimaryImage(product.getPrimaryImage());
