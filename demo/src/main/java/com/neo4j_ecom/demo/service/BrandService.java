@@ -9,15 +9,15 @@ import java.util.List;
 
 public interface BrandService {
 
-    Brand handleCreateBrand(Brand brand);
+    Brand createBrand(Brand brand);
 
-    List<Brand> handleGetBrands();
+    List<Brand> getBrands();
 
-    Brand handleUpdateBrand(String id, Brand brand);
+    Brand updateBrand(String id, Brand brand);
 
-    Void handleDeleteBrand(String id);
+    Void deleteBrand(String id);
 
-    Brand handleGetBrandById(String id);
+    Brand getBrandById(String id);
 
-    PaginationResponse handleGetProductsByBrand(String brandId, int page, int size);
+    PaginationResponse getProductsByBrand(String brandId, int page, int size);
 }

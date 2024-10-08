@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @Getter
 @Document(value = "brands")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties({"target","source"})
 public class Brand extends BaseEntity {
 
     @Id
@@ -34,8 +35,4 @@ public class Brand extends BaseEntity {
     @NotNull(message = "Brand name is required")
     private String name;
     private String description;
-//    @DocumentReference(lazy = true)
-//    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-//    @JsonIgnore
-//    private List<Product> products;
 }

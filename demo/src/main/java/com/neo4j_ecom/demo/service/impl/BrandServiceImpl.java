@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +34,7 @@ public class BrandServiceImpl implements BrandService {
     private final ProductMapper productMapper;
 
     @Override
-    public Brand handleCreateBrand(Brand brand) {
+    public Brand createBrand(Brand brand) {
 
         boolean existedBrand = brandRepository.existsByName(brand.getName());
         if (existedBrand) {
@@ -44,7 +45,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public List<Brand> handleGetBrands() {
+    public List<Brand> getBrands() {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -56,7 +57,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public Brand handleUpdateBrand(String id, Brand brand) {
+    public Brand updateBrand(String id, Brand brand) {
 
         Brand existingBrand = brandRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.BRAND_NOT_FOUND)
@@ -77,14 +78,18 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public Void handleDeleteBrand(String id) {
-
-        brandRepository.deleteById(id);
+    public Void deleteBrand(String id) {
+        Optional<Brand> existingBrand = brandRepository.findById(id);
+        if(existingBrand.isPresent()){
+            brandRepository.deleteById(id);
+        }else {
+            throw new AppException(ErrorCode.BRAND_NOT_FOUND);
+        }
         return null;
     }
 
     @Override
-    public Brand handleGetBrandById(String id) {
+    public Brand getBrandById(String id) {
 
         return brandRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.BRAND_NOT_FOUND)
@@ -92,7 +97,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public PaginationResponse handleGetProductsByBrand(String brandId, int page, int size) {
+    public PaginationResponse getProductsByBrand(String brandId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Product> productPage = productRepository.findByBrand_Id(brandId, pageRequest);
         List<ProductResponse> products = productPage.getContent().stream().map(productMapper::toResponse).collect(Collectors.toList());
