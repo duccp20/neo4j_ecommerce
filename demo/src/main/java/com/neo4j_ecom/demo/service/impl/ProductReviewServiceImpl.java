@@ -46,7 +46,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final UserService userService;
 
     @Override
-    public ProductReviewResponse createReview(String productId, ProductReviewRequest review) {
+    public ProductReviewResponse createReview(String productId, ProductReviewRequest reviewRequest) {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -58,7 +58,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         User user = userService.getUserByEmail(email).orElseThrow(() ->
                 new AppException(ErrorCode.USER_NOT_FOUND));
 
-        ProductReview productReview = reviewMapper.toEntity(review);
+        ProductReview productReview = reviewMapper.toEntity(reviewRequest);
         productReview.setProduct(product);
         productReview.setReviewer(user);
         ProductReview savedProductReview = productReviewRepository.save(productReview);
@@ -166,17 +166,10 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     private float calculateRating(List<ProductReview> reviews) {
         float totalRating = 0;
-        float avgRating = 0;
-        for (ProductReview productReview1 : reviews) {
-
-            totalRating += productReview1.getRating();
-
+        for (ProductReview review : reviews) {
+            totalRating += review.getRating();
         }
 
-        if (reviews.size() > 0) {
-            avgRating = totalRating / reviews.size();
-        }
-
-        return avgRating;
+        return reviews.isEmpty() ? 0 : totalRating / reviews.size();
     }
 }
