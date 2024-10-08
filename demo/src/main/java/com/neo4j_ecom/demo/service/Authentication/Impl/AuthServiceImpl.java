@@ -36,8 +36,7 @@ import java.util.UUID;
 @Slf4j
 public class AuthServiceImpl implements AuthenticationService {
 
-//    @Value("${auth.SIGNER_KEY}")
-    @Value("u/N3JFjkv1aI0nY45StSEtWMhgz6VKZYclvjcrpJUV+cCObDEF1lVvjgLlX0LMBo\n")
+    @Value("${bezkoder.app.SIGNER_KEY}")
     private String  SIGNER_KEY;
 
     @Autowired
