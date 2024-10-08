@@ -3,10 +3,13 @@ package com.neo4j_ecom.demo.service.impl;
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.entity.Brand;
 import com.neo4j_ecom.demo.model.entity.Product;
+import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.repository.BrandRepository;
 import com.neo4j_ecom.demo.service.BrandService;
+import com.neo4j_ecom.demo.service.UserService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
+
+    private final UserService userService;
 
     @Override
     public Brand handleCreateBrand(Brand brand) {
@@ -36,7 +41,12 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public List<Brand> handleGetBrands() {
 
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userService.findByEmail(email);
         List<Brand> brands = brandRepository.findAll();
+
+        brands = brands.stream().filter(brand -> brand.getExclusiveShopId() == null || brand.getExclusiveShopId().equals(user.getId())).collect(Collectors.toList());
         brands.forEach(brand -> brand.setProducts(null));
         return brands;
     }

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class BrandController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') || hasRole('SELLER')")
     public ResponseEntity<ApiResponse<List<Brand>>> handleGetBrands() {
         SuccessCode successCode = SuccessCode.FETCHED;
         return ResponseEntity.ok(
