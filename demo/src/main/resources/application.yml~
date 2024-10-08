@@ -60,7 +60,7 @@ logging:
     root=DEBUG:
 
 jwt:
-  secret-key: ${JWT_SECRET_KEY}
+  secret-key: ${SIGNER_KEY}
   access-expiration: 86400000
   refresh-expiration: 604800000
 

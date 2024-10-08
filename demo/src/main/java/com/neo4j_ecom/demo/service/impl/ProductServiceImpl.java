@@ -1,6 +1,5 @@
 package com.neo4j_ecom.demo.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.request.ProductVariantRequest;
@@ -12,31 +11,26 @@ import com.neo4j_ecom.demo.model.dto.response.product.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.*;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.VariantOption;
-import com.neo4j_ecom.demo.model.entity.Review.ReviewOption;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductVariantMapper;
 import com.neo4j_ecom.demo.repository.*;
 import com.neo4j_ecom.demo.service.*;
-import com.neo4j_ecom.demo.service.Authentication.AccountService;
+
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.ProductType;
 import com.neo4j_ecom.demo.utils.enums.Status;
-import com.sun.xml.bind.v2.TODO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -81,9 +75,6 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductVariantMapper variantMapper;
 
-    private final AccountService userService;
-
-//    private final AuthService authService;
 
 
     //===================== PRODUCT ====================
@@ -177,15 +168,15 @@ public class ProductServiceImpl implements ProductService {
         //save product to category/collection
         List<Category> categories = product.getCategories();
         if (categories != null && !categories.isEmpty()) {
-            for (Category category : categories) {
-                category.getProducts().add(savedProduct);
-                categoryRepository.save(category);
-            }
+//            for (Category category : categories) {
+//                category.getProducts().add(savedProduct);
+//                categoryRepository.save(category);
+//            }
         }
 
         //save product to brand
         Brand brand = product.getBrand();
-        brand.getProducts().add(savedProduct);
+//        brand.getProducts().add(savedProduct);
         brandRepository.save(brand);
 
 

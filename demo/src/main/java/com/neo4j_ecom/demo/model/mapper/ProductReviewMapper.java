@@ -35,7 +35,7 @@ public class ProductReviewMapper {
                 .createdAt(savedProductReview.getCreatedAt())
                 .updatedAt(savedProductReview.getUpdatedAt())
                 .reviewerId(savedProductReview.getReviewer() != null ? savedProductReview.getReviewer().getId() : null)
-                .reviewerName(savedProductReview.getReviewer() != null ? savedProductReview.getReviewer().getFullName() : null)
+                .reviewerName(savedProductReview.getReviewer() != null ? savedProductReview.getReviewer().getFirstName() + " " + savedProductReview.getReviewer().getLastName() : null)
                 .build();
     }
 }

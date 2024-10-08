@@ -1,4 +1,4 @@
-package com.neo4j_ecom.demo.controller.Authenontroller;
+package com.neo4j_ecom.demo.controller;
 
 import com.neo4j_ecom.demo.model.Auth.Account;
 import com.neo4j_ecom.demo.model.Auth.Token;
@@ -6,15 +6,18 @@ import com.neo4j_ecom.demo.model.dto.request.ChangePasswordRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.model.dto.response.UserResponse;
 import com.neo4j_ecom.demo.model.entity.User;
+import com.neo4j_ecom.demo.repository.UserRepository;
+import com.neo4j_ecom.demo.service.AuthService;
 import com.neo4j_ecom.demo.service.Authentication.Impl.AccountServiceImpl;
-import com.neo4j_ecom.demo.service.Authentication.Impl.AuthServiceImpl;
+import com.neo4j_ecom.demo.service.impl.AuthServiceImpl;
 import com.neo4j_ecom.demo.service.Authentication.Impl.RefreshTokenServiceImpl;
+import com.neo4j_ecom.demo.utils.enums.SuccessCode;
 import com.nimbusds.jose.JOSEException;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,84 +28,16 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth/")
 @Slf4j
+@RequiredArgsConstructor
+public class AuthController {
+    private final AuthService authService;
 
-public class AuthenController {
-    @Autowired
-    private AccountServiceImpl accountService;
-
-    @Autowired
-    private AuthServiceImpl authenticationService;
-
-    @Autowired
-    private RefreshTokenServiceImpl refreshTokenService;
-
-
-    @RequestMapping(value = "/registration", method = RequestMethod.POST)
-    public ResponseEntity<Object> registerUser(@RequestBody() Account account){
-        try{
-
-            if (accountService.existsEmail(account.getEmail())){
-                return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
-            }
-            if (account.getEmail().isEmpty() || account.getPassword().isEmpty()){
-                return new ResponseEntity<>("Email or password is Empty", HttpStatus.BAD_REQUEST);
-            }
-
-            return new ResponseEntity<>(accountService.registration(account), HttpStatus.OK);
-        }catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<Object>> register(@RequestBody User user) {
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(SuccessCode.CREATED, authService.register(user))
+        );
     }
-
-
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public ResponseEntity<User> login(@RequestBody Account account){
-        try {
-            if (account.getPassword().isEmpty() || account.getEmail().isEmpty()){
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-            }
-            return new ResponseEntity<>(authenticationService.login(account.getEmail(), account.getPassword()), HttpStatus.OK);
-        }
-        catch (Exception e){
-           e.printStackTrace();
-        }
-        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-
-
-    @RequestMapping(value = "/logout")
-    public ResponseEntity<Void> logout(@RequestBody Token token) throws ParseException, JOSEException {
-        if (token == null){
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-        authenticationService.logout(token);
-        return new ResponseEntity<>( HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/exists", method = RequestMethod.GET)
-    public ResponseEntity<Boolean> existsUser(@RequestParam String email){
-        try{
-            return new ResponseEntity<>(accountService.existsEmail(email), HttpStatus.OK);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-
-
-    @RequestMapping(value = "/token", method = RequestMethod.POST)
-    public ResponseEntity<Token> verifyToken(@RequestBody Token token){
-        try {
-            return new ResponseEntity<>(authenticationService.verifyToken(token), HttpStatus.OK);
-        }catch (Exception e){
-            e.printStackTrace();
-        }return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-
-
 
 
     @GetMapping("/refresh-token")

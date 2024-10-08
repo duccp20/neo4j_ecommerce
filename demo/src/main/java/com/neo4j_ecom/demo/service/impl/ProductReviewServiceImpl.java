@@ -6,7 +6,6 @@ import com.neo4j_ecom.demo.model.dto.response.pagination.Meta;
 import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ProductReviewResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ReviewResponse;
-import com.neo4j_ecom.demo.model.Auth.Account;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 import com.neo4j_ecom.demo.model.entity.User;
@@ -15,9 +14,8 @@ import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.repository.ProductRepository;
 import com.neo4j_ecom.demo.repository.ProductReviewRepository;
 import com.neo4j_ecom.demo.repository.ProductVariantRepository;
-import com.neo4j_ecom.demo.service.Authentication.Impl.AccountServiceImpl;
 import com.neo4j_ecom.demo.service.ProductReviewService;
-import com.neo4j_ecom.demo.service.UserServices;
+import com.neo4j_ecom.demo.service.UserService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +43,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     private final ProductMapper productMapper;
 
-    private final UserServices userServices;
+    private final UserService userService;
 
     @Override
     public ProductReviewResponse createReview(String productId, ProductReviewRequest review) {
@@ -57,7 +55,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userServices.getUserByEmail(email).orElseThrow(() ->
+        User user = userService.getUserByEmail(email).orElseThrow(() ->
                 new AppException(ErrorCode.USER_NOT_FOUND));
 
         ProductReview productReview = reviewMapper.toEntity(review);

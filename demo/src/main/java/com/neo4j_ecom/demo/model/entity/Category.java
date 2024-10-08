@@ -41,9 +41,6 @@ public class Category extends BaseEntity {
     @DocumentReference(lazy = true)
     @JsonIgnoreProperties({"products", "parent", "children"})
     private List<Category> children;
-    @DocumentReference(lazy = true)
-    @JsonIgnoreProperties("categories")
-    private List<Product> products;
     private List<ProductType> variantOptions;
     private List<ProductType> specificationOptions;
     private Boolean isFeatured;
