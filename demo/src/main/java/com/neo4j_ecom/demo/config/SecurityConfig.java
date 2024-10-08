@@ -1,54 +1,79 @@
 package com.neo4j_ecom.demo.config;
 
-import com.neo4j_ecom.demo.security.AuthEntryPointJwt;
-import com.neo4j_ecom.demo.security.AuthTokenFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.http.HttpMethod;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {
-            "/**"
-    };
-    @Autowired
-    private AuthEntryPointJwt authEntryPointJwt;
 
-    @Autowired
-    private AuthTokenFilter authTokenFilter;
+
+    @Value("T3IRxlGwJRK56Cl06QycpnByk6Phkd9g1B1pUL+6JOGfMY/dxcPV28ctNv1ghGE9")
+    private String  SIGNER_KEY;
+
+
+    private final String[] PUBLIC_ENDPOINTS = {"/api/auth/registration", "/api/auth/login",
+            "/api/auth/exists", "/api/auth/token"
+
+    };
+
+
 
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(authEntryPointJwt)
-                )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
+                .csrf(AbstractHttpConfigurer:: disable)
+                .authorizeHttpRequests((authz) -> authz
+                        .requestMatchers( PUBLIC_ENDPOINTS).permitAll()
+                                .requestMatchers( HttpMethod.POST, "/api/auth/token" ).permitAll()
+
+                                        // For Category
+                                .requestMatchers(HttpMethod.POST, "/api/v1/category/").hasAuthority("SCOPE_ROLE_ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/category/{categoryId}/variants").hasAuthority("SCOPE_ROLE_ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/api/v1/category/{categoryId}/sub").hasAuthority("SCOPE_ROLE_ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/category/{categoryId}/sub").hasAuthority("SCOPE_ROLE_ADMIN")
+
+                                        // For Banners
+                                .requestMatchers(HttpMethod.POST, "/api/v1/banner/multi").hasAuthority("SCOPE_ROLE_ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/api/v1/banner/multi").hasAuthority("SCOPE_ROLE_ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/banner/{bannerId}/update").hasAuthority("SCOPE_ROLE_ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/banner/{bannerId}/delete").hasAuthority("SCOPE_ROLE_ADMIN")
+
+
+                                        // For Customer
+                                .requestMatchers(HttpMethod.GET,"/api/v1/customer/all").hasAuthority("SCOPE_ROLE_ADMIN")
+                                .requestMatchers(HttpMethod.POST,"/api/v1/customer").hasAuthority("SCOPE_ROLE_ADMIN")
+                                .requestMatchers(HttpMethod.DELETE,"/api/v1/customer/{customerId}/delete").hasAuthority("SCOPE_ROLE_ADMIN")
+
+//                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
+                );
+        http.oauth2ResourceServer(auth2 ->
+                auth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()))
+                );
+
         return http.build();
     }
+
+
+
 
 
     @Bean
@@ -57,9 +82,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
+    JwtDecoder jwtDecoder(){
+        SecretKeySpec secretKeySpec = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
+
+        return NimbusJwtDecoder
+                .withSecretKey(secretKeySpec)
+                .macAlgorithm(MacAlgorithm.HS512)
                 .build();
+
     }
 
 }

@@ -1,35 +1,43 @@
 package com.neo4j_ecom.demo.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import com.neo4j_ecom.demo.model.Auth.Account;
+import com.neo4j_ecom.demo.utils.enums.ERole;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-@AllArgsConstructor
+@Document("customer")
+@Getter
+@Setter
 @NoArgsConstructor
-@Builder
-@Data
-@Document("users")
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
-
     @Id
-    String id;
-    String firstName;
-    String lastName;
-    String phone;
-    String email;
-//    private String username;
-    @JsonIgnore
-    private String password;
-    private Set<Role> roles;
-    @JsonIgnore
-    boolean hasVerified;
-    @JsonIgnore
-    private String forgotPasswordToken;
-    @JsonIgnore
-    private String verificationToken;
+    @Generated
+    private String id;
+    private String fullName;
+    private String email;
+    private String phone;
+    private String address;
+    private List<String> roles = new ArrayList<>();
+    private String token;
+
+
+    public User(Account account) {
+        this.fullName = account.getFullName();
+        this.email = account.getEmail();
+        this.phone = account.getPhone();
+        this.roles.add(ERole.ROLE_USER.name());
+        this.token="";
+    }
+
 }
+
+
+
+

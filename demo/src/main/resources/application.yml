@@ -65,7 +65,7 @@ bezkoder:
     jwtSecret: ${JWT_SECRET}
     jwtExpirationMs: 86400000 #1d
     jwtRefreshExpirationMs: 604800000 #1w
-
+    SIGNER_KEY: ${SIGNER_KEY}
 
 domain: "https://neo4j-ecommerce.onrender.com/api/v1"
 

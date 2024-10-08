@@ -19,6 +19,7 @@ import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductVariantMapper;
 import com.neo4j_ecom.demo.repository.*;
 import com.neo4j_ecom.demo.service.*;
+import com.neo4j_ecom.demo.service.Authentication.AccountService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.ProductType;
 import com.neo4j_ecom.demo.utils.enums.Status;
@@ -80,9 +81,9 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductVariantMapper variantMapper;
 
-    private final UserService userService;
+    private final AccountService userService;
 
-    private final AuthService authService;
+//    private final AuthService authService;
 
 
     //===================== PRODUCT ====================
@@ -285,10 +286,10 @@ public class ProductServiceImpl implements ProductService {
 
 
         Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        if (!authService.getCurrentUserEmail().equals(product.getUpdatedBy())) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
+//
+//        if (!authService.getCurrentUserEmail().equals(product.getUpdatedBy())) {
+//            throw new AppException(ErrorCode.UNAUTHORIZED);
+//        }
 
         product.setStatus(Status.DELETED);
 
