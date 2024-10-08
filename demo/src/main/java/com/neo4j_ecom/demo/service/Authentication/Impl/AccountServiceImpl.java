@@ -3,13 +3,12 @@ package com.neo4j_ecom.demo.service.Authentication.Impl;
 
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.Auth.Account;
-import com.neo4j_ecom.demo.model.entity.Customer;
+import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.repository.AuthRepository.AccountRepository;
 import com.neo4j_ecom.demo.service.Authentication.AccountService;
-import com.neo4j_ecom.demo.service.impl.CustomerServiceImpl;
+import com.neo4j_ecom.demo.service.impl.UserServiceImpl;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ public class AccountServiceImpl implements AccountService {
     private AccountRepository accountRepository;
 
     @Autowired
-    private CustomerServiceImpl customerService;
+    private UserServiceImpl customerService;
 
 
     @Override
@@ -51,9 +50,9 @@ public class AccountServiceImpl implements AccountService {
                 PasswordEncoder passwordEndcoder = new BCryptPasswordEncoder(10);
                 account.setPassword(passwordEndcoder.encode(account.getPassword()).trim());
 
-                Customer customer = new Customer(account);
-                customerService.saveCustomer(customer);
-                account.setCustomer(customer);
+                User user = new User(account);
+                customerService.saveUser(user);
+                account.setUser(user);
 
                 return accountRepository.save(account);
             }

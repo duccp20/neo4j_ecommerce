@@ -5,7 +5,7 @@ import com.neo4j_ecom.demo.model.Auth.Token;
 import com.neo4j_ecom.demo.model.dto.request.ChangePasswordRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.model.dto.response.UserResponse;
-import com.neo4j_ecom.demo.model.entity.Customer;
+import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.service.Authentication.Impl.AccountServiceImpl;
 import com.neo4j_ecom.demo.service.Authentication.Impl.AuthServiceImpl;
 import com.neo4j_ecom.demo.service.Authentication.Impl.RefreshTokenServiceImpl;
@@ -14,6 +14,7 @@ import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth/")
 @Slf4j
+
 public class AuthenController {
     @Autowired
     private AccountServiceImpl accountService;
@@ -54,7 +56,7 @@ public class AuthenController {
 
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public ResponseEntity<Customer> login(@RequestBody Account account){
+    public ResponseEntity<User> login(@RequestBody Account account){
         try {
             if (account.getPassword().isEmpty() || account.getEmail().isEmpty()){
                 return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);

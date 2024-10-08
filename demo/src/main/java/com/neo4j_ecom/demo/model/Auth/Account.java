@@ -1,7 +1,7 @@
 package com.neo4j_ecom.demo.model.Auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.neo4j_ecom.demo.model.entity.Customer;
+import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.model.entity.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -37,5 +37,5 @@ public class Account {
     private String verificationToken;
 
     @DocumentReference
-    private Customer customer;
+    private User user;
 }

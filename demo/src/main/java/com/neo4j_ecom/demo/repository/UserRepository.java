@@ -1,6 +1,6 @@
 package com.neo4j_ecom.demo.repository;
 
-import com.neo4j_ecom.demo.model.entity.Customer;
+import com.neo4j_ecom.demo.model.entity.User;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -10,16 +10,18 @@ import java.util.Optional;
 
 
 @Repository
-public interface CustomerRepository extends MongoRepository<Customer, String> {
+public interface UserRepository extends MongoRepository<User, String> {
     @Aggregation(pipeline = {
             "{$match:  {_id:  ?0}}"
     })
-    public Optional<Customer> findById(String id);
+    public Optional<User> findById(String id);
 
     @Aggregation(pipeline = {
             "{$match: {}}"
     })
-    public List<Customer> findAll();
+    public List<User> findAll();
+
+    public Optional<User> findByEmail(String email);
 
 
 }

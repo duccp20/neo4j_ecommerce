@@ -43,7 +43,7 @@ public class BrandServiceImpl implements BrandService {
 
         List<Brand> brands = brandRepository.findAll();
 
-        brands = brands.stream().filter(brand -> brand.getExclusiveShopId() == null || brand.getExclusiveShopId().equals(account.getId())).collect(Collectors.toList());
+//        brands = brands.stream().filter(brand -> brand.getExclusiveShopId() == null || brand.getExclusiveShopId().equals(account.getId())).collect(Collectors.toList());
 
         brands.forEach(brand -> brand.setProducts(null));
         return brands;

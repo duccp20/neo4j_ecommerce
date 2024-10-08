@@ -2,10 +2,10 @@ package com.neo4j_ecom.demo.model.entity.Review;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import com.neo4j_ecom.demo.model.Auth.Account;
 
 import com.neo4j_ecom.demo.model.entity.BaseEntity;
 
+import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.model.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,11 +41,8 @@ public class ProductReview extends BaseEntity {
     @DocumentReference(lazy = true)
     private Product product;
     @DocumentReference(lazy = true)
-    private Account reviewer;
-    @CreatedDate
-    private Instant createdAt;
-    @LastModifiedDate
-    private Instant updatedAt;
-
     private User reviewer;
+
+
+
 }

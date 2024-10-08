@@ -5,11 +5,10 @@ import com.neo4j_ecom.demo.model.Auth.InvalidateToken;
 import com.neo4j_ecom.demo.model.Auth.Token;
 import com.neo4j_ecom.demo.model.dto.request.ChangePasswordRequest;
 import com.neo4j_ecom.demo.model.Auth.Account;
-import com.neo4j_ecom.demo.model.entity.Customer;
-import com.neo4j_ecom.demo.repository.AuthRepository.AccountRepository;
+import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.repository.AuthRepository.InvalidateTokenRepository;
 import com.neo4j_ecom.demo.service.Authentication.AuthenticationService;
-import com.neo4j_ecom.demo.service.impl.CustomerServiceImpl;
+import com.neo4j_ecom.demo.service.impl.UserServiceImpl;
 import com.neo4j_ecom.demo.service.impl.EmailServiceImpl;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.nimbusds.jose.*;
@@ -48,7 +47,7 @@ public class AuthServiceImpl implements AuthenticationService {
     private InvalidateTokenRepository invalidateTokenRepository;
 
     @Autowired
-    private CustomerServiceImpl customerService;
+    private UserServiceImpl customerService;
 
     @Autowired
     private EmailServiceImpl emailService;
@@ -59,16 +58,16 @@ public class AuthServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public Customer login (String email, String password) {
+    public User login (String email, String password) {
         Account account = accountService.findAccountByEmail(email)
                 .orElseThrow(() -> new AppException (ErrorCode.USER_NOT_FOUND));
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         if (passwordEncoder.matches(password, account.getPassword())) {
-            Customer customer = customerService.getCustomerById(account.getCustomer().getId());
-            customer.setToken( generateToken(customer));
+            User user = customerService.getUserById(account.getUser().getId());
+            user.setToken( generateToken(user));
 
-            return customerService.saveCustomer(customer);
+            return customerService.saveUser(user);
         }
         throw new RuntimeException( "Invalid account or password");
     }
@@ -97,17 +96,17 @@ public class AuthServiceImpl implements AuthenticationService {
 
 
     @Override
-    public String generateToken(Customer customer){
+    public String generateToken(User user){
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
 
         JWTClaimsSet  jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(customer.getEmail())
-                .issuer(customer.getFullName())
+                .subject(user.getEmail())
+                .issuer(user.getFullName())
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("scope" ,buildScope(customer))
+                .claim("scope" ,buildScope(user))
                 .build();
 
         Payload   payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -146,10 +145,10 @@ public class AuthServiceImpl implements AuthenticationService {
 
 
 
-    private String buildScope(Customer customer) {
+    private String buildScope(User user) {
         StringJoiner scope = new StringJoiner(" ");
-        if (!customer.getRoles().isEmpty()) {
-            customer.getRoles().forEach(role -> scope.add(role));
+        if (!user.getRoles().isEmpty()) {
+            user.getRoles().forEach(role -> scope.add(role));
             return scope.toString();
         }
         return "";

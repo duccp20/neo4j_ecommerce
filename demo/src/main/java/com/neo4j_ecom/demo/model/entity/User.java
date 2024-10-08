@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 //@JsonInclude(JsonInclude.Include.NON_NULL)
-public class Customer {
+public class User {
     @Id
     @Generated
     private String id;
@@ -28,7 +28,7 @@ public class Customer {
     private String token;
 
 
-    public Customer(Account account) {
+    public User(Account account) {
         this.fullName = account.getFullName();
         this.email = account.getEmail();
         this.phone = account.getPhone();
