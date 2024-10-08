@@ -42,13 +42,13 @@ public class BrandServiceImpl implements BrandService {
         User user = userService.getUserByEmail(email).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_FOUND)
         );
-
+             
 
         List<Brand> brands = brandRepository.findAll();
 
 //        brands = brands.stream().filter(brand -> brand.getExclusiveShopId() == null || brand.getExclusiveShopId().equals(account.getId())).collect(Collectors.toList());
 
-//        brands.forEach(brand -> brand.setProducts(null));
+        brands.forEach(brand -> brand.setProducts(null));
         return brands;
     }
 
@@ -67,9 +67,9 @@ public class BrandServiceImpl implements BrandService {
         existingBrand.setName(brand.getName());
         existingBrand.setDescription(brand.getDescription());
 
-//        if (brand.getProducts() != null) {
-//            existingBrand.setProducts(brand.getProducts());
-//        }
+        if (brand.getProducts() != null) {
+            existingBrand.setProducts(brand.getProducts());
+        }
         return brandRepository.save(existingBrand);
     }
 

@@ -19,14 +19,12 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
-
 @Configuration
 @EnableMongoAuditing
 @RequiredArgsConstructor
 public class MongoConfig implements AuditorAware<String> {
 
     private final UserService userService;
-
     @Override
     public Optional<String> getCurrentAuditor() {
         try {

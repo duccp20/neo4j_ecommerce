@@ -1,14 +1,14 @@
-package com.neo4j_ecom.demo.model.Auth;
+package com.neo4j_ecom.demo.model.entity;
+
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.neo4j_ecom.demo.model.entity.User;
-import com.neo4j_ecom.demo.model.entity.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -17,16 +17,15 @@ import java.util.Set;
 @Data
 @Document("users")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Account {
+public class User {
 
     @Id
     String id;
-    String fullName;
+    String firstName;
+    String lastName;
     String phone;
     String email;
-
-
-
+    @JsonIgnore
     private String password;
     private Set<Role> roles;
     @JsonIgnore
@@ -36,6 +35,8 @@ public class Account {
     @JsonIgnore
     private String verificationToken;
 
-    @DocumentReference
-    private User user;
+
 }
+
+
+

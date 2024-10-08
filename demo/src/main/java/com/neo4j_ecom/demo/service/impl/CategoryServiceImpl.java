@@ -55,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category category = categoryMapper.toEntity(request);
-        category.setProducts(null);
+//        category.setProducts(null);
 
         Category savedCategory = categoryRepository.save(category);
 
@@ -164,14 +164,14 @@ public class CategoryServiceImpl implements CategoryService {
                 continue;
             }
 
-            for (Product product : category.getProducts()) {
-
-                if (product == null) {
-                    continue;
-                }
-
-                sumSoldQuantity += product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0;
-            }
+//            for (Product product : category.getProducts()) {
+//
+//                if (product == null) {
+//                    continue;
+//                }
+//
+//                sumSoldQuantity += product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0;
+//            }
             CategoryResponseTopSold res = CategoryResponseTopSold.builder()
                     .id(category.getId())
                     .name(category.getName())
@@ -241,12 +241,12 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<Category> categories = categoryPage.getContent();
 
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-            categoryResponse.setProducts(category.getProducts().stream().map(productMapper::toPopular).collect(Collectors.toList()));
-            categoryResponses.add(categoryResponse);
-        }
+//        List<CategoryResponse> categoryResponses = new ArrayList<>();
+//        for (Category category : categories) {
+//            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+//            categoryResponse.setProducts(category.getProducts().stream().map(productMapper::toPopular).collect(Collectors.toList()));
+//            categoryResponses.add(categoryResponse);
+//        }
 
         Meta meta = Meta.builder()
                 .current(categoryPage.getNumber() + 1)
@@ -259,7 +259,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         return PaginationResponse.builder()
                 .meta(meta)
-                .result(categoryResponses)
+//                .result(categoryResponses)
                 .build();
     }
 
