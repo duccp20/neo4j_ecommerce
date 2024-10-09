@@ -278,16 +278,15 @@ public class ProductServiceImpl implements ProductService {
     public Void deleteProduct(String id) {
 
 
-        Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = this.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        if (!authService.getCurrentUserEmail().equals(product.getUpdatedBy())) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
+        if (product.getStatus().equals(Status.DELETED)) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
         product.setStatus(Status.DELETED);
-
         productRepository.save(product);
-        ;
+
         return null;
     }
 

@@ -17,7 +17,9 @@ public interface BrandService {
 
     Void deleteBrand(String id);
 
-    Brand getBrandById(String id);
+    Void revertBrand(String id);
+
+    Brand findBrandById(String id);
 
     PaginationResponse getProductsByBrand(String brandId, int page, int size);
 }

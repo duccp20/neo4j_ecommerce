@@ -11,8 +11,10 @@ import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.repository.BrandRepository;
 import com.neo4j_ecom.demo.repository.ProductRepository;
 import com.neo4j_ecom.demo.service.BrandService;
+import com.neo4j_ecom.demo.service.ProductService;
 import com.neo4j_ecom.demo.service.UserService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
+import com.neo4j_ecom.demo.utils.enums.Status;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +30,7 @@ import java.util.stream.Collectors;
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
-
+    private final ProductService productService;
     private final UserService userService;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
@@ -51,6 +53,7 @@ public class BrandServiceImpl implements BrandService {
 
         User user = userService.findByEmail(email);
         List<Brand> brands = brandRepository.findAll();
+
 
         //brands.forEach(brand -> brand.setProducts(null));
         return brands;
@@ -79,17 +82,61 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public Void deleteBrand(String id) {
-        Optional<Brand> existingBrand = brandRepository.findById(id);
-        if(existingBrand.isPresent()){
-            brandRepository.deleteById(id);
-        }else {
+        int page=0;
+        int size=20;
+        Brand existingBrand = this.findBrandById(id);
+        if (existingBrand.getStatus().equals(Status.DELETED)){
             throw new AppException(ErrorCode.BRAND_NOT_FOUND);
         }
+
+        while (true){
+            PageRequest pageRequest = PageRequest.of(page,size);
+            Page<Product> productPage = productRepository.findByBrandId(id,pageRequest);
+
+            List<Product> productListToDelete = productPage.getContent();
+            if (productListToDelete.isEmpty()){break;}
+
+            for (Product product : productListToDelete){
+                productService.deleteProduct(product.getId());
+            }
+            page++;
+        }
+
+        existingBrand.setStatus(Status.DELETED);
+        brandRepository.save(existingBrand);
         return null;
     }
 
     @Override
-    public Brand getBrandById(String id) {
+    public Void revertBrand(String id) {
+        int page=0;
+        int size=20;
+        Brand existingBrand = this.findBrandById(id);
+        if (existingBrand.getStatus().equals(Status.ACTIVE)){
+            throw new AppException(ErrorCode.BRAND_ALREADY_ACTIVE);
+        }
+
+        while (true){
+            PageRequest pageRequest = PageRequest.of(page,size);
+            Page<Product> productPage = productRepository.findByBrandId(id,pageRequest);
+
+            List<Product> productListToRevert = productPage.getContent();
+            if (productListToRevert.isEmpty()){break;}
+
+            for (Product product : productListToRevert){
+                product.setStatus(Status.ACTIVE);
+            }
+            productRepository.saveAll(productListToRevert);
+            page++;
+        }
+
+        existingBrand.setStatus(Status.ACTIVE);
+        brandRepository.save(existingBrand);
+        return null;
+    }
+
+    @Override
+    public Brand findBrandById(String id) {
 
         return brandRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.BRAND_NOT_FOUND)
@@ -100,10 +147,12 @@ public class BrandServiceImpl implements BrandService {
     public PaginationResponse getProductsByBrand(String brandId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Product> productPage = productRepository.findByBrandId(brandId, pageRequest);
-        if(productPage.getTotalElements() == 0){
-            throw new AppException(ErrorCode.BRAND_NOT_FOUND);
-        }
-        List<ProductResponse> products = productPage.getContent().stream().map(productMapper::toResponse).collect(Collectors.toList());
+
+        List<ProductResponse> products = productPage.stream()
+                .filter(p->Status.ACTIVE.equals(p.getStatus()))
+                .map(productMapper::toResponse)
+                .collect(Collectors.toList());
+
         Meta meta = Meta.builder()
                 .current(productPage.getNumber()+1)
                 .pageSize(productPage.getNumberOfElements())
@@ -112,6 +161,7 @@ public class BrandServiceImpl implements BrandService {
                 .isFirstPage(productPage.isFirst())
                 .isLastPage(productPage.isLast())
                 .build();
+
         return PaginationResponse.builder()
                 .meta(meta)
                 .result(products)

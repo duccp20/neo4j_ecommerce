@@ -42,6 +42,14 @@ public class BrandController {
         );
     }
 
+    @PutMapping("/{id}/revert")
+    public ResponseEntity<ApiResponse<Void>> revertBrand(@PathVariable String id) {
+        brandService.revertBrand(id);
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(SuccessCode.UPDATED,null)
+        );
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') || hasRole('SELLER')")
     public ResponseEntity<ApiResponse<List<Brand>>> getBrands() {
@@ -58,7 +66,7 @@ public class BrandController {
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
                         SuccessCode.FETCHED,
-                        brandService.getBrandById(id)
+                        brandService.findBrandById(id)
                 )
         );
     }
