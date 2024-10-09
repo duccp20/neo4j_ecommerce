@@ -14,10 +14,12 @@ import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.repository.CategoryRepository;
 import com.neo4j_ecom.demo.repository.ProductRepository;
 import com.neo4j_ecom.demo.service.CategoryService;
+import com.neo4j_ecom.demo.service.ProductService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
     CategoryMapper categoryMapper;
 
     ProductRepository productRepository;
+
     ProductMapper productMapper;
 
     @Override
@@ -216,7 +219,7 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryResponse> categoryResponses = new ArrayList<>();
         for (Category category : categories) {
             CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-            categoryResponse.setProducts(productRepository.findByCategoriesContaining(category.getId()).stream().map(productMapper::toPopular).collect(Collectors.toList()));
+            categoryResponse.setProducts(productRepository.findAllByCategoryId(new ObjectId(category.getId())).stream().map(productMapper::toPopular).collect(Collectors.toList()));
             categoryResponses.add(categoryResponse);
         }
 
