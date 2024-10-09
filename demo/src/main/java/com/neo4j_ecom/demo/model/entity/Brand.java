@@ -36,5 +36,8 @@ public class Brand extends BaseEntity {
     @DocumentReference(lazy = true)
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     @JsonIgnoreProperties("brand")
+
+
+
     private List<Product> products;
 }
