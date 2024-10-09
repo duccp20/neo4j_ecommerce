@@ -182,12 +182,6 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
-        //save product to brand
-        Brand brand = product.getBrand();
-        brand.getProducts().add(savedProduct);
-        brandRepository.save(brand);
-
-
         return savedProduct;
     }
 

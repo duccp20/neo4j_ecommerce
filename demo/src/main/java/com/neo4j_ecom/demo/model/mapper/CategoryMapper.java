@@ -27,7 +27,6 @@ public class CategoryMapper {
         if (request.getChildren() != null) {
             list.addAll(categoryRepository.findAllById(request.getChildren()));
         }
-
         return Category.builder()
                 .name(request.getName() != null ? request.getName() : null)
                 .level(request.getLevel() != null ? request.getLevel() : null)
@@ -39,6 +38,7 @@ public class CategoryMapper {
                 .isFeatured(request.getIsFeatured() != null ? request.getIsFeatured() : false)
                 .build();
     }
+
 
     public CategoryResponse toResponse(Category savedCategory) {
 
