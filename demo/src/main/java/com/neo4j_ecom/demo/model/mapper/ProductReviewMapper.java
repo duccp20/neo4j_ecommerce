@@ -22,20 +22,20 @@ public class ProductReviewMapper {
         return review;
     }
 
-//    public ProductReviewResponse toResponse(ProductReview savedProductReview) {
-//        return ProductReviewResponse.builder()
-//                .content(savedProductReview.getContent())
-//                .rating(savedProductReview.getRating())
-//                .name(savedProductReview.getName())
-//                .email(savedProductReview.getEmail())
-//                .title(savedProductReview.getTitle())
-//                .options(savedProductReview.getOptions())
-//                .id(savedProductReview.getId())
-//                .productId(savedProductReview.getProduct().getId())
-//                .createdAt(savedProductReview.getCreatedAt())
-//                .updatedAt(savedProductReview.getUpdatedAt())
-//                .reviewerId(savedProductReview.getReviewer() != null ? savedProductReview.getReviewer().getId() : null)
-//                .reviewerName(savedProductReview.getReviewer() != null ? savedProductReview.getReviewer().getFirstName() + " " + savedProductReview.getReviewer().getLastName() : null)
-//                .build();
-//    }
+    public ProductReviewResponse toResponse(ProductReview savedProductReview) {
+        return ProductReviewResponse.builder()
+                .content(savedProductReview.getContent())
+                .rating(savedProductReview.getRating())
+                .name(savedProductReview.getName())
+                .email(savedProductReview.getEmail())
+                .title(savedProductReview.getTitle())
+                .options(savedProductReview.getOptions())
+                .id(savedProductReview.getId())
+                .productId(savedProductReview.getProduct().getId())
+                .createdAt(savedProductReview.getCreatedAt())
+                .updatedAt(savedProductReview.getUpdatedAt())
+                .reviewerId(savedProductReview.getReviewer() != null ? savedProductReview.getReviewer().getId() : null)
+                .reviewerName(savedProductReview.getReviewer() != null ? savedProductReview.getReviewer().getFirstName() + " " + savedProductReview.getReviewer().getLastName() : null)
+                .build();
+    }
 }
