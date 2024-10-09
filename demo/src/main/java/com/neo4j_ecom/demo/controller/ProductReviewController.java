@@ -26,7 +26,7 @@ public class ProductReviewController {
 
     @PostMapping("/{productId}/reviews")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ApiResponse<ProductReviewResponse>> handleCreateProductReview(
+    public ResponseEntity<ApiResponse<ProductReviewResponse>> createProductReview(
             @PathVariable String productId,
             @Valid
             @RequestBody ProductReviewRequest request
@@ -34,18 +34,16 @@ public class ProductReviewController {
 
         log.info("create product review request : productId {}, request {}",  productId, request);
 
-        SuccessCode successCode = SuccessCode.CREATED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<ProductReviewResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productReviewService.createReview(productId, request))
-                        .build()
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.CREATED,
+                        productReviewService.createReview(productId, request)
+                )
         );
     }
 
     @GetMapping("{productId}/reviews")
-    public ResponseEntity<ApiResponse<PaginationResponse>> handleGetAllReviewsByProductId(
+    public ResponseEntity<ApiResponse<PaginationResponse>> getAllReviewsByProductId(
             @PathVariable String productId,
             @RequestParam(defaultValue = "0") String page,
             @RequestParam(defaultValue = "20") String size,
@@ -76,7 +74,6 @@ public class ProductReviewController {
         SuccessCode successCode = SuccessCode.FETCHED;
 
         PaginationResponse response = productReviewService.getAllReviewsByProductId(productId, pageInt, sizeInt, sortBy, sortOrder);
-
         return ResponseEntity.status(successCode.getCode()).body(
                 ApiResponse.<PaginationResponse>builder()
                         .statusCode(successCode.getCode())
@@ -84,6 +81,7 @@ public class ProductReviewController {
                         .data(response)
                         .build()
         );
+
     }
 
 //    @PutMapping("/{id}/")
@@ -91,12 +89,8 @@ public class ProductReviewController {
 //        return null;
 //    }
 
-
-
-
-
     @GetMapping("{productId}/reviews/filter")
-    public ResponseEntity<ApiResponse<PaginationResponse>> handleGetAllReviewsByVariantIdFilter(
+    public ResponseEntity<ApiResponse<PaginationResponse>> getAllReviewsByVariantIdFilter(
             @RequestParam(defaultValue = "0") String page,
             @RequestParam(defaultValue = "20") String size,
             @PathVariable String productId,
@@ -106,13 +100,6 @@ public class ProductReviewController {
         Integer pageInt = Integer.parseInt(page);
         Integer sizeInt = Integer.parseInt(size);
 
-        try {
-            Integer.parseInt(page);
-            Integer.parseInt(size);
-        } catch (NumberFormatException e) {
-            throw new AppException(ErrorCode.WRONG_INPUT);
-        }
-
         if (pageInt < 0 || sizeInt < 0) {
             throw new AppException(ErrorCode.WRONG_INPUT);
         }
@@ -121,13 +108,11 @@ public class ProductReviewController {
         log.info("get all reviews by product request : {}, rating {}", productId, rating);
         SuccessCode successCode = SuccessCode.FETCHED;
 
-        PaginationResponse response = productReviewService.getAllReviewsByProductIdFilter(productId, ratingInt, pageInt, sizeInt);
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<PaginationResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(response)
-                        .build()
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.FETCHED,
+                        productReviewService.getAllReviewsByProductIdFilter(productId, ratingInt, pageInt, sizeInt)
+                )
         );
     }
 }
