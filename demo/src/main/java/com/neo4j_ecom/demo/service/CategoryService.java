@@ -31,5 +31,5 @@ public interface CategoryService{
 
     PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer pageInt, Integer sizeInt, String productId);
 
-//    PaginationResponse handleGetAllCategoriesFeaturedWithProducts(Integer pageInt, Integer sizeInt);
+    PaginationResponse handleGetAllCategoriesFeaturedWithProducts(Integer pageInt, Integer sizeInt);
 }

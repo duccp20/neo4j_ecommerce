@@ -17,5 +17,4 @@ public class CategoryResponseTopSold {
     String id;
     String name;
     long totalSold;
-
 }

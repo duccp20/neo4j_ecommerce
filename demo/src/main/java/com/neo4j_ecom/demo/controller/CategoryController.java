@@ -134,38 +134,38 @@ public class CategoryController {
         );
     }
 
-//    @GetMapping("/featured/products")
-//    public ResponseEntity<ApiResponse<PaginationResponse>> handleGetAllCategoriesFeaturedWithProducts(
-//            @RequestParam(defaultValue = "0") String page,
-//            @RequestParam(defaultValue = "4") String size
-//    ) {
-//
-//        log.info("page: {}, size: {}", page, size);
-//
-//        Integer pageInt = Integer.parseInt(page);
-//        Integer sizeInt = Integer.parseInt(size);
-//
-//        try {
-//            Integer.parseInt(page);
-//            Integer.parseInt(size);
-//        } catch (NumberFormatException e) {
-//            throw new AppException(ErrorCode.WRONG_INPUT);
-//        }
-//
-//        if (pageInt < 0 || sizeInt < 0) {
-//            throw new AppException(ErrorCode.WRONG_INPUT);
-//        }
-//
-//
-//        SuccessCode successCode = SuccessCode.FETCHED;
-//        return ResponseEntity.status(successCode.getCode()).body(
-//                ApiResponse.<PaginationResponse>builder()
-//                        .statusCode(successCode.getCode())
-//                        .message(successCode.getMessage())
-//                        .data(categoryService.handleGetAllCategoriesFeaturedWithProducts(pageInt, sizeInt))
-//                        .build()
-//        );
-//    }
+    @GetMapping("/featured/products")
+    public ResponseEntity<ApiResponse<PaginationResponse>> handleGetAllCategoriesFeaturedWithProducts(
+            @RequestParam(defaultValue = "0") String page,
+            @RequestParam(defaultValue = "4") String size
+    ) {
+
+        log.info("page: {}, size: {}", page, size);
+
+        Integer pageInt = Integer.parseInt(page);
+        Integer sizeInt = Integer.parseInt(size);
+
+        try {
+            Integer.parseInt(page);
+            Integer.parseInt(size);
+        } catch (NumberFormatException e) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+        if (pageInt < 0 || sizeInt < 0) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+
+        SuccessCode successCode = SuccessCode.FETCHED;
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<PaginationResponse>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(categoryService.handleGetAllCategoriesFeaturedWithProducts(pageInt, sizeInt))
+                        .build()
+        );
+    }
 
 
     @GetMapping({"/name/{name}"})

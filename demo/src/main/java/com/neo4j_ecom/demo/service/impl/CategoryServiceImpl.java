@@ -204,36 +204,36 @@ public class CategoryServiceImpl implements CategoryService {
                 .build();
     }
 
-//    @Override
-//    public PaginationResponse handleGetAllCategoriesFeaturedWithProducts(Integer pageInt, Integer sizeInt) {
-//
-//        PageRequest pageRequest = PageRequest.of(pageInt, sizeInt);
-//
-//        Page<Category> categoryPage = categoryRepository.findByIsFeaturedTrue(pageRequest);
-//
-//        List<Category> categories = categoryPage.getContent();
-//
-//        List<CategoryResponse> categoryResponses = new ArrayList<>();
-//        for (Category category : categories) {
-//            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-//            categoryResponse.setProducts(category.getProducts().stream().map(productMapper::toPopular).collect(Collectors.toList()));
-//            categoryResponses.add(categoryResponse);
-//        }
-//
-//        Meta meta = Meta.builder()
-//                .current(categoryPage.getNumber() + 1)
-//                .pageSize(categoryPage.getNumberOfElements())
-//                .totalPages(categoryPage.getTotalPages())
-//                .totalItems(categoryPage.getTotalElements())
-//                .isFirstPage(categoryPage.isFirst())
-//                .isLastPage(categoryPage.isLast())
-//                .build();
-//
-//        return PaginationResponse.builder()
-//                .meta(meta)
-//                .result(categoryResponses)
-//                .build();
-//    }
+    @Override
+    public PaginationResponse handleGetAllCategoriesFeaturedWithProducts(Integer pageInt, Integer sizeInt) {
+
+        PageRequest pageRequest = PageRequest.of(pageInt, sizeInt);
+
+        Page<Category> categoryPage = categoryRepository.findByIsFeaturedTrue(pageRequest);
+
+        List<Category> categories = categoryPage.getContent();
+
+        List<CategoryResponse> categoryResponses = new ArrayList<>();
+        for (Category category : categories) {
+            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+            categoryResponse.setProducts(productRepository.getAllProductsByCategoryId(category.getId()).stream().map(productMapper::toPopular).collect(Collectors.toList()));
+            categoryResponses.add(categoryResponse);
+        }
+
+        Meta meta = Meta.builder()
+                .current(categoryPage.getNumber() + 1)
+                .pageSize(categoryPage.getNumberOfElements())
+                .totalPages(categoryPage.getTotalPages())
+                .totalItems(categoryPage.getTotalElements())
+                .isFirstPage(categoryPage.isFirst())
+                .isLastPage(categoryPage.isLast())
+                .build();
+
+        return PaginationResponse.builder()
+                .meta(meta)
+                .result(categoryResponses)
+                .build();
+    }
 
     @Override
     public List<CategoryResponse> handleGetAllCategoriesFeatured(boolean isFeatured) {

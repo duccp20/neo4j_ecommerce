@@ -23,19 +23,21 @@ public interface CategoryRepository extends MongoRepository<Category, String> {
     List<Category> findByParentId(String parentId);
 
     //    List<Category> findAllCategories();
+
     @Aggregation(pipeline = {
             "{ $lookup: { " +
                     "from: 'products', " +
                     "localField: '_id', " +
-                    "foreignField: 'categories.$id', " +
+                    "foreignField: 'categories', " +
                     "as: 'products' " +
                     "} }",
-            "{ $project: { " +
-                    "_id: 1, " +
-                    "name: 1, " +
-                    "totalSoldQuantity: { $sum: '$products.sumSoldQuantity' } " +
+            "{ $unwind: '$products' }",
+            "{ $group: { " +
+                    "_id: '$_id', " +
+                    "name: { $first: '$name' }, " +
+                    "totalSold: { $sum: { $ifNull: ['$products.soldQuantity', 0] } } " +
                     "} }",
-            "{ $sort: { totalSoldQuantity: -1 } }",
+            "{ $sort: { totalSold: -1 } }",
             "{ $limit: 10 }"
     })
     List<CategoryResponseTopSold> getCategoryTopSoldList();
