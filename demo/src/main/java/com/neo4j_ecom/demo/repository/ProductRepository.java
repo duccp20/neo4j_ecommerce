@@ -40,8 +40,7 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     Optional<Product> findById(String id);
 
-    @Query("{ 'categories': { $in: ?0 } }")
-    List<Product> getAllProductsByCategoryId(String categoryId);
+    List<Product> findByCategoriesContaining(String categoryId);
 
     Page<Product> findByCategories_Id(String categoryId, PageRequest pageRequest);
 

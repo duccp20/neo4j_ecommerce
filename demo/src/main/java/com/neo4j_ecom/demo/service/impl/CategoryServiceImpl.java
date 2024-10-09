@@ -216,7 +216,7 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryResponse> categoryResponses = new ArrayList<>();
         for (Category category : categories) {
             CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-            categoryResponse.setProducts(productRepository.getAllProductsByCategoryId(category.getId()).stream().map(productMapper::toPopular).collect(Collectors.toList()));
+            categoryResponse.setProducts(productRepository.findByCategoriesContaining(category.getId()).stream().map(productMapper::toPopular).collect(Collectors.toList()));
             categoryResponses.add(categoryResponse);
         }
 
