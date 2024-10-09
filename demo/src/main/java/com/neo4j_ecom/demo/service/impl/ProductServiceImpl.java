@@ -165,15 +165,6 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProduct = productRepository.save(product);
 
-        //save product to category/collection
-        List<Category> categories = product.getCategories();
-        if (categories != null && !categories.isEmpty()) {
-//            for (Category category : categories) {
-//                category.getProducts().add(savedProduct);
-//                categoryRepository.save(category);
-//            }
-        }
-
         //save product to brand
         Brand brand = product.getBrand();
 //        brand.getProducts().add(savedProduct);
