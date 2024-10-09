@@ -157,17 +157,6 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         Page<ProductReview> reviewPage = productReviewRepository.findAllByProductIdAndRating(productId, rating, pageRequest);
 
-//        List<ProductReviewResponse> reviewResponses = reviewPage.getContent().stream()
-//                .map(review -> ProductReviewResponse.builder()
-//                        .id(review.getId())
-//                        .reviewerName(review.getName())
-//                        .content(review.getTitle())
-//                        .rating(review.getRating())
-//                        .createdAt(review.getCreatedAt())
-//                        .updatedAt(review.getUpdatedAt())
-//                        .build())
-//                .collect(Collectors.toList());
-
         List<ProductReview> reviews = reviewPage.getContent();
 
         Meta meta = Meta.builder()
