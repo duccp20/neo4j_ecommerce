@@ -5,11 +5,13 @@ import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ChangePasswordRequest;
 import com.neo4j_ecom.demo.model.dto.request.RegisterRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
+import com.neo4j_ecom.demo.model.dto.response.UserResponse;
 import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.service.AuthService;
 import com.neo4j_ecom.demo.service.UserService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
+import com.nimbusds.jose.JOSEException;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +25,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+
+import java.text.ParseException;
 import java.util.Map;
 
 @RestController
@@ -41,13 +45,13 @@ public class AuthController {
     private long maxAge;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<User>> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<ApiResponse<User>> register(@RequestBody RegisterRequest request) throws JOSEException, ParseException {
 
         return ResponseEntity.ok(ApiResponse.builderResponse(SuccessCode.REGISTER, authService.register(request)));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> login(@RequestBody Map<String, String> request) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> login(@RequestBody Map<String, String> request) throws JOSEException, ParseException {
 
         Map<String, Object> response = authService.login(request);
 
@@ -83,14 +87,14 @@ public class AuthController {
         response.addCookie(cookie);
 
         return ResponseEntity.
-                ok(ApiResponse.builderResponse(SuccessCode.LOGOUT, null));
+                ok(ApiResponse.builderResponse(SuccessCode.LOGOUT, null)).
 
     }
 
 
 
     @GetMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<String>> refreshToken(@CookieValue("refresh_token") String requestRefreshToken) {
+    public ResponseEntity<ApiResponse<String>> refreshToken(@CookieValue("refresh_token") String requestRefreshToken, HttpServletResponse response) {
 
         Jwt decodedOldRefreshToken = this.jwtConfig.checkValidRefreshToken(requestRefreshToken);
 
@@ -100,9 +104,7 @@ public class AuthController {
             throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        User user = userService.getUserByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
+        User user = userService.getUserByEmail(email).get();
         String newAccessToken = this.jwtConfig.generateToken(user, "access");
 
         return ResponseEntity.ok()
@@ -190,7 +192,7 @@ public class AuthController {
             return new RedirectView("http://localhost:5173/confirm-failure");
         }
 
-        User user = userService.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userService.findById(id).get();
 
         if (user.getVerificationToken().equals(token)) {
 

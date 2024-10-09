@@ -14,10 +14,13 @@ public interface AuthService {
 
     Map<String, Object> login(Map<String, String> request);
 
+    void logout(String token);
+
     Void handleForgotPassword(String email);
 
     void verifyAccount(String email);
 
     void handleResetPassword(ChangePasswordRequest request, String token);
 
+    ResponseEntity<?> handleCreateAccessAndRefreshToken(String email);
 }

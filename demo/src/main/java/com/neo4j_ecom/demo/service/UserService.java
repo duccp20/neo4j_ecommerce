@@ -1,23 +1,30 @@
 package com.neo4j_ecom.demo.service;
 
-import com.neo4j_ecom.demo.model.dto.request.RegisterRequest;
-import com.neo4j_ecom.demo.model.dto.request.UserRequest;
-import com.neo4j_ecom.demo.model.dto.response.UserResponse;
+
 import com.neo4j_ecom.demo.model.entity.User;
 
-public interface UserService {
-    void registerUser(RegisterRequest registerRequest);
-    public UserResponse createUser(UserRequest request);
+import java.util.List;
+import java.util.Optional;
 
-    User findByEmail(String email);
+public interface UserService {
+    User getUserById(String id);
+
+    List<User> getAllUser();
+
+    User saveUser(User user);
+
+    User updateUser(String id, User user);
+
+    void deleteUser(String id);
+
+    Optional<User> getUserByEmail(String email);
 
     void updateForgotPasswordToken(String token, String id);
 
-    User findById(String id);
+    Optional<User> findById(String id);
 
     void updatePassword(String newPass,  User user);
 
     void updateVerificationToken(String token, String id);
 
-    User saveUser(User user);
 }

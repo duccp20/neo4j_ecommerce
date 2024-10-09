@@ -58,7 +58,6 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category category = categoryMapper.toEntity(request);
-
         Category savedCategory = categoryRepository.save(category);
 
 
@@ -157,32 +156,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity() {
         List<CategoryResponseTopSold> categoryResponseTopSoldList = categoryRepository.getCategoryTopSoldList();
-        categoryResponseTopSoldList.sort(Comparator.comparing(CategoryResponseTopSold::getTotalSold, Comparator.reverseOrder()));
-        return categoryResponseTopSoldList;
-    }
-
-    @Override
-    public List<CategoryResponse> handleGetCategoriesByLevel(Integer level) {
-
-        List<Category> categories = categoryRepository.findByLevel(level);
-
-        log.info("categories in level: {}", categories);
-
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-
-            //do not show product for this api
-            categoryResponse.setProducts(Collections.emptyList());
-            categoryResponses.add(categoryResponse);
-        }
-
-        log.info("categoryResponses: {}", categoryResponses);
-
-        return categoryResponses;
-
-    }
-
     @Override
     public PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer page, Integer size, String productId) {
 
@@ -234,7 +207,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         return PaginationResponse.builder()
                 .meta(meta)
-                .result(categoryResponses)
+//                .result(categoryResponses)
                 .build();
     }
 

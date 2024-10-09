@@ -26,7 +26,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,7 +55,8 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userService.findByEmail(email);
+        User user = userService.getUserByEmail(email).orElseThrow(() ->
+                new AppException(ErrorCode.USER_NOT_FOUND));
 
         ProductReview productReview = reviewMapper.toEntity(review);
         productReview.setProduct(product);
