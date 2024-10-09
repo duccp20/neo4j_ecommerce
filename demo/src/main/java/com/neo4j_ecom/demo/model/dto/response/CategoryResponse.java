@@ -21,7 +21,6 @@ public class CategoryResponse {
     private String icon;
     private Integer level;
     private String parent;
-
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<String> children;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

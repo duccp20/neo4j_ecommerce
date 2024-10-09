@@ -1,6 +1,5 @@
 package com.neo4j_ecom.demo.model.mapper;
 
-import com.neo4j_ecom.demo.model.dto.request.ProductBannerRequest;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.entity.ProductBanner;
@@ -14,7 +13,7 @@ import java.util.stream.Collectors;
 public class ProductBannerMapper {
 
 
-    public ProductBanner toEntity(ProductBannerRequest request) {
+    public ProductBanner toEntity(ProductBanner request) {
 
         return ProductBanner.builder()
                 .imageUrl(request.getImageUrl())
@@ -32,9 +31,9 @@ public class ProductBannerMapper {
                 .locations(savedProductBanner.getLocations())
                 .startDate(savedProductBanner.getStartDate())
                 .endDate(savedProductBanner.getEndDate())
-                .productId(savedProductBanner.getProducts().stream().map(Product::getId).collect(Collectors.toList()))
+//                .productId(savedProductBanner.getProducts().stream().map(Product::getId).collect(Collectors.toList()))
                 .locations(savedProductBanner.getLocations())
-                .categoryId(savedProductBanner.getCategory().getId())
+//                .categoryId(savedProductBanner.getCategory().getId())
                 .build();
     }
 }

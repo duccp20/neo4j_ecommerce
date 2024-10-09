@@ -11,24 +11,20 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
 @Document("product_banners")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductBanner {
+public class ProductBanner extends BaseEntity {
 
     @Id
     private String id;
     private String imageUrl;
     private LocalDate startDate;
     private LocalDate  endDate;
-    @DBRef
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private List<Product> products;
-    @DBRef
-    private Category category;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<String> locations = new ArrayList<>();
 }

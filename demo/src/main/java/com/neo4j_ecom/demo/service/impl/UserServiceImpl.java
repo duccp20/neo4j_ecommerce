@@ -1,82 +1,82 @@
 package com.neo4j_ecom.demo.service.impl;
 
+
 import com.neo4j_ecom.demo.exception.AppException;
-import com.neo4j_ecom.demo.model.dto.request.RegisterRequest;
-import com.neo4j_ecom.demo.model.dto.request.UserRequest;
-import com.neo4j_ecom.demo.model.dto.response.UserResponse;
-import com.neo4j_ecom.demo.model.entity.ERole;
-import com.neo4j_ecom.demo.model.entity.Role;
 import com.neo4j_ecom.demo.model.entity.User;
-import com.neo4j_ecom.demo.model.mapper.UserMapper;
-import com.neo4j_ecom.demo.repository.RoleRepository;
 import com.neo4j_ecom.demo.repository.UserRepository;
 import com.neo4j_ecom.demo.service.UserService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+
     private final PasswordEncoder encoder;
-    UserMapper userMapper;
-
 
     @Override
-    public void registerUser(RegisterRequest registerRequest) {
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
-        }
-
-        User user = new User();
-        user.setFirstName(registerRequest.getFirstName());
-        user.setLastName(registerRequest.getLastName());
-        user.setEmail(registerRequest.getEmail());
-        user.setPassword(encoder.encode(registerRequest.getPassword()));
-        user.setHasVerified(false);
-
-        Set<Role> roles = new HashSet<>();
-        if (registerRequest.getRoles() != null && !registerRequest.getRoles().isEmpty()) {
-            registerRequest.getRoles().forEach(roleName -> {
-                Role role = roleRepository.findByName(roleName)
-                        .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
-                roles.add(role);
-            });
-        } else {
-            Role defaultRole = roleRepository.findByName("ROLE_USER")
-                    .orElseThrow(() -> new RuntimeException("Default role not found"));
-            roles.add(defaultRole);
-        }
-
-        user.setRoles(roles);
-        userRepository.save(user);
-    }
-
-    public UserResponse createUser(UserRequest request) {
-        User user = userMapper.toUser(request);
-        user.setPassword(encoder.encode(request.getPassword()));
-
-        HashSet<Role> roles = new HashSet<>();
-        roleRepository.findById(String.valueOf(ERole.ROLE_USER)).ifPresent(roles::add);
-
-        user.setRoles(roles);
-        user = userRepository.save(user);
-
-        return userMapper.toUserResponse(user);
+    public User getUserById(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        return user;
     }
 
     @Override
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    public List<User> getAllUser() {
+        try {
+            return userRepository.findAll();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
+
+
+    @Override
+    public User updateUser(String id, User user) {
+        return null;
+    }
+
+//    public User updateUser(String id, User user) {
+//        try {
+//            User oldUser = getUserById(id);
+//            if (user.getFullName()!=null){
+//                oldUser.setFullName(user.getFullName());
+//            }
+//            if (user.getAddress()!=null){
+//                oldUser.setAddress(user.getAddress());
+//            }
+//            if (user.getPhone()!=null){
+//                oldUser.setPhone(user.getPhone());
+//            }
+//            if (user.getEmail()!=null){
+//                oldUser.setEmail(user.getEmail());
+//            }
+//            return userRepository.save(oldUser);
+//        }catch (RuntimeException e){
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+
+    @Override
+    public void deleteUser(String id) {
+        userRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
 
     @Override
     public void updateForgotPasswordToken(String token, String id) {
@@ -88,9 +88,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(String id) {
-        return userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    public Optional<User> findById(String id) {
+        return userRepository.findById(id);
     }
+
 
     @Override
     public void updatePassword(String newPass, User user) {
@@ -107,9 +108,9 @@ public class UserServiceImpl implements UserService {
         });
     }
 
+
     @Override
     public User saveUser(User user) {
         return userRepository.save(user);
     }
-
 }

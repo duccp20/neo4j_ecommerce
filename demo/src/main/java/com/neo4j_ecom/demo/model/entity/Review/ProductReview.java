@@ -1,9 +1,12 @@
 package com.neo4j_ecom.demo.model.entity.Review;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.neo4j_ecom.demo.model.entity.Product;
-import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
+
+
+import com.neo4j_ecom.demo.model.entity.BaseEntity;
+
 import com.neo4j_ecom.demo.model.entity.User;
+import com.neo4j_ecom.demo.model.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +28,7 @@ import java.util.List;
 @Data
 @Document("product_reviews")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductReview {
+public class ProductReview extends BaseEntity {
 
     @Id
     private String id;
@@ -39,8 +42,7 @@ public class ProductReview {
     private Product product;
     @DocumentReference(lazy = true)
     private User reviewer;
-    @CreatedDate
-    private Instant createdAt;
-    @LastModifiedDate
-    private Instant updatedAt;
+
+
+
 }

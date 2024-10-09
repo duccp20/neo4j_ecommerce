@@ -53,7 +53,7 @@ public enum ErrorCode {
 
 
     //auth
-    INVALID_REFRESH_TOKEN(401, "Invalid or expired refresh token", HttpStatus.BAD_GATEWAY),
+    INVALID_REFRESH_TOKEN(401, "Invalid or expired token", HttpStatus.BAD_GATEWAY),
 
     REFRESH_TOKEN_NOT_FOUND(404, "Refresh Token Not Found!", HttpStatus.NOT_FOUND),
     ACCESS_DENIED(403, "Access Denied ! Do not have permission", HttpStatus.FORBIDDEN),
@@ -65,7 +65,10 @@ public enum ErrorCode {
     BAD_CREDENTIALS(401, "You have entered wrong credentials!", HttpStatus.UNAUTHORIZED),
     USER_NOT_VERIFIED(401, "Your account needs to be verified. Please verify now!", HttpStatus.UNAUTHORIZED),
     PRODUCT_NOT_REQUIRED_PRICE(400, "Missing Required Product Price (SALE PRICE OR ORIGINAL PRICE)!", HttpStatus.BAD_REQUEST),
-    INVALID_PASSWORD(400, "Invalid Password!", HttpStatus.BAD_REQUEST);
+    INVALID_PASSWORD(400, "Invalid Password!", HttpStatus.BAD_REQUEST),
+
+    //role
+    ROLE_NOT_FOUND( 404, "Role Not Found!",  HttpStatus.NOT_FOUND );
 
 
     private final int code;

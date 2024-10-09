@@ -1,181 +1,113 @@
 package com.neo4j_ecom.demo.controller;
 
-import com.google.protobuf.Api;
+import com.neo4j_ecom.demo.config.JwtConfig;
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ChangePasswordRequest;
-import com.neo4j_ecom.demo.model.dto.request.LoginRequest;
 import com.neo4j_ecom.demo.model.dto.request.RegisterRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
-import com.neo4j_ecom.demo.model.dto.response.AuthResponse;
-import com.neo4j_ecom.demo.model.dto.response.TokenRefreshResponse;
-import com.neo4j_ecom.demo.model.dto.response.UserResponse;
-import com.neo4j_ecom.demo.model.entity.RefreshToken;
-import com.neo4j_ecom.demo.model.entity.Role;
 import com.neo4j_ecom.demo.model.entity.User;
-import com.neo4j_ecom.demo.security.JwtUtil;
 import com.neo4j_ecom.demo.service.AuthService;
-import com.neo4j_ecom.demo.service.RefreshTokenService;
 import com.neo4j_ecom.demo.service.UserService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
-
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/auth")
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class AuthController {
-
-    private final UserService userService;
-    private final AuthenticationManager authenticationManager;
-
-    private final JwtUtil jwtUtil;
-
-    private final RefreshTokenService refreshTokenService;
-
     private final AuthService authService;
 
-    @Value("${domain}")
-    private String domain;
+    private final UserService userService;
+
+    private final JwtConfig jwtConfig;
+
+
+    @Value("${jwt.refresh-expiration}")
+    private long maxAge;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-        SuccessCode successCode = SuccessCode.REGISTER;
-        userService.registerUser(registerRequest);
-        return ResponseEntity.ok().body(
-                ApiResponse.builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .build()
-        );
+    public ResponseEntity<ApiResponse<User>> register(@RequestBody RegisterRequest request) {
+
+        return ResponseEntity.ok(ApiResponse.builderResponse(SuccessCode.REGISTER, authService.register(request)));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+    public ResponseEntity<ApiResponse<Map<String, Object>>> login(@RequestBody Map<String, String> request) {
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Map<String, Object> response = authService.login(request);
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        User user = userService.findByEmail(email);
-
-        if (!user.isHasVerified()) {
-            throw new AppException(ErrorCode.USER_NOT_VERIFIED);
-        }
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
-        String token = jwtUtil.generateTokenFromUsername(user.getEmail());
-        String refreshTokenJwt = refreshToken.getRefreshToken();
-
-        UserResponse userResponse = UserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
-                .build();
-
-        //  Set refresh token to cookie
+        User user = (User) response.get("user");
+        String refreshToken = jwtConfig.generateToken(user, "refresh");
         ResponseCookie responseCookie = ResponseCookie
-                .from("refresh_token", refreshTokenJwt)
+                .from("refresh_token", refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(60 * 60 * 24 * 30) // 30 days)
+                .maxAge(maxAge)
                 .build();
 
-        SuccessCode successCode = SuccessCode.LOGIN;
+        return ResponseEntity.ok().
+                header(HttpHeaders.SET_COOKIE, responseCookie.toString()).
+                body(ApiResponse.builderResponse(SuccessCode.LOGIN, authService.login(request)));
 
-        AuthResponse authResponse = AuthResponse.builder()
-                .token(token)
-                .user(userResponse)
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
-                .body(
-                        ApiResponse.builder()
-                                .statusCode(successCode.getCode())
-                                .message(successCode.getMessage())
-                                .data(authResponse)
-                                .build());
     }
+
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logoutUser(@CookieValue(name = "refresh_token", required = false) String refreshToken, HttpServletResponse response) {
-        if (refreshToken != null) {
-            Cookie cookie = new Cookie("refresh_token", null);
-            cookie.setMaxAge(0);
-            cookie.setSecure(true);
-            cookie.setHttpOnly(true);
-            cookie.setPath("/");
-            response.addCookie(cookie);
+    public ResponseEntity<ApiResponse<Void>> logout(@CookieValue("refresh_token") String refreshToken,  HttpServletResponse response) {
+
+        if (refreshToken == null) {
+            throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        SuccessCode successCode = SuccessCode.LOGOUT;
+        Cookie cookie = new Cookie("refresh_token", null);
+        cookie.setMaxAge(0);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
 
-        return ResponseEntity.ok(
-                ApiResponse.builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .build()
-        );
+        return ResponseEntity.
+                ok(ApiResponse.builderResponse(SuccessCode.LOGOUT, null));
+
     }
 
+
+
     @GetMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@CookieValue("refresh_token") String requestRefreshToken, HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<String>> refreshToken(@CookieValue("refresh_token") String requestRefreshToken) {
 
-        log.info("requestRefreshToken: {}", requestRefreshToken);
+        Jwt decodedOldRefreshToken = this.jwtConfig.checkValidRefreshToken(requestRefreshToken);
 
-        if (requestRefreshToken == null) {
-            throw new AppException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
+        String email = decodedOldRefreshToken.getSubject();
+
+        if (email == null) {
+            throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
-        RefreshToken oldRefreshToken = refreshTokenService.findByToken(requestRefreshToken);
 
-        refreshTokenService.verifyExpiration(oldRefreshToken);
+        User user = userService.getUserByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        this.jwtUtil.validateJwtToken(oldRefreshToken.getRefreshToken());
-
-        String accessToken = this.jwtUtil.generateTokenFromUsername(oldRefreshToken.getUser().getEmail());
-
-        String refreshToken = this.jwtUtil.generateRefreshToken(oldRefreshToken.getUser().getEmail());
-
-        oldRefreshToken.setRefreshToken(refreshToken);
-        refreshTokenService.saveRefreshToken(oldRefreshToken);
-
-        Cookie refreshTokenCookie = new Cookie("refresh_token", oldRefreshToken.getRefreshToken());
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
-        response.addCookie(refreshTokenCookie);
-
-        SuccessCode successCode = SuccessCode.TOKEN_REFRESH;
+        String newAccessToken = this.jwtConfig.generateToken(user, "access");
 
         return ResponseEntity.ok()
-                .body(ApiResponse.builder()
-                        .statusCode(successCode.getCode())
-                        .data(new TokenRefreshResponse(accessToken))
-                        .message(successCode.getMessage())
-                        .build()
-                );
+                .body(ApiResponse.builderResponse(SuccessCode.CREATED, newAccessToken));
+
     }
 
     @PostMapping("/forgot-password")
@@ -188,87 +120,77 @@ public class AuthController {
         authService.handleForgotPassword(email);
 
         return ResponseEntity.ok()
-                .body(ApiResponse.<Void>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .build()
-                );
+                .body(ApiResponse.builderResponse(successCode, null));
     }
 
     @GetMapping("/forgot-password/confirmation")
     public Object verifyForgotPasswordToken(@RequestParam String token, @RequestParam String id) {
 
-        User user = userService.findById(id);
+
+        if (token == null || id == null) {
+            return new RedirectView("http://localhost:5173/confirm-failure");
+        }
+
+        User user = userService.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getForgotPasswordToken().equals(token)) {
 
             log.info("successfully verified in forgot password token");
 
 
-            return new RedirectView("http://localhost:5173/reset?email=" + user.getEmail());
+            return new RedirectView("http://localhost:5173/reset?email=" + user.getEmail() + "&token=" + token);
 
         } else {
 
             log.info("failed verified in forgot password token");
 
-            return new RedirectView("https://newshop.vn/tin-tuc/5-cuon-sach-chia-se-bi-quyet-vuon-len-thanh-cong-tu-that-bai-id932.html");
+            return new RedirectView("http://localhost:5173/confirm-failure");
         }
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<Object>> handleResetPassword(@RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<ApiResponse<Object>> handleResetPassword(@RequestParam String token, @RequestBody ChangePasswordRequest request) {
 
         SuccessCode successCode = SuccessCode.CHANGE_PASSWORD;
 
-        authService.handleResetPassword(request);
-        return ResponseEntity.ok()
-                .body(ApiResponse.builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .build()
-                );
-
+        authService.handleResetPassword(request, token);
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(successCode, null)
+        );
     }
 
     @GetMapping("/account")
-    public ResponseEntity<ApiResponse<UserResponse>> getAccount() {
+    public ResponseEntity<ApiResponse<User>> getAccount() {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userService.findByEmail(email);
+        User user = userService.getUserByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        UserResponse userResponse = UserResponse.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
-                .build();
-
-        return ResponseEntity.ok()
-                .body(ApiResponse.<UserResponse>builder()
-                        .statusCode(SuccessCode.FETCHED.getCode())
-                        .message(SuccessCode.FETCHED.getMessage())
-                        .data(userResponse)
-                        .build()
-                );
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(SuccessCode.FETCHED, user)
+        );
     }
 
     @PostMapping("/verify-account")
     public ResponseEntity<ApiResponse<Object>> sendMailVerifyAccount(@RequestParam String email) {
-        authService.verifyAccount(email);
 
+        this.authService.verifyAccount(email);
         SuccessCode successCode = SuccessCode.SEND_MAIL_VERIFY_ACCOUNT;
-        return ResponseEntity.ok()
-                .body(ApiResponse.builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .build()
-                );
+
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(successCode, null)
+        );
+
     }
 
     @GetMapping("/verify-account/confirmation")
     public Object verifyAccount(@RequestParam String token, @RequestParam String id) {
 
-        User user = userService.findById(id);
+        if (token == null || id == null) {
+            return new RedirectView("http://localhost:5173/confirm-failure");
+        }
+
+        User user = userService.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getVerificationToken().equals(token)) {
 
@@ -278,13 +200,13 @@ public class AuthController {
             userService.saveUser(user);
             log.info("successfully verified in confirm account token");
 
-            return new RedirectView("https://www.saokim.com.vn/project/du-an/thiet-ke-logo-va-nhan-dien-thuong-hieu-thanh-cong");
+            return new RedirectView("http://localhost:5173/confirm-success");
 
         } else {
 
             log.info("failed verified in confirm account token");
 
-            return new RedirectView("https://newshop.vn/tin-tuc/5-cuon-sach-chia-se-bi-quyet-vuon-len-thanh-cong-tu-that-bai-id932.html");
+            return new RedirectView("http://localhost:5173/confirm-failure");
         }
     }
 }

@@ -2,6 +2,7 @@ package com.neo4j_ecom.demo.repository;
 
 import com.neo4j_ecom.demo.model.dto.response.ProductCategoryResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.repository.Aggregation;
@@ -9,9 +10,12 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductRepository extends MongoRepository<Product, String> {
     boolean existsByName(String name);
+
+
 
 
     @Aggregation(pipeline = {
@@ -35,10 +39,16 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     @Query("{ 'productVariants._id' : ?0 }")
     Product findByVariantId(String variantId);
 
+    Optional<Product> findById(String id);
+
+    @Query("{ 'categories': ?0 }")
+    List<Product> findAllByCategoryId(ObjectId categoryId);
 
     Page<Product> findByCategories_Id(String categoryId, PageRequest pageRequest);
 
     Page<Product> findByCategories_IdAndIdNot(String categoryId, String productId, PageRequest pageRequest);
+
+    List<Product> findAllById(String id);
 }
 
 

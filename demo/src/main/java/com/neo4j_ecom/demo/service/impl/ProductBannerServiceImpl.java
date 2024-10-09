@@ -1,9 +1,7 @@
 package com.neo4j_ecom.demo.service.impl;
 
 import com.neo4j_ecom.demo.exception.AppException;
-import com.neo4j_ecom.demo.model.dto.request.ProductBannerRequest;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
-import com.neo4j_ecom.demo.model.entity.Category;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.entity.ProductBanner;
 import com.neo4j_ecom.demo.model.mapper.ProductBannerMapper;
@@ -17,12 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,63 +41,35 @@ public class ProductBannerServiceImpl implements ProductBannerService {
     private String baseURI;
 
     @Override
-    public ProductBannerResponse handleCreateBanner(ProductBannerRequest request)  {
+    public ProductBanner handleCreateBanner(ProductBanner request)  {
 
-        List<Product> products = productRepository.findAllById(request.getProductIds());
+        List<Product> products = productRepository.findAllById(request.getId());
 
-        Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
-        if (products.size() != request.getProductIds().size()) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-        }
-
-        ProductBanner productBanner = this.productBannerMapper.toEntity(request);
-        productBanner.setProducts(products);
-        productBanner.setCategory(category);
-        ProductBanner savedProductBanner = productBannerRepository.save(productBanner);
-
+        ProductBanner savedProductBanner = productBannerRepository.save(request);
         for (Product product : products) {
             product.getProductBanners().add(savedProductBanner);
             productRepository.save(product);
         }
-
-        return this.productBannerMapper.toResponse(savedProductBanner);
+        return savedProductBanner;
     }
 
 
     @Override
-    public ProductBannerResponse handleUpdateBanner(String bannerId, ProductBannerRequest request) {
+    public ProductBanner handleUpdateBanner(String bannerId, ProductBanner request) {
 
         ProductBanner productBanner = productBannerRepository.findById(bannerId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
 
-        ProductBanner productBannerUpdate = this.toUpdateProductBanner(productBanner, request);
-
-        ProductBanner productBannerSaved = productBannerRepository.save(productBannerUpdate);
-
-        for ( Product product : productBannerSaved.getProducts()) {
-            List<ProductBanner> productBanners = product.getProductBanners();
-            productBanners.remove(productBanner);
-            product.getProductBanners().add(productBannerSaved);
-            productRepository.save(product);
-        }
-
-        return this.productBannerMapper.toResponse(productBannerSaved);
+        toUpdateProductBanner(productBanner, request);
+        return productBannerRepository.save(productBanner);
     }
 
-    private ProductBanner toUpdateProductBanner(ProductBanner productBanner, ProductBannerRequest request) {
-
-
-        if (request.getProductIds() != null && request.getProductIds().size() > 0) {
-            productBanner.setProducts(productRepository.findAllById(request.getProductIds()));
-        }
+    private void toUpdateProductBanner(ProductBanner productBanner, ProductBanner request) {
 
         if (request.getImageUrl() != null) {
             productBanner.setImageUrl(request.getImageUrl());
         }
 
-        if (request.getCategoryId() != null) {
-            productBanner.setCategory(categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND)));
-        }
 
         if (request.getStartDate() != null) {
             productBanner.setStartDate(request.getStartDate());
@@ -118,38 +83,32 @@ public class ProductBannerServiceImpl implements ProductBannerService {
             productBanner.setLocations(request.getLocations());
         }
 
-        return productBanner;
     }
 
     @Override
-    public ProductBannerResponse handleGetBannerById(String bannerId) {
-
-        ProductBanner productBanner = productBannerRepository.findById(bannerId)
+    public ProductBanner handleGetBannerById(String bannerId) {
+        return productBannerRepository.findById(bannerId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
-
-        return this.productBannerMapper.toResponse(productBanner);
     }
 
     @Override
     public Void handleDeleteBannerById(String bannerId) {
 
-        ProductBanner productBanner = productBannerRepository.findById(bannerId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
-
+        ProductBanner productBanner = productBannerRepository.findById(bannerId).orElseThrow(()
+                -> new AppException(ErrorCode.PRODUCT_BANNER_NOT_FOUND));
         productBannerRepository.delete(productBanner);
 
         return null;
     }
 
     @Override
-    public List<ProductBannerResponse> handleGetBannersByQuantity(int quantity) {
+    public List<ProductBanner> handleGetBannersByQuantity(int quantity) {
 
         log.info("quantity {}", quantity);
         List<ProductBanner> productBannerList = productBannerRepository.findAllByOrderByIdDesc(quantity);
-
         log.info("productBannerList {}", productBannerList);
 
-        return productBannerList.stream().map(this.productBannerMapper::toResponse)
-                .collect(Collectors.toList());
+        return productBannerList;
 
     }
 
@@ -162,11 +121,8 @@ public class ProductBannerServiceImpl implements ProductBannerService {
     }
 
     @Override
-    public List<ProductBannerResponse> handleGetBanners() {
-
-        List<ProductBanner> productBannerList = productBannerRepository.findAll();
-
-        return productBannerList.stream().map(this.productBannerMapper::toResponse).collect(Collectors.toList());
+    public List<ProductBanner> handleGetBanners() {
+       return  productBannerRepository.findAll();
     }
 
 
