@@ -3,6 +3,7 @@ package com.neo4j_ecom.demo.service.impl;
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
+import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.model.dto.response.pagination.Meta;
 import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.model.dto.response.product.ProductPopular;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -149,40 +151,13 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryResponse;
     }
 
-//    @Override
-//    public List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity() {
-//        List<Category> categories = categoryRepository.findAll();
-//
-//        List<CategoryResponseTopSold> categoryResponseTopSoldList = new ArrayList<>();
-//        for (Category category : categories) {
-//            long sumSoldQuantity = 0;
-//
-//            if (category.getIsFeatured()) {
-//                continue;
-//            }
-//
-//            for (Product product : category.getProducts()) {
-//
-//                if (product == null) {
-//                    continue;
-//                }
-//
-//                sumSoldQuantity += product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0;
-//            }
-//            CategoryResponseTopSold res = CategoryResponseTopSold.builder()
-//                    .id(category.getId())
-//                    .name(category.getName())
-//                    .totalSold(sumSoldQuantity)
-//                    .build();
-//            categoryResponseTopSoldList.add(res);
-//        }
-//
-//        categoryResponseTopSoldList.sort(Comparator.comparing(CategoryResponseTopSold::getTotalSold, Comparator.reverseOrder()));
-//
-//        return categoryResponseTopSoldList;
-//    }
-//
-//
+    @Override
+    public List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity() {
+        List<CategoryResponseTopSold> categoryResponseTopSoldList = categoryRepository.getCategoryTopSoldList();
+        categoryResponseTopSoldList.sort(Comparator.comparing(CategoryResponseTopSold::getTotalSold, Comparator.reverseOrder()));
+        return categoryResponseTopSoldList;
+    }
+
     @Override
     public List<CategoryResponse> handleGetCategoriesByLevel(Integer level) {
 

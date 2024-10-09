@@ -200,17 +200,17 @@ public class CategoryController {
         );
     }
 
-//    @GetMapping("/top-selling")
-//    public ResponseEntity<ApiResponse<List<CategoryResponseTopSold>>> handleGetTopCategories() {
-//        SuccessCode successCode = SuccessCode.FETCHED;
-//        return ResponseEntity.status(successCode.getStatusCode()).body(
-//                ApiResponse.<List<CategoryResponseTopSold>>builder()
-//                        .message(successCode.getMessage())
-//                        .statusCode(successCode.getCode())
-//                        .data(categoryService.handleGetAllCategoriesBySoldQuantity())
-//                        .build()
-//        );
-//    }
+    @GetMapping("/top-selling")
+    public ResponseEntity<ApiResponse<List<CategoryResponseTopSold>>> handleGetTopCategories() {
+        SuccessCode successCode = SuccessCode.FETCHED;
+        return ResponseEntity.status(successCode.getStatusCode()).body(
+                ApiResponse.<List<CategoryResponseTopSold>>builder()
+                        .message(successCode.getMessage())
+                        .statusCode(successCode.getCode())
+                        .data(categoryService.handleGetAllCategoriesBySoldQuantity())
+                        .build()
+        );
+    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
