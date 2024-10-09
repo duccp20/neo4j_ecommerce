@@ -2,6 +2,7 @@ package com.neo4j_ecom.demo.repository;
 
 import com.neo4j_ecom.demo.model.dto.response.ProductCategoryResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.repository.Aggregation;
@@ -40,6 +41,8 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     Optional<Product> findById(String id);
 
+    @Query("{ 'categories': ?0 }")
+    List<Product> findAllByCategoryId(ObjectId categoryId);
 
     Page<Product> findByCategories_Id(String categoryId, PageRequest pageRequest);
 

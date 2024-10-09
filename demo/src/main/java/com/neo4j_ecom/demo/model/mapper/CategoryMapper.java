@@ -5,7 +5,6 @@ import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.entity.Category;
-import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.repository.CategoryRepository;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -44,22 +43,12 @@ public class CategoryMapper {
 
         String parent = savedCategory.getParent() != null ? savedCategory.getParent().getId() : null;
 
-        List<Object> products = new ArrayList<>();
-//        if (savedCategory.getProducts() != null) {
-//            for (Product p : savedCategory.getProducts()) {
-//                products.add(Product.builder()
-//                        .id(p.getId())
-//                        .name(p.getName())
-//                        .build());
-//            }
-//        }
         return CategoryResponse.builder()
                 .id(savedCategory.getId() != null ? savedCategory.getId() : null)
                 .name(savedCategory.getName() != null ? savedCategory.getName() : null)
                 .level(savedCategory.getLevel() != null ? savedCategory.getLevel() : null)
                 .icon(savedCategory.getIcon() != null ? savedCategory.getIcon() : null)
                 .parent(parent)
-                .products(products)
                 .isFeatured(savedCategory.getIsFeatured() != null ? savedCategory.getIsFeatured() : false)
                 .specificationOptions(savedCategory.getSpecificationOptions() != null ? savedCategory.getSpecificationOptions() : null)
                 .variantOptions(savedCategory.getVariantOptions() != null ? savedCategory.getVariantOptions() : null)

@@ -14,10 +14,12 @@ import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.repository.CategoryRepository;
 import com.neo4j_ecom.demo.repository.ProductRepository;
 import com.neo4j_ecom.demo.service.CategoryService;
+import com.neo4j_ecom.demo.service.ProductService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
     CategoryMapper categoryMapper;
 
     ProductRepository productRepository;
+
     ProductMapper productMapper;
 
     @Override
@@ -55,8 +58,6 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category category = categoryMapper.toEntity(request);
-//        category.setProducts(null);
-
         Category savedCategory = categoryRepository.save(category);
 
 
@@ -154,60 +155,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity() {
-        List<Category> categories = categoryRepository.findAll();
-
-        List<CategoryResponseTopSold> categoryResponseTopSoldList = new ArrayList<>();
-        for (Category category : categories) {
-            long sumSoldQuantity = 0;
-
-            if (category.getIsFeatured()) {
-                continue;
-            }
-
-//            for (Product product : category.getProducts()) {
-//
-//                if (product == null) {
-//                    continue;
-//                }
-//
-//                sumSoldQuantity += product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0;
-//            }
-            CategoryResponseTopSold res = CategoryResponseTopSold.builder()
-                    .id(category.getId())
-                    .name(category.getName())
-                    .totalSold(sumSoldQuantity)
-                    .build();
-            categoryResponseTopSoldList.add(res);
-        }
-
-        categoryResponseTopSoldList.sort(Comparator.comparing(CategoryResponseTopSold::getTotalSold, Comparator.reverseOrder()));
-
-        return categoryResponseTopSoldList;
-    }
-
-
-    @Override
-    public List<CategoryResponse> handleGetCategoriesByLevel(Integer level) {
-
-        List<Category> categories = categoryRepository.findByLevel(level);
-
-        log.info("categories in level: {}", categories);
-
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-
-            //do not show product for this api
-            categoryResponse.setProducts(Collections.emptyList());
-            categoryResponses.add(categoryResponse);
-        }
-
-        log.info("categoryResponses: {}", categoryResponses);
-
-        return categoryResponses;
-
-    }
-
+        List<CategoryResponseTopSold> categoryResponseTopSoldList = categoryRepository.getCategoryTopSoldList();
     @Override
     public PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer page, Integer size, String productId) {
 
@@ -241,12 +189,12 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<Category> categories = categoryPage.getContent();
 
-//        List<CategoryResponse> categoryResponses = new ArrayList<>();
-//        for (Category category : categories) {
-//            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-//            categoryResponse.setProducts(category.getProducts().stream().map(productMapper::toPopular).collect(Collectors.toList()));
-//            categoryResponses.add(categoryResponse);
-//        }
+        List<CategoryResponse> categoryResponses = new ArrayList<>();
+        for (Category category : categories) {
+            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+            categoryResponse.setProducts(productRepository.findAllByCategoryId(new ObjectId(category.getId())).stream().map(productMapper::toPopular).collect(Collectors.toList()));
+            categoryResponses.add(categoryResponse);
+        }
 
         Meta meta = Meta.builder()
                 .current(categoryPage.getNumber() + 1)
