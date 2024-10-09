@@ -73,11 +73,13 @@ public class ProductReviewController {
         log.info("get all reviews by product request : {}, page {}, size {}", productId, page, size, sortBy, sortOrder);
         SuccessCode successCode = SuccessCode.FETCHED;
 
-        return ResponseEntity.ok(
-                ApiResponse.builderResponse(
-                        SuccessCode.FETCHED,
-                        productReviewService.getAllReviewsByProductId(productId, Integer.parseInt(page), Integer.parseInt(size), sortBy, sortOrder)
-                )
+        PaginationResponse response = productReviewService.getAllReviewsByProductId(productId, pageInt, sizeInt, sortBy, sortOrder);
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<PaginationResponse>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(response)
+                        .build()
         );
 
     }

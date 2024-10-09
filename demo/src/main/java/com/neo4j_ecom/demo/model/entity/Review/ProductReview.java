@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
@@ -39,10 +40,11 @@ public class ProductReview extends BaseEntity {
     private String content;
     private List<ReviewOption> options = new ArrayList<>();
     @DocumentReference(lazy = true)
-    private Product product;
-    @DocumentReference(lazy = true)
     private User reviewer;
-
-
+    @Transient
+    private Float avgRating;
+    private String productId;
+    @Transient
+    private int totalReviews;
 
 }
