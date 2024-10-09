@@ -3,7 +3,6 @@ package com.neo4j_ecom.demo.service.impl;
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
-import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.model.dto.response.pagination.Meta;
 import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.model.dto.response.product.ProductPopular;
@@ -25,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +53,6 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category category = categoryMapper.toEntity(request);
-        category.setProducts(null);
 
         Category savedCategory = categoryRepository.save(category);
 
@@ -152,40 +149,40 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryResponse;
     }
 
-    @Override
-    public List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity() {
-        List<Category> categories = categoryRepository.findAll();
-
-        List<CategoryResponseTopSold> categoryResponseTopSoldList = new ArrayList<>();
-        for (Category category : categories) {
-            long sumSoldQuantity = 0;
-
-            if (category.getIsFeatured()) {
-                continue;
-            }
-
-            for (Product product : category.getProducts()) {
-
-                if (product == null) {
-                    continue;
-                }
-
-                sumSoldQuantity += product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0;
-            }
-            CategoryResponseTopSold res = CategoryResponseTopSold.builder()
-                    .id(category.getId())
-                    .name(category.getName())
-                    .totalSold(sumSoldQuantity)
-                    .build();
-            categoryResponseTopSoldList.add(res);
-        }
-
-        categoryResponseTopSoldList.sort(Comparator.comparing(CategoryResponseTopSold::getTotalSold, Comparator.reverseOrder()));
-
-        return categoryResponseTopSoldList;
-    }
-
-
+//    @Override
+//    public List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity() {
+//        List<Category> categories = categoryRepository.findAll();
+//
+//        List<CategoryResponseTopSold> categoryResponseTopSoldList = new ArrayList<>();
+//        for (Category category : categories) {
+//            long sumSoldQuantity = 0;
+//
+//            if (category.getIsFeatured()) {
+//                continue;
+//            }
+//
+//            for (Product product : category.getProducts()) {
+//
+//                if (product == null) {
+//                    continue;
+//                }
+//
+//                sumSoldQuantity += product.getSumSoldQuantity() > 0 ? product.getSumSoldQuantity() : 0;
+//            }
+//            CategoryResponseTopSold res = CategoryResponseTopSold.builder()
+//                    .id(category.getId())
+//                    .name(category.getName())
+//                    .totalSold(sumSoldQuantity)
+//                    .build();
+//            categoryResponseTopSoldList.add(res);
+//        }
+//
+//        categoryResponseTopSoldList.sort(Comparator.comparing(CategoryResponseTopSold::getTotalSold, Comparator.reverseOrder()));
+//
+//        return categoryResponseTopSoldList;
+//    }
+//
+//
     @Override
     public List<CategoryResponse> handleGetCategoriesByLevel(Integer level) {
 
@@ -232,36 +229,36 @@ public class CategoryServiceImpl implements CategoryService {
                 .build();
     }
 
-    @Override
-    public PaginationResponse handleGetAllCategoriesFeaturedWithProducts(Integer pageInt, Integer sizeInt) {
-
-        PageRequest pageRequest = PageRequest.of(pageInt, sizeInt);
-
-        Page<Category> categoryPage = categoryRepository.findByIsFeaturedTrue(pageRequest);
-
-        List<Category> categories = categoryPage.getContent();
-
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-            categoryResponse.setProducts(category.getProducts().stream().map(productMapper::toPopular).collect(Collectors.toList()));
-            categoryResponses.add(categoryResponse);
-        }
-
-        Meta meta = Meta.builder()
-                .current(categoryPage.getNumber() + 1)
-                .pageSize(categoryPage.getNumberOfElements())
-                .totalPages(categoryPage.getTotalPages())
-                .totalItems(categoryPage.getTotalElements())
-                .isFirstPage(categoryPage.isFirst())
-                .isLastPage(categoryPage.isLast())
-                .build();
-
-        return PaginationResponse.builder()
-                .meta(meta)
-                .result(categoryResponses)
-                .build();
-    }
+//    @Override
+//    public PaginationResponse handleGetAllCategoriesFeaturedWithProducts(Integer pageInt, Integer sizeInt) {
+//
+//        PageRequest pageRequest = PageRequest.of(pageInt, sizeInt);
+//
+//        Page<Category> categoryPage = categoryRepository.findByIsFeaturedTrue(pageRequest);
+//
+//        List<Category> categories = categoryPage.getContent();
+//
+//        List<CategoryResponse> categoryResponses = new ArrayList<>();
+//        for (Category category : categories) {
+//            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+//            categoryResponse.setProducts(category.getProducts().stream().map(productMapper::toPopular).collect(Collectors.toList()));
+//            categoryResponses.add(categoryResponse);
+//        }
+//
+//        Meta meta = Meta.builder()
+//                .current(categoryPage.getNumber() + 1)
+//                .pageSize(categoryPage.getNumberOfElements())
+//                .totalPages(categoryPage.getTotalPages())
+//                .totalItems(categoryPage.getTotalElements())
+//                .isFirstPage(categoryPage.isFirst())
+//                .isLastPage(categoryPage.isLast())
+//                .build();
+//
+//        return PaginationResponse.builder()
+//                .meta(meta)
+//                .result(categoryResponses)
+//                .build();
+//    }
 
     @Override
     public List<CategoryResponse> handleGetAllCategoriesFeatured(boolean isFeatured) {

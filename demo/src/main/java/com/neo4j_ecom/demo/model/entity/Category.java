@@ -36,14 +36,11 @@ public class Category extends BaseEntity {
     private String icon;
     private Integer level;
     @DocumentReference(lazy = true)
-    @JsonIgnoreProperties({"products", "parent", "children"})
+    @JsonIgnoreProperties({ "parent", "children"})
     private Category parent;
     @DocumentReference(lazy = true)
-    @JsonIgnoreProperties({"products", "parent", "children"})
+    @JsonIgnoreProperties({"parent", "children"})
     private List<Category> children;
-    @DocumentReference(lazy = true)
-    @JsonIgnoreProperties("categories")
-    private List<Product> products;
     private List<ProductType> variantOptions;
     private List<ProductType> specificationOptions;
     private Boolean isFeatured;
