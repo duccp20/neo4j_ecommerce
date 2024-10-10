@@ -1,10 +1,12 @@
 package com.neo4j_ecom.demo.repository;
 
 import com.neo4j_ecom.demo.model.dto.response.ProductCategoryResponse;
+import com.neo4j_ecom.demo.model.dto.response.product.ProductPopular;
 import com.neo4j_ecom.demo.model.entity.Product;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -47,6 +49,11 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     Page<Product> findByCategories_Id(String categoryId, PageRequest pageRequest);
 
     Page<Product> findByCategories_IdAndIdNot(String categoryId, String productId, PageRequest pageRequest);
+    Page<Product> findByBrandId(String brandId, Pageable pageable);
+    List<Product> findByBrandId(String brandId);
+
+    @Query("{ 'brandId' : ?0, 'status' : ?1 }")
+    List<Product> findByBrandIdWithStatus(String brandId, String status);
 
     List<Product> findAllById(String id);
 }

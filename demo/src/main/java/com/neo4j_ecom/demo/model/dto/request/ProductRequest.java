@@ -43,15 +43,15 @@ public class ProductRequest {
     @Size(min = 200, max = 1000, message = "Description must be between 200 and 1000 characters")
     @NotBlank(message = "Description is not be empty")
     String description;
-    String SKU;
+    String sku;
     ProductDimension productDimension;
     @NotNull(message = "Selling type is required")
     SellingType sellingType;
-    long soldQuantity;
+    Long soldQuantity;
     @NotNull(message = "Quantity available is required")
     @Min(value = 1, message = "Quantity must be at least 1")
     @Max(value = 9999, message = "Quantity must not be greater than 9999")
-    long quantityAvailable;
+    Long quantityAvailable;
     Float rating;
     String primaryImage;
     @NotNull(message = "Category is required")

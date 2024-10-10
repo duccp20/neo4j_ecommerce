@@ -15,6 +15,7 @@ import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductVariantMapper;
+import com.neo4j_ecom.demo.model.projection.ProductPopularProjection;
 import com.neo4j_ecom.demo.repository.*;
 import com.neo4j_ecom.demo.service.*;
 
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,10 +43,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProductServiceImpl implements ProductService {
 
-    @Value("${file.image.base-uri}")
-    private String baseURI;
-    @Value("${file.image.folder.product}")
-    private String folder;
     private final ProductRepository productRepository;
 
     private final ReviewOptionRepository reviewOptionRepository;
@@ -76,10 +74,10 @@ public class ProductServiceImpl implements ProductService {
     private final ProductVariantMapper variantMapper;
 
 
-
     //===================== PRODUCT ====================
     @Override
     public Product createProduct(ProductRequest request) {
+
 
         //if it has variant then original price and selling price is required
         if (!request.getHasVariants() && (request.getOriginalPrice() == null || request.getSellingPrice() == null)) {
@@ -97,8 +95,17 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productMapper.toEntity(request);
 
+        product.setDescription(
+                Optional.ofNullable(request.getDescription())
+                        .filter(description -> !description.isEmpty())
+                        .map(description -> description.replaceAll("(?s)<script[^>]*>.*?<\\/script>", ""))
+                        .map(description -> description.replaceAll("(SELECT|INSERT|UPDATE|DELETE).*", ""))
+                        .orElse(null)
+        );
+
         //variant
         if (request.getHasVariants() && request.getProductVariants() != null) {
+
             List<ProductVariant> productVariants = new ArrayList<>();
             for (ProductVariantRequest productVariantRequest : request.getProductVariants()) {
 
@@ -139,23 +146,21 @@ public class ProductServiceImpl implements ProductService {
         }
 
         //images
-        if (!Collections.emptyList().equals(request.getProductImages())) {
-            product.setProductImages(request.getProductImages());
+        product.setProductImages(request.getProductImages());
+        if (!product.getProductImages().isEmpty()) {
+            product.setPrimaryImage(product.getProductImages().get(0));
         } else {
-            product.setProductImages(null);
-        }
-        if (request.getProductImages().size() > 0) {
-            product.setPrimaryImage(request.getProductImages().get(0));
+            product.setPrimaryImage(null);
         }
 
         //categories and collections
         if (request.getCategoryIds() != null) {
-            List<Category> categories = new ArrayList<>();
-            for (String id : request.getCategoryIds()) {
-                Category category = categoryRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
-                categories.add(category);
+            List<Category> categories = categoryRepository.findAllById(request.getCategoryIds());
+            if (categories.size() != request.getCategoryIds().size()) {
+                throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
             }
             product.setCategories(categories);
+            product.setHasCollection(categories.stream().anyMatch(Category::getIsFeatured));
         }
 
         //specification
@@ -163,21 +168,24 @@ public class ProductServiceImpl implements ProductService {
             product.setProductSpecifications(request.getSpecifications());
         }
 
-        Product savedProduct = productRepository.save(product);
+        //brand
+        if (request.getBrandId() != null) {
+            Brand brand = brandRepository.findById(request.getBrandId()).orElseThrow(() -> new AppException(ErrorCode.BRAND_NOT_FOUND));
+            product.setBrand(brand);
+        }
 
-        //save product to brand
-        Brand brand = product.getBrand();
-//        brand.getProducts().add(savedProduct);
-        brandRepository.save(brand);
-
-
-        return savedProduct;
+        return productRepository.save(product);
     }
 
     @Override
     public Map<String, Object> getProductById(String id) {
 
+
         Product product = this.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        if (product.getStatus().equals(Status.DELETED)) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
 
         //options
         List<ProductVariant> variants = product.getProductVariants();
@@ -191,103 +199,84 @@ public class ProductServiceImpl implements ProductService {
         return Map.of("product", product, "options", options);
 
     }
+
     @Override
     public Optional<Product> findById(String id) {
-        return  productRepository.findById(id);
-    }
-
-
-    private void validateProductPrices(ProductRequest request) {
-        if (request.getOriginalPrice().compareTo(request.getSellingPrice()) > 0 ||
-                request.getOriginalPrice().compareTo(request.getDiscountedPrice()) > 0) {
-            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
-        }
-    }
-
-    private void validateProductVariantPrices(ProductVariantRequest request) {
-        if (request.getDiscountedPrice() != null &&
-                (request.getOriginalPrice().compareTo(request.getDiscountedPrice()) >= 0 ||
-                        request.getOriginalPrice().compareTo(request.getSellingPrice()) >= 0 ||
-                        request.getDiscountedPrice().compareTo(request.getSellingPrice()) >= 0)) {
-            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
-        } else if (request.getOriginalPrice().compareTo(request.getSellingPrice()) > 0) {
-            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
-        }
+        return productRepository.findById(id);
     }
 
     @Override
-    public ProductResponse updateProduct(String id, ProductRequest request) {
+    public String createProductImage(MultipartFile file) throws URISyntaxException {
+        return null;
+    }
 
+    @Override
+    public Product updateProduct(String id, ProductRequest request) {
 
         Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         log.info("product: {}", product);
 
-        boolean existedProduct = productRepository.existsByName(request.getName().trim());
+        product.updateProduct(request);
 
-        if (existedProduct && !product.getName().equals(request.getName().trim())) {
-            throw new AppException(ErrorCode.PRODUCT_ALREADY_EXISTS);
+
+        if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+            String description = request.getDescription()
+                    .replaceAll("(?s)<script[^>]*>.*?<\\/script>", "")
+                    .replaceAll("(SELECT|INSERT|UPDATE|DELETE).*", "");
+            product.setDescription(description);
         }
 
-        productMapper.updateProduct(product, request);
-
         if (request.getProductDimension() != null) {
-
             product.setProductDimension(productDimensionService.
                     updateProductDimension(product.getProductDimension(), request.getProductDimension()));
-
         }
 
         if (request.getCategoryIds() != null) {
-            List<Category> categories = new ArrayList<>();
-            for (String identifier : request.getCategoryIds()) {
-
-                log.info("identifier of category in update product: {}", identifier);
-
-                CategoryResponse category = categoryService.handleGetCategoryById(identifier);
-//                Category categoryEntity = this.toCategory(category);
-//                categories.add(categoryEntity);
+            List<Category> categories = categoryRepository.findAllById(request.getCategoryIds());
+            if (categories.size() != request.getCategoryIds().size()) {
+                throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
             }
             product.setCategories(categories);
+            product.setHasCollection(categories.stream().anyMatch(Category::getIsFeatured));
         }
 
-        Product savedProductAfterUpdate = productRepository.save(product);
+        if (request.getBrandId() != null) {
+            Brand brand = brandRepository.findById(request.getBrandId()).orElseThrow(() -> new AppException(ErrorCode.BRAND_NOT_FOUND));
+            product.setBrand(brand);
+        }
 
-        //        if (product.getCategories() != null) {
-//            List<CategoryResponse> categoryResponses = product.getCategories().stream().map(category -> CategoryResponse.builder().id(category.getId()).name(category.getName()).build()).collect(Collectors.toList());
-//
-//            response.setCategories(categoryResponses);
-//        }
+        if (request.getHasVariants() && request.getProductVariants() != null) {
+            product.setProductVariants(request.getProductVariants().stream().map(variantMapper::toEntity).collect(Collectors.toList()));
+        }
 
-        return productMapper.toResponse(savedProductAfterUpdate);
+        return productRepository.save(product);
 
     }
 
     @Override
     public Void deleteProduct(String id) {
 
+        Product product = this.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-//
-//        if (!authService.getCurrentUserEmail().equals(product.getUpdatedBy())) {
-//            throw new AppException(ErrorCode.UNAUTHORIZED);
-//        }
+        if (product.getStatus().equals(Status.DELETED)) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
 
         product.setStatus(Status.DELETED);
-
         productRepository.save(product);
-        ;
+
         return null;
     }
 
     @Override
-    public PaginationResponse getProductPopularBySoldQuantity(int page, int size) {
+    public PaginationResponse getTopProductsSold(int page, int size) {
 
         Sort sort = Sort.by(Sort.Direction.DESC, "sumSoldQuantity");
-        Page<Product> productPage = productRepository.findAll(PageRequest.of(page, size, sort));
-        List<Product> products = productPage.getContent();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Product> productPage = productRepository.findAll(pageable);
 
-        List<ProductPopular> productPopulars = products.stream()
+        List<ProductPopular> products = productPage.getContent().stream()
                 .map(productMapper::toPopular)
                 .collect(Collectors.toList());
 
@@ -302,7 +291,7 @@ public class ProductServiceImpl implements ProductService {
 
         return PaginationResponse.builder()
                 .meta(meta)
-                .result(productPopulars)
+                .result(products)
                 .build();
     }
 
@@ -313,14 +302,32 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-
-
     @Override
-    public List<ProductResponse> getAllProducts() {
+    public List<Product> getAllProducts() {
+        return productRepository.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"));
+    }
 
-        List<Product> products = productRepository.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"));
+    private void validateProductPrices(ProductRequest request) {
+        if (request.getOriginalPrice().compareTo(request.getSellingPrice()) > 0 ||
+                request.getOriginalPrice().compareTo(request.getDiscountedPrice()) > 0) {
+            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
+        }
+    }
 
-        return products.stream().map(productMapper::toResponse).collect(Collectors.toList());
+    private void validateProductVariantPrices(ProductVariantRequest request) {
+
+        if (request.getOriginalPrice() == null || request.getSellingPrice() == null) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_REQUIRED_PRICE);
+        }
+
+        if (request.getDiscountedPrice() != null &&
+                (request.getOriginalPrice().compareTo(request.getDiscountedPrice()) >= 0 ||
+                        request.getOriginalPrice().compareTo(request.getSellingPrice()) >= 0 ||
+                        request.getDiscountedPrice().compareTo(request.getSellingPrice()) >= 0)) {
+            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
+        } else if (request.getOriginalPrice().compareTo(request.getSellingPrice()) > 0) {
+            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
+        }
     }
 
 
@@ -331,50 +338,13 @@ public class ProductServiceImpl implements ProductService {
         if (files != null) {
 
             for (MultipartFile file : files) {
-
-                //local
-                // String fileName = this.handleCreateProductImage(file);
-
-                //firebase
-                String url = this.createProductImageFirebase(file);
-
-                images.add(url);
+                String urlImage = this.createProductImage(file);
+                images.add(urlImage);
             }
+
         }
 
         return images;
-    }
-
-    @Override
-    public String createProductImage(MultipartFile file) throws URISyntaxException {
-        //validate file
-        fileService.validateFile(file);
-
-        //create dir if not existed
-        fileService.createUploadedFolder(baseURI + folder);
-
-        //store file
-        String fileName = fileService.storeFile(file, "products");
-
-        log.info("file name: {}", fileName);
-
-        String urlImage = baseURI + folder + "/" + fileName;
-
-        log.info("url image: {}", urlImage);
-
-        return urlImage;
-    }
-
-
-    private String createProductImageFirebase(MultipartFile file) throws URISyntaxException, IOException {
-        //validate file
-        fileService.validateFile(file);
-
-        String urlImage = fileService.storeFileFirebase(file, "products/images");
-
-        log.info("url image: {}", urlImage);
-
-        return urlImage;
     }
 
     @Override
@@ -419,20 +389,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Void setPrimaryImage(String productId, String imgUrl) {
-
-        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        List<String> productImages = product.getProductImages();
-
-        for (String s : productImages) {
-            if (s.equals(imgUrl)) {
-                product.setPrimaryImage(imgUrl);
-                break;
-            }
-        }
-
-        productRepository.save(product);
-
         return null;
     }
 }

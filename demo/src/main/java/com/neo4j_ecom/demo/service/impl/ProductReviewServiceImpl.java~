@@ -91,80 +91,76 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         //page
-//        Page<ProductReview> reviewPage = productReviewRepository.findAllByProductId(productId, pageRequest);
+        Page<ProductReview> reviewPage = productReviewRepository.findAllByProductId(productId, pageRequest);
 
         //reviews entities
-//        List<ProductReview> reviews = reviewPage.getContent();
+        List<ProductReview> reviews = reviewPage.getContent();
 
         //map entity to response
-//        List<ProductReviewResponse> reviewResponses = new ArrayList<>();
-//        reviews.forEach(review -> {
-//            reviewResponses.add(reviewMapper.toResponse(review));
-//        });
+        List<ProductReviewResponse> reviewResponses = new ArrayList<>();
+        reviews.forEach(review -> {
+            reviewResponses.add(reviewMapper.toResponse(review));
+        });
 
         //review response with total reviews, avg rating
-//        ReviewResponse reviewResponse = ReviewResponse.builder()
-//                .countOfReviews(totalReviews)
-//                .avgRating(avgRating)
-//                .reviews(reviewResponses)
-//                .build();
-//
-//        Meta meta = Meta.builder()
-//                .current(reviewPage.getNumber() + 1)
-//                .pageSize(reviewPage.getNumberOfElements())
-//                .totalPages(reviewPage.getTotalPages())
-//                .totalItems(reviewPage.getTotalElements())
-//                .isFirstPage(reviewPage.isFirst())
-//                .isLastPage(reviewPage.isLast())
-//                .build();
-//
-//        log.info("reviews by product id: {}", reviewPage);
-//
-//
-//        return PaginationResponse.builder()
-//                .meta(meta)
-//                .result(reviewResponse)
-//                .build();
+        ReviewResponse reviewResponse = ReviewResponse.builder()
+                .countOfReviews(totalReviews)
+                .avgRating(avgRating)
+                .reviews(reviewResponses)
+                .build();
 
-        return null;
+        Meta meta = Meta.builder()
+                .current(reviewPage.getNumber() + 1)
+                .pageSize(reviewPage.getNumberOfElements())
+                .totalPages(reviewPage.getTotalPages())
+                .totalItems(reviewPage.getTotalElements())
+                .isFirstPage(reviewPage.isFirst())
+                .isLastPage(reviewPage.isLast())
+                .build();
+
+        log.info("reviews by product id: {}", reviewPage);
+
+
+        return PaginationResponse.builder()
+                .meta(meta)
+                .result(reviewResponse)
+                .build();
     }
 
 
     @Override
     public PaginationResponse getAllReviewsByProductIdFilter(String productId, int rating, int page, int size) {
 
-//        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-//
-//        float avgRating = product.getAvgRating();
-//        int totalReviews = product.getCountOfReviews();
-//
-//        PageRequest pageRequest = PageRequest.of(page, size);
-//
-//        Page<ProductReview> reviewPage = productReviewRepository.findAllByProductIdAndRating(productId, rating, pageRequest);
-//
-//        List<ProductReviewResponse> reviewResponses = reviewPage.getContent().stream()
-//                .map(reviewMapper::toResponse)
-//                .collect(Collectors.toList());
-//
-//        Meta meta = Meta.builder()
-//                .current(reviewPage.getNumber() + 1)
-//                .pageSize(reviewPage.getNumberOfElements())
-//                .totalPages(reviewPage.getTotalPages())
-//                .totalItems(reviewPage.getTotalElements())
-//                .isFirstPage(reviewPage.isFirst())
-//                .isLastPage(reviewPage.isLast())
-//                .build();
-//
-//        return PaginationResponse.builder()
-//                .meta(meta)
-//                .result(ReviewResponse.builder()
-//                        .countOfReviews(totalReviews)
-//                        .avgRating(avgRating)
-//                        .reviews(reviewResponses)
-//                        .build())
-//                .build();
+        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        return null;
+        float avgRating = product.getAvgRating();
+        int totalReviews = product.getCountOfReviews();
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        Page<ProductReview> reviewPage = productReviewRepository.findAllByProductIdAndRating(productId, rating, pageRequest);
+
+        List<ProductReviewResponse> reviewResponses = reviewPage.getContent().stream()
+                .map(reviewMapper::toResponse)
+                .collect(Collectors.toList());
+
+        Meta meta = Meta.builder()
+                .current(reviewPage.getNumber() + 1)
+                .pageSize(reviewPage.getNumberOfElements())
+                .totalPages(reviewPage.getTotalPages())
+                .totalItems(reviewPage.getTotalElements())
+                .isFirstPage(reviewPage.isFirst())
+                .isLastPage(reviewPage.isLast())
+                .build();
+
+        return PaginationResponse.builder()
+                .meta(meta)
+                .result(ReviewResponse.builder()
+                        .countOfReviews(totalReviews)
+                        .avgRating(avgRating)
+                        .reviews(reviewResponses)
+                        .build())
+                .build();
     }
 
     private float calculateRating(List<ProductReview> reviews) {

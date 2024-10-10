@@ -98,15 +98,4 @@ public class BrandController {
                 ));
     }
 
-    @PutMapping("/{brandId}/revert")
-    public ResponseEntity<ApiResponse<Brand>> revertBrand(@PathVariable String brandId) {
-        return ResponseEntity.ok(
-                ApiResponse.builderResponse(
-                        SuccessCode.UPDATED,
-                        brandService.revertBrand(brandId)
-                ));
-    }
-
-
-
 }

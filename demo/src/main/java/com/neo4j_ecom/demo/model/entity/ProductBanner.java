@@ -27,4 +27,5 @@ public class ProductBanner extends BaseEntity {
     private LocalDate  endDate;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<String> locations = new ArrayList<>();
+
 }

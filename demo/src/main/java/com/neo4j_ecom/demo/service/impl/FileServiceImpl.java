@@ -48,7 +48,7 @@ public class FileServiceImpl implements FileService {
 
     @Value("${firebase.link-base}")
     String linkBase;
-//
+    //
 //    @Value("${aws.s3.bucket.name}")
     String bucketName;
 
@@ -166,7 +166,6 @@ public class FileServiceImpl implements FileService {
                 String finalName = System.currentTimeMillis() + "-" + file.getName();
                 log.info("finalName in storeFile: {}", finalName);
                 finalName = folder + "/" + finalName.replaceAll("\\s", "");
-                //InputStream inputStream = file.getInputStream();
                 PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, finalName, file)
                         .withCannedAcl(CannedAccessControlList.PublicRead);
 
