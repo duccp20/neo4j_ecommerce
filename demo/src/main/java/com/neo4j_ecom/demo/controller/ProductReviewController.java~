@@ -55,9 +55,9 @@ public class ProductReviewController {
 
     ) {
 
-        PaginationInput.validatePaginationInput(Integer.parseInt(page), Integer.parseInt(size));
+        PaginationInput.validatePaginationInput(Integer.parseInt(page), Integer.parseInt(size), sortOrder);
 
-        log.info("get all reviews by product request : {}, page {}, size {}", productId, page, size, sortBy);
+        log.info("get all reviews by product request : {}, page {}, size {}", productId, page, size, sortBy, sortOrder);
 
         PaginationResponse response = productReviewService.getAllReviewsByProductId(productId, Integer.parseInt(page), Integer.parseInt(size), sortBy, sortOrder);
 
@@ -78,7 +78,7 @@ public class ProductReviewController {
     ) {
         log.info("get all reviews by product request : {}, rating {}", productId, rating);
 
-        PaginationInput.validatePaginationInput(Integer.parseInt(page), Integer.parseInt(size));
+        PaginationInput.validatePaginationInput(Integer.parseInt(page), Integer.parseInt(size), null);
 
         if (Integer.parseInt(rating) < 1 || Integer.parseInt(rating) > 5) {
             throw new AppException(ErrorCode.WRONG_INPUT);

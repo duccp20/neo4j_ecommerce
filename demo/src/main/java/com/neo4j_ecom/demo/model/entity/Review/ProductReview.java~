@@ -42,6 +42,9 @@ public class ProductReview extends BaseEntity {
     @DocumentReference(lazy = true)
     private User reviewer;
 
+    private
+
+
     public static ProductReview fromRequest(ProductReviewRequest request) {
         return ProductReview.builder()
                 .name(request.getName())

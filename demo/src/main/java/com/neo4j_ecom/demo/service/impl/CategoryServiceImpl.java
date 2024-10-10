@@ -154,44 +154,6 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity() {
         List<CategoryResponseTopSold> categoryResponseTopSoldList = categoryRepository.getCategoryTopSoldList();
         return categoryResponseTopSoldList;
-
-
-//    @Override
-//    public List<CategoryResponse> handleGetAllCategoriesFeatured(boolean isFeatured) {
-//
-//        List<Category> categories = categoryRepository.findByIsFeatured(isFeatured);
-//
-//        log.info("categories: {}", categories);
-//
-//        List<CategoryResponse> categoryResponses = new ArrayList<>();
-//        for (Category category : categories) {
-//            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-//            //do not show product for this api
-//            categoryResponse.setProducts(Collections.emptyList());
-//            categoryResponses.add(categoryResponse);
-//        }
-//
-//        log.info("categoryResponses: {}", categoryResponses);
-//
-//        return categoryResponses;
-//    }
-//
-//    @Override
-//    public List<CategoryResponse> handleGetAllCategories() {
-//
-//        List<Category> categories = categoryRepository.findAll();
-//
-//        log.info("categories in handleGetAllCategories: {}", categories);
-//
-//        List<CategoryResponse> categoryResponses = new ArrayList<>();
-//        for (Category category : categories) {
-//            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-//            categoryResponses.add(categoryResponse);
-//        }
-//
-//        return categoryResponses;
-//    }
-
     }
 
     @Override
@@ -208,17 +170,8 @@ public class CategoryServiceImpl implements CategoryService {
 
             List<Product> products = productPage.getContent();
 
-            Meta meta = Meta.builder()
-                    .current(productPage.getNumber() + 1)
-                    .pageSize(productPage.getNumberOfElements())
-                    .totalPages(productPage.getTotalPages())
-                    .totalItems(productPage.getTotalElements())
-                    .isFirstPage(productPage.isFirst())
-                    .isLastPage(productPage.isLast())
-                    .build();
-
             return PaginationResponse.builder()
-                    .meta(meta)
+                    .meta(Meta.fromPage(productPage))
                     .result(products)
                     .build();
     }

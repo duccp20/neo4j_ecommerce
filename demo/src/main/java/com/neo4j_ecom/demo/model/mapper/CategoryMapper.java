@@ -39,23 +39,6 @@ public class CategoryMapper {
                 .build();
     }
 
-    public CategoryResponse toResponse(Category savedCategory) {
-
-        String parent = savedCategory.getParent() != null ? savedCategory.getParent().getId() : null;
-
-        return CategoryResponse.builder()
-                .id(savedCategory.getId() != null ? savedCategory.getId() : null)
-                .name(savedCategory.getName() != null ? savedCategory.getName() : null)
-                .level(savedCategory.getLevel() != null ? savedCategory.getLevel() : null)
-                .icon(savedCategory.getIcon() != null ? savedCategory.getIcon() : null)
-                .parent(parent)
-                .isFeatured(savedCategory.getIsFeatured() != null ? savedCategory.getIsFeatured() : false)
-                .specificationOptions(savedCategory.getSpecificationOptions() != null ? savedCategory.getSpecificationOptions() : null)
-                .variantOptions(savedCategory.getVariantOptions() != null ? savedCategory.getVariantOptions() : null)
-                .children(savedCategory.getChildren() != null ? savedCategory.getChildren().stream().map(Category::getId).collect(Collectors.toList()) : null)
-                .build();
-    }
-
     public Category updateCategory(Category category, CategoryRequest request) {
 
         category.setName(request.getName() != null ? request.getName() : category.getName());

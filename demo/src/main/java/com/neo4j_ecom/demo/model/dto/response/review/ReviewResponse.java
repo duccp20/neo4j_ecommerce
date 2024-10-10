@@ -20,5 +20,5 @@ public class ReviewResponse {
 
     int countOfReviews;
 
-    List<ProductReviewResponse> reviews;
+    List<ProductReview> reviews;
 }
