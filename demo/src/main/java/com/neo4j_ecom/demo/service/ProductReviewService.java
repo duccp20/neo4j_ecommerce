@@ -11,7 +11,12 @@ public interface ProductReviewService {
 
     ProductReviewResponse createReview(String productId, ProductReviewRequest review);
 
+    ProductReviewResponse updateReview(String productId, String reviewId, ProductReviewRequest reviewRequest);
+
     PaginationResponse getAllReviewsByProductId(String productId, int page, int size, String sortBy, String sortOrder);
 
     PaginationResponse getAllReviewsByProductIdFilter(String productId, int rating, int page, int size);
+
+    void deleteReview(String productId, String reviewId);
+
 }

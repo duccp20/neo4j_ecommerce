@@ -14,10 +14,10 @@ public interface ProductReviewRepository extends MongoRepository<ProductReview, 
     //    Page<ProductReview> (String productId, PageRequest pageRequest);
 //
 //    Page<ProductReview> findAllByProductIdAndRating(String productId, int rating, PageRequest pageRequest);
-    @Query(value = "{ 'productId' : ?0 }")
-    Page<ProductReview> findAllByProductId(String productId, PageRequest pageRequest);
+    @Query(value = "{ '_id': { $in: ?0 } }")
+    Page<ProductReview> findAllByIds(List<String> reviewIds, PageRequest pageRequest);
 
-    @Query(value = "{ 'reviewer.id': ?0, 'rating': ?1 }")
-    Page<ProductReview> findAllByProductIdAndRating(String productId, int rating, PageRequest pageRequest);
+    @Query(value = "{ '_id': { '$in': ?0 }, 'rating': ?1 }")
+    Page<ProductReview> findAllByIdsAndRating(List<String> reviewIds, int rating, PageRequest pageRequest);
 
 }

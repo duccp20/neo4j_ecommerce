@@ -46,6 +46,25 @@ public class ProductReviewController {
         );
     }
 
+    @PutMapping("/{productId}/reviews/{reviewId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ApiResponse<ProductReviewResponse>> updateProductReview(
+            @PathVariable String productId,
+            @PathVariable String reviewId,
+            @Valid @RequestBody ProductReviewRequest request
+    ) {
+        log.info("update product review request : productId {}, reviewId {}, request {}", productId, reviewId, request);
+        SuccessCode successCode = SuccessCode.UPDATED;
+
+        return ResponseEntity.ok(
+                ApiResponse.<ProductReviewResponse>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
+                        .data(productReviewService.updateReview(productId, reviewId, request))
+                        .build()
+        );
+    }
+
     @GetMapping("{productId}/reviews")
     public ResponseEntity<ApiResponse<PaginationResponse>> getAllReviewsByProductId(
             @PathVariable String productId,
@@ -129,6 +148,25 @@ public class ProductReviewController {
                         .statusCode(successCode.getCode())
                         .message(successCode.getMessage())
                         .data(response)
+                        .build()
+        );
+    }
+
+    @DeleteMapping("/{productId}/reviews/{reviewId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ApiResponse<Void>> deleteProductReview(
+            @PathVariable String productId,
+            @PathVariable String reviewId
+    ) {
+        log.info("delete product review request : productId {}, reviewId {}", productId, reviewId);
+        productReviewService.deleteReview(productId, reviewId);
+
+        SuccessCode successCode = SuccessCode.DELETED;
+
+        return ResponseEntity.status(successCode.getCode()).body(
+                ApiResponse.<Void>builder()
+                        .statusCode(successCode.getCode())
+                        .message(successCode.getMessage())
                         .build()
         );
     }

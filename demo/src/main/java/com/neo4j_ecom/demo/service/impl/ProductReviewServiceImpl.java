@@ -70,6 +70,19 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         ProductReview savedReview = productReviewRepository.save(productReview);
 
+        log.info("Saved review: {}", savedReview);
+
+        List<ProductReview> reviews = product.getReviews();
+        reviews.add(savedReview);
+        product.setReviews(reviews);
+
+        float avgRating = this.calculateRating(reviews);
+        log.info("Average rating: {}", avgRating);
+        product.setAvgRating(avgRating);
+        product.setCountOfReviews(reviews.size());
+
+        productRepository.save(product);
+
         return ProductReviewResponse.builder()
                 .id(savedReview.getId())
                 .content(savedReview.getContent())
@@ -86,18 +99,65 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     }
 
     @Override
+    public ProductReviewResponse updateReview(String productId, String reviewId, ProductReviewRequest reviewRequest) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        ProductReview productReview = productReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+
+        productReview.setContent(reviewRequest.getContent());
+        productReview.setRating(reviewRequest.getRating());
+        productReview.setName(reviewRequest.getName());
+        productReview.setEmail(reviewRequest.getEmail());
+        productReview.setTitle(reviewRequest.getTitle());
+        productReview.setOptions(reviewRequest.getOptions());
+
+        ProductReview updatedReview = productReviewRepository.save(productReview);
+
+        List<ProductReview> reviews = product.getReviews();
+        reviews = reviews.stream()
+                .map(review -> review.getId().equals(reviewId) ? updatedReview : review)
+                .collect(Collectors.toList());
+        product.setReviews(reviews);
+
+        float avgRating = this.calculateRating(reviews);
+        product.setAvgRating(avgRating);
+        product.setCountOfReviews(reviews.size());
+
+        productRepository.save(product);
+
+        return ProductReviewResponse.builder()
+                .id(updatedReview.getId())
+                .content(updatedReview.getContent())
+                .rating(updatedReview.getRating())
+                .name(updatedReview.getName())
+                .email(updatedReview.getEmail())
+                .title(updatedReview.getTitle())
+                .options(updatedReview.getOptions())
+                .reviewerId(updatedReview.getReviewer() != null ? updatedReview.getReviewer().getId() : null)
+                .reviewerName(updatedReview.getReviewer() != null ? updatedReview.getReviewer().getFirstName() + " " + updatedReview.getReviewer().getLastName() : null)
+                .createdAt(updatedReview.getCreatedAt())
+                .updatedAt(updatedReview.getUpdatedAt())
+                .build();
+    }
+
+    @Override
     public PaginationResponse getAllReviewsByProductId(String productId, int page, int size, String sortBy, String sortOrder) {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        int totalReviews = product.getCountOfReviews();
-        float avgRating = product.getAvgRating();
+        List<String> reviewIds = product.getReviews().stream()
+                .map(ProductReview::getId)
+                .collect(Collectors.toList());
 
         Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
-        Page<ProductReview> reviewPage = productReviewRepository.findAllByProductId(productId, pageRequest);
+        Page<ProductReview> reviewPage = productReviewRepository.findAllByIds(reviewIds, pageRequest);
+
         List<ProductReviewResponse> reviewResponses = reviewPage.getContent().stream().map(review -> {
             return ProductReviewResponse.builder()
                     .id(review.getId())
@@ -126,8 +186,8 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         return PaginationResponse.builder()
                 .meta(meta)
                 .result(ReviewResponse.builder()
-                        .countOfReviews(totalReviews)
-                        .avgRating(avgRating)
+                        .countOfReviews(product.getCountOfReviews())
+                        .avgRating(product.getAvgRating())
                         .reviews(reviewResponses)
                         .build())
                 .build();
@@ -139,12 +199,13 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        float avgRating = product.getAvgRating();
-        int totalReviews = product.getCountOfReviews();
+        List<String> reviewIds = product.getReviews().stream()
+                .map(ProductReview::getId)
+                .collect(Collectors.toList());
 
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        Page<ProductReview> reviewPage = productReviewRepository.findAllByProductIdAndRating(productId, rating, pageRequest);
+        Page<ProductReview> reviewPage = productReviewRepository.findAllByIdsAndRating(reviewIds, rating, pageRequest);
 
         List<ProductReviewResponse> reviewResponses = reviewPage.getContent().stream().map(review -> {
             return ProductReviewResponse.builder()
@@ -174,12 +235,34 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         return PaginationResponse.builder()
                 .meta(meta)
                 .result(ReviewResponse.builder()
-                        .countOfReviews(totalReviews)
-                        .avgRating(avgRating)
+                        .countOfReviews(product.getCountOfReviews())
+                        .avgRating(product.getAvgRating())
                         .reviews(reviewResponses)
                         .build())
                 .build();
 
+    }
+
+    @Override
+    public void deleteReview(String productId, String reviewId) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        ProductReview productReview = productReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+
+        productReviewRepository.delete(productReview);
+
+        List<ProductReview> reviews = product.getReviews();
+        reviews.removeIf(review -> review.getId().equals(reviewId));
+        product.setReviews(reviews);
+
+        float avgRating = this.calculateRating(reviews);
+        product.setAvgRating(avgRating);
+        product.setCountOfReviews(reviews.size());
+
+        productRepository.save(product);
     }
 
     private float calculateRating(List<ProductReview> reviews) {
