@@ -71,6 +71,7 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ApiResponse<Product>> updateProduct(
             @PathVariable String productId,
             @Valid
@@ -118,44 +119,6 @@ public class ProductController {
         );
     }
 
-<<<<<<< HEAD
-    @PostMapping("/{productId}/images")
-    public ResponseEntity<ApiResponse<List<String>>> createProductImages(
-            @PathVariable String productId,
-            @RequestPart List<MultipartFile> files
-    ) throws URISyntaxException, IOException {
-        log.info("productId: {}", productId);
-        log.info("files: {}", files);
-
-        return ResponseEntity.status(SuccessCode.CREATED.getCode()).body(
-                ApiResponse.builderResponse(
-                        SuccessCode.CREATED,
-                        productService.createProductImages(productId, files)
-                )
-        );
-    }
-
-    @DeleteMapping("/{productId}/images")
-    public ResponseEntity<ApiResponse<Void>> deleteProductImage(
-            @PathVariable String productId,
-            @RequestParam String imgUrl
-    ) {
-        log.info("id product : {}", productId);
-        log.info("imgUrl: {}", imgUrl);
-
-        return ResponseEntity.status(SuccessCode.DELETED.getCode()).body(
-                ApiResponse.builderResponse(
-                        SuccessCode.DELETED,
-                        productService.deleteProductImage(productId, imgUrl)
-                )
-        );
-    }
-
-
-
-
-=======
->>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
     @GetMapping("/exists")
     public ResponseEntity<ApiResponse<Boolean>> productExists(@RequestParam String name) {
         return ResponseEntity.ok(

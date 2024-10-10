@@ -4,7 +4,6 @@ import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.entity.ProductBanner;
-import com.neo4j_ecom.demo.model.mapper.ProductBannerMapper;
 import com.neo4j_ecom.demo.repository.CategoryRepository;
 import com.neo4j_ecom.demo.repository.ProductBannerRepository;
 import com.neo4j_ecom.demo.repository.ProductRepository;
@@ -31,14 +30,6 @@ public class ProductBannerServiceImpl implements ProductBannerService {
     private final FileService fileService;
 
     private final ProductBannerRepository productBannerRepository;
-
-    private final ProductBannerMapper productBannerMapper;
-
-    @Value("${file.image.folder.product-banner}")
-    private String folder;
-
-    @Value("${file.image.base-uri}")
-    private String baseURI;
 
     @Override
     public ProductBanner handleCreateBanner(ProductBanner request)  {

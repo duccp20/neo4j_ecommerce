@@ -174,14 +174,6 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findById(id);
     }
 
-<<<<<<< HEAD
-    @Override
-    public String createProductImage(MultipartFile file) throws URISyntaxException {
-        return null;
-    }
-
-=======
->>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
     @Override
     public Product updateProduct(String id, ProductRequest request) {
 
@@ -285,7 +277,7 @@ public class ProductServiceImpl implements ProductService {
             throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
         }
     }
-<<<<<<< HEAD
+
 
     private void validateProductVariantPrices(ProductVariantRequest request) {
 
@@ -303,78 +295,6 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-=======
->>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
 
-    private void validateProductVariantPrices(ProductVariantRequest request) {
 
-<<<<<<< HEAD
-        List<String> images = new ArrayList<>();
-        if (files != null) {
-
-            for (MultipartFile file : files) {
-                String urlImage = this.createProductImage(file);
-                images.add(urlImage);
-            }
-
-        }
-
-        return images;
-    }
-
-    @Override
-    public List<String> createProductImages(String productId, List<MultipartFile> files) throws URISyntaxException, IOException {
-
-        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        List<String> newProductImage = new ArrayList<>();
-
-        //current product image
-        newProductImage.addAll(product.getProductImages());
-
-        //new product image
-        List<String> listProductImage = this.handleCreateProductImages(files, product);
-        newProductImage.addAll(listProductImage);
-
-        product.setProductImages(newProductImage);
-        productRepository.save(product);
-
-        return listProductImage;
-    }
-
-    @Override
-    public Void deleteProductImage(String id, String imgUrl) {
-
-        Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        List<String> productImages = product.getProductImages();
-
-        for (String s : productImages) {
-            if (s.equals(imgUrl)) {
-                productImages.remove(s);
-                break;
-            }
-=======
-        if (request.getOriginalPrice() == null || request.getSellingPrice() == null) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_REQUIRED_PRICE);
-        }
-
-        if (request.getDiscountedPrice() != null &&
-                (request.getOriginalPrice().compareTo(request.getDiscountedPrice()) >= 0 ||
-                        request.getOriginalPrice().compareTo(request.getSellingPrice()) >= 0 ||
-                        request.getDiscountedPrice().compareTo(request.getSellingPrice()) >= 0)) {
-            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
-        } else if (request.getOriginalPrice().compareTo(request.getSellingPrice()) > 0) {
-            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
->>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
-        }
-    }
-<<<<<<< HEAD
-
-    @Override
-    public Void setPrimaryImage(String productId, String imgUrl) {
-        return null;
-    }
-=======
->>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
 }

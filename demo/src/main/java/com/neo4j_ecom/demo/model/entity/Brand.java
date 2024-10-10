@@ -22,10 +22,7 @@ import java.util.stream.Collectors;
 @Data
 @Document(value = "brands")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-<<<<<<< HEAD
 
-=======
->>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
 public class Brand extends BaseEntity {
 
     @Id
@@ -35,8 +32,4 @@ public class Brand extends BaseEntity {
     @NotNull(message = "Brand name is required")
     private String name;
     private String description;
-<<<<<<< HEAD
-
-=======
->>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
 }

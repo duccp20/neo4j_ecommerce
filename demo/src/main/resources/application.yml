@@ -26,9 +26,14 @@ spring:
           starttls:
             enable: true
   ###
+file:
+  image:
+    base-uri: file:///C:/workplace/backend/java/neo4j_ecommerce_/source/upload/
+    folder:
+      product: products
+      product-banner: banners
 
 # firebase
-
 firebase:
   secret: ${FIREBASE_CONFIG}
   link-base: https://firebasestorage.googleapis.com/v0/b/ecom-accessed.appspot.com/o
