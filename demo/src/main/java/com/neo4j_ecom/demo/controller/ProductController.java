@@ -160,6 +160,7 @@ public class ProductController {
                         productService.setPrimaryImage(productId, imgUrl)
                 )
         );
+
     }
 
 
