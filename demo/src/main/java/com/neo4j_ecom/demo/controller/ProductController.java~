@@ -71,6 +71,7 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ApiResponse<Product>> updateProduct(
             @PathVariable String productId,
             @Valid
@@ -108,7 +109,7 @@ public class ProductController {
         log.info("page: {}", page);
         log.info("size: {}", size);
 
-        PaginationInput.validatePaginationInput(Integer.parseInt(page), Integer.parseInt(size));
+        PaginationInput.validatePaginationInput(Integer.parseInt(page), Integer.parseInt(size), null);
 
         return ResponseEntity.status(SuccessCode.FETCHED.getCode()).body(
                 ApiResponse.builderResponse(

@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductMapper {
 
-    private final BrandRepository brandRepository;
-
     public Product toEntity(ProductRequest request) {
 
         return Product.builder()

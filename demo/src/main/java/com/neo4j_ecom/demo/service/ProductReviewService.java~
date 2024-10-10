@@ -13,5 +13,5 @@ public interface ProductReviewService {
 
     PaginationResponse getAllReviewsByProductId(String productId, int page, int size, String sortBy, String sortOrder);
 
-    PaginationResponse getAllReviewsByProductIdFilter(String productId, int rating, int page, int size);
+    ProductReview getAllReviewsByProductIdFilter(String productId, int rating, int page, int size);
 }

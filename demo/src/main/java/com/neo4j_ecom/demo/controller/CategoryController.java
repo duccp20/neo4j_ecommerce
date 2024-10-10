@@ -1,19 +1,16 @@
 package com.neo4j_ecom.demo.controller;
-import com.neo4j_ecom.demo.exception.AppException;
+
 import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
-import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.model.entity.Category;
 import com.neo4j_ecom.demo.service.CategoryService;
-import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
 import com.neo4j_ecom.demo.utils.helper.PaginationInput;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -204,7 +201,7 @@ public class CategoryController {
                 ApiResponse.builderResponse(
                         SuccessCode.FETCHED,
                         categoryService.handleGetProductsByCategoryId(categoryId, Integer.parseInt(page), Integer.parseInt(size))
-        )
+                )
         );
     }
 }
