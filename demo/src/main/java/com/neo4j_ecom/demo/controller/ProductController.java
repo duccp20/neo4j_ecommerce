@@ -118,6 +118,7 @@ public class ProductController {
         );
     }
 
+<<<<<<< HEAD
     @PostMapping("/{productId}/images")
     public ResponseEntity<ApiResponse<List<String>>> createProductImages(
             @PathVariable String productId,
@@ -153,6 +154,8 @@ public class ProductController {
 
 
 
+=======
+>>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
     @GetMapping("/exists")
     public ResponseEntity<ApiResponse<Boolean>> productExists(@RequestParam String name) {
         return ResponseEntity.ok(

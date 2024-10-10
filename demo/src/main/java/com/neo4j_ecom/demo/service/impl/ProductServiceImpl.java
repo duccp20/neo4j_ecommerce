@@ -3,11 +3,9 @@ package com.neo4j_ecom.demo.service.impl;
 import com.neo4j_ecom.demo.exception.AppException;
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.request.ProductVariantRequest;
-import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.pagination.Meta;
 import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.model.dto.response.product.ProductPopular;
-import com.neo4j_ecom.demo.model.dto.response.product.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.*;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.VariantOption;
@@ -15,7 +13,6 @@ import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductVariantMapper;
-import com.neo4j_ecom.demo.model.projection.ProductPopularProjection;
 import com.neo4j_ecom.demo.repository.*;
 import com.neo4j_ecom.demo.service.*;
 
@@ -24,16 +21,12 @@ import com.neo4j_ecom.demo.utils.enums.ProductType;
 import com.neo4j_ecom.demo.utils.enums.Status;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,37 +37,13 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-
-    private final ReviewOptionRepository reviewOptionRepository;
-
     private final BrandRepository brandRepository;
-
     private final CategoryRepository categoryRepository;
-
-    private final ProductImageService productImageService;
-
     private final ProductMapper productMapper;
-
-    private final CategoryMapper categoryMapper;
-
-    private final FileService fileService;
-
-    private final ProductDimensionRepository productDimensionRepository;
-
     private final ProductVariantRepository productVariantRepository;
-
-    private final ProductSpecificationRepository productSpecificationRepository;
-
     private final ProductDimensionService productDimensionService;
-
-    private final CategoryService categoryService;
-
-    private final ProductReviewMapper reviewMapper;
-
     private final ProductVariantMapper variantMapper;
 
-
-    //===================== PRODUCT ====================
     @Override
     public Product createProduct(ProductRequest request) {
 
@@ -205,11 +174,14 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findById(id);
     }
 
+<<<<<<< HEAD
     @Override
     public String createProductImage(MultipartFile file) throws URISyntaxException {
         return null;
     }
 
+=======
+>>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
     @Override
     public Product updateProduct(String id, ProductRequest request) {
 
@@ -277,6 +249,7 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> productPage = productRepository.findAll(pageable);
 
         List<ProductPopular> products = productPage.getContent().stream()
+                .filter(product -> !product.getStatus().equals(Status.DELETED))
                 .map(productMapper::toPopular)
                 .collect(Collectors.toList());
 
@@ -297,7 +270,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Boolean productExists(String name) {
-
         return productRepository.existsByName(name);
     }
 
@@ -313,6 +285,7 @@ public class ProductServiceImpl implements ProductService {
             throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
         }
     }
+<<<<<<< HEAD
 
     private void validateProductVariantPrices(ProductVariantRequest request) {
 
@@ -330,10 +303,12 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+=======
+>>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
 
-    //==================PRODUCT IMAGES====================
-    private List<String> handleCreateProductImages(List<MultipartFile> files, Product product) throws URISyntaxException, IOException {
+    private void validateProductVariantPrices(ProductVariantRequest request) {
 
+<<<<<<< HEAD
         List<String> images = new ArrayList<>();
         if (files != null) {
 
@@ -379,16 +354,27 @@ public class ProductServiceImpl implements ProductService {
                 productImages.remove(s);
                 break;
             }
+=======
+        if (request.getOriginalPrice() == null || request.getSellingPrice() == null) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_REQUIRED_PRICE);
         }
 
-        product.setProductImages(productImages);
-        productRepository.save(product);
-
-        return null;
+        if (request.getDiscountedPrice() != null &&
+                (request.getOriginalPrice().compareTo(request.getDiscountedPrice()) >= 0 ||
+                        request.getOriginalPrice().compareTo(request.getSellingPrice()) >= 0 ||
+                        request.getDiscountedPrice().compareTo(request.getSellingPrice()) >= 0)) {
+            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
+        } else if (request.getOriginalPrice().compareTo(request.getSellingPrice()) > 0) {
+            throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
+>>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
+        }
     }
+<<<<<<< HEAD
 
     @Override
     public Void setPrimaryImage(String productId, String imgUrl) {
         return null;
     }
+=======
+>>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
 }

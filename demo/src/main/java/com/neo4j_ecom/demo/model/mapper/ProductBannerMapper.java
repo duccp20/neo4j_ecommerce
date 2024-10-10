@@ -12,8 +12,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductBannerMapper {
 
+<<<<<<< HEAD
 
     public ProductBanner toEntity(ProductBanner request) {
+=======
+    public ProductBanner toEntity(ProductBannerRequest request) {
+>>>>>>> 89a5ff626ccdc064c14e5cf930b51a47efb00b6e
 
         return ProductBanner.builder()
                 .imageUrl(request.getImageUrl())
