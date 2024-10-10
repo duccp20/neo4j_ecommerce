@@ -48,7 +48,7 @@ public class FileServiceImpl implements FileService {
 
     @Value("${firebase.link-base}")
     String linkBase;
-//
+    //
 //    @Value("${aws.s3.bucket.name}")
     String bucketName;
 

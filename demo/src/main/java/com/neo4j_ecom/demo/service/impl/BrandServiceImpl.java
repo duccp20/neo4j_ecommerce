@@ -34,6 +34,7 @@ public class BrandServiceImpl implements BrandService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
+
     @Override
     public Brand createBrand(Brand brand) {
 
@@ -67,7 +68,6 @@ public class BrandServiceImpl implements BrandService {
 
         existingBrand.setName(brand.getName());
         existingBrand.setDescription(brand.getDescription());
-
         return brandRepository.save(existingBrand);
     }
 

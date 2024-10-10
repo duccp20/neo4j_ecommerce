@@ -279,7 +279,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void validateProductVariantPrices(ProductVariantRequest request) {
-
         if (request.getOriginalPrice() == null || request.getSellingPrice() == null) {
             throw new AppException(ErrorCode.PRODUCT_NOT_REQUIRED_PRICE);
         }
