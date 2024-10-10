@@ -19,8 +19,6 @@ import java.util.List;
 @RequestMapping("api/v1/brands")
 @Slf4j
 public class BrandController {
-
-
     private final BrandService brandService;
 
     @PostMapping

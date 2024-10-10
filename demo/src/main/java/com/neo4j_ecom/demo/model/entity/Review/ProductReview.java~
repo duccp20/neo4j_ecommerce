@@ -1,6 +1,5 @@
 package com.neo4j_ecom.demo.model.entity.Review;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 
@@ -39,6 +38,8 @@ public class ProductReview extends BaseEntity {
     private int rating;
     private String content;
     private List<ReviewOption> options = new ArrayList<>();
+    @DocumentReference(lazy = true)
+    private Product product;
     @DocumentReference(lazy = true)
     private User reviewer;
 

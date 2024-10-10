@@ -134,6 +134,6 @@ public class Product extends BaseEntity {
         this.sku = request.getSku() != null ? request.getSku() : this.sku;
         this.soldQuantity = request.getSoldQuantity() != null ? request.getSoldQuantity() : this.soldQuantity;
         this.primaryVariantType = request.getPrimaryVariantType() != null ? request.getPrimaryVariantType() : this.primaryVariantType;
-        this.productSpecifications = request.getSpecifications() != null && request.getHasSpecification() ? request.getSpecifications() : this.productSpecifications;
+        this.productSpecifications = request.getSpecifications() != null ? request.getSpecifications() : this.productSpecifications;
     }
 }

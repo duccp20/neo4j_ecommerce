@@ -166,6 +166,7 @@ public class FileServiceImpl implements FileService {
                 String finalName = System.currentTimeMillis() + "-" + file.getName();
                 log.info("finalName in storeFile: {}", finalName);
                 finalName = folder + "/" + finalName.replaceAll("\\s", "");
+                //InputStream inputStream = file.getInputStream();
                 PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, finalName, file)
                         .withCannedAcl(CannedAccessControlList.PublicRead);
 

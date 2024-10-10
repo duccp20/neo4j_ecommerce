@@ -26,10 +26,18 @@ public class Brand extends BaseEntity {
 
     @Id
     private String id;
-
     @NotBlank(message = "Brand name is required")
     @NotEmpty(message = "Brand name is not be empty")
     @NotNull(message = "Brand name is required")
     private String name;
     private String description;
+
+
+    public Brand convertBrand(Brand brand) {
+        return Brand.builder()
+                .id(brand.getId())
+                .name(brand.getName())
+                .description(brand.getDescription())
+                .build();
+    }
 }

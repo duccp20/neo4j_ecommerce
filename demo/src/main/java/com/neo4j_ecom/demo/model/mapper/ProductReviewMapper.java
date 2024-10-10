@@ -31,7 +31,6 @@ public class ProductReviewMapper {
                 .title(savedProductReview.getTitle())
                 .options(savedProductReview.getOptions())
                 .id(savedProductReview.getId())
-                .productId(savedProductReview.getProduct().getId())
                 .createdAt(savedProductReview.getCreatedAt())
                 .updatedAt(savedProductReview.getUpdatedAt())
                 .reviewerId(savedProductReview.getReviewer() != null ? savedProductReview.getReviewer().getId() : null)

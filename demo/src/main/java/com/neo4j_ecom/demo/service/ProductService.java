@@ -20,9 +20,9 @@ public interface ProductService {
 
     Map<String, Object> getProductById(String id);
 
-    List<ProductResponse> getAllProducts();
+    List<Product> getAllProducts();
 
-    ProductResponse updateProduct(String id, ProductRequest request);
+    Product updateProduct(String id, ProductRequest request);
 
     Void deleteProduct(String id);
 
@@ -32,7 +32,7 @@ public interface ProductService {
 
     Void setPrimaryImage(String productId, String imgUrl);
 
-    PaginationResponse getProductPopularBySoldQuantity( int page, int size);
+    PaginationResponse getTopProductsSold( int page, int size);
 
     Boolean productExists(String name);
 
