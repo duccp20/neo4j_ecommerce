@@ -5,6 +5,8 @@ import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ProductReviewResponse;
 import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 
+import java.util.List;
+
 public interface ProductReviewService {
 
     ProductReviewResponse createReview(String productId, ProductReviewRequest review);
