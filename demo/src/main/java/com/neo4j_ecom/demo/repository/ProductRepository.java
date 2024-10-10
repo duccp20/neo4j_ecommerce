@@ -3,8 +3,6 @@ package com.neo4j_ecom.demo.repository;
 import com.neo4j_ecom.demo.model.dto.response.ProductCategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.product.ProductPopular;
 import com.neo4j_ecom.demo.model.entity.Product;
-import com.neo4j_ecom.demo.model.projection.ProductPopularProjection;
-import com.neo4j_ecom.demo.utils.enums.Status;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -56,6 +54,8 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     @Query("{ 'brandId' : ?0, 'status' : ?1 }")
     List<Product> findByBrandIdWithStatus(String brandId, String status);
+
+    List<Product> findAllById(String id);
 }
 
 

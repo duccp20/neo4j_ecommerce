@@ -25,11 +25,7 @@ public class ProductBanner extends BaseEntity {
     private String imageUrl;
     private LocalDate startDate;
     private LocalDate  endDate;
-    @DBRef
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private List<Product> products;
-    @DBRef
-    private Category category;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<String> locations = new ArrayList<>();
+
 }

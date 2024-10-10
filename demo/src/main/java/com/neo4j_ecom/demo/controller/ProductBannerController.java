@@ -1,13 +1,16 @@
 package com.neo4j_ecom.demo.controller;
 
+import com.google.protobuf.Api;
 import com.neo4j_ecom.demo.model.dto.request.ProductBannerRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.model.dto.response.ProductBannerResponse;
+import com.neo4j_ecom.demo.model.entity.ProductBanner;
 import com.neo4j_ecom.demo.service.ProductBannerService;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,89 +29,75 @@ public class ProductBannerController {
     private final ProductBannerService productBannerService;
 
     @PostMapping(value = "/banners")
-    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleCreateBanner(
+    public ResponseEntity<ApiResponse<ProductBanner>> handleCreateBanner(
             @Valid
-            @RequestBody ProductBannerRequest request
+            @RequestBody ProductBanner request
     ) {
-
         log.info("request: {}", request);
-        SuccessCode successCode = SuccessCode.CREATED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<ProductBannerResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleCreateBanner(request)
-                        )
-                        .build()
-        );
+//        ProductBanner createdBanner  = productBannerService.handleCreateBanner(request);
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.CREATED,
+                        productBannerService.handleCreateBanner(request )
+                ));
     }
 
     @GetMapping("/banners")
-    public ResponseEntity<ApiResponse<List<ProductBannerResponse>>> handleGetBanners() {
-        SuccessCode successCode = SuccessCode.FETCHED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<List<ProductBannerResponse>>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleGetBanners())
-                        .build()
+    public ResponseEntity<ApiResponse<List<ProductBanner>>> handleGetBanners() {
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.FETCHED,
+                        productBannerService.handleGetBanners()
+                )
         );
     }
 
     @GetMapping("/banners/{bannerId}")
-    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleGetBanner(
+    public ResponseEntity<ApiResponse<ProductBanner>> handleGetBanner(
             @PathVariable String bannerId) {
-        SuccessCode successCode = SuccessCode.FETCHED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<ProductBannerResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleGetBannerById(bannerId))
-                        .build()
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.FETCHED,
+                        productBannerService.handleGetBannerById(bannerId)
+                )
         );
     }
 
     @GetMapping("banners/quantity/{quantity}")
-    public ResponseEntity<ApiResponse<List<ProductBannerResponse>>> handleGetBannersByQuantity(@PathVariable int quantity) {
-        SuccessCode successCode = SuccessCode.FETCHED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<List<ProductBannerResponse>>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleGetBannersByQuantity(quantity))
-                        .build()
+    public ResponseEntity<ApiResponse<List<ProductBanner>>> handleGetBannersByQuantity(@PathVariable int quantity) {
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.FETCHED,
+                        productBannerService.handleGetBannersByQuantity(quantity)
+                )
         );
     }
 
     @GetMapping("banners/images/{quantity}")
     public ResponseEntity<ApiResponse<List<String>>> handleGetBannerImagesByQuantity(@PathVariable int quantity) {
         SuccessCode successCode = SuccessCode.FETCHED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<List<String>>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleGetBannerImagesByQuantity(quantity))
-                        .build()
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.FETCHED,
+                        productBannerService.handleGetBannerImagesByQuantity(quantity)
+                )
         );
     }
 
 
-
-
     @PutMapping("/banners/{bannerId}")
-    public ResponseEntity<ApiResponse<ProductBannerResponse>> handleUpdateBanner(
+    public ResponseEntity<ApiResponse<ProductBanner>> handleUpdateBanner(
             @PathVariable String bannerId,
             @Valid
-            @RequestBody ProductBannerRequest request
+            @RequestBody ProductBanner request
 
     ) throws URISyntaxException, IOException {
         SuccessCode successCode = SuccessCode.UPDATED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<ProductBannerResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleUpdateBanner(bannerId, request))
-                        .build()
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.UPDATED,
+                        productBannerService.handleUpdateBanner(bannerId, request)
+                )
         );
     }
 
@@ -117,12 +106,11 @@ public class ProductBannerController {
     public ResponseEntity<ApiResponse<Void>> handleDeleteBanner(
             @PathVariable String bannerId) {
         SuccessCode successCode = SuccessCode.DELETED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<Void>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productBannerService.handleDeleteBannerById(bannerId)
-                        ).build()
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.DELETED,
+                        productBannerService.handleDeleteBannerById(bannerId)
+                )
         );
     }
 }

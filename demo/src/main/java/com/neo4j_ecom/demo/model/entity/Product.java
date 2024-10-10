@@ -1,4 +1,3 @@
-
 package com.neo4j_ecom.demo.model.entity;
 
 
@@ -44,6 +43,7 @@ public class Product extends BaseEntity {
     @Id
     private String id;
     private String name;
+
     private BigDecimal originalPrice;
     private BigDecimal discountedPrice;
     private BigDecimal sellingPrice;
