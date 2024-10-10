@@ -17,7 +17,7 @@ public interface BrandService {
 
     Void deleteBrand(String id);
 
-    Void revertBrand(String id);
+    Brand revertBrand(String id);
 
     Brand findBrandById(String id);
 

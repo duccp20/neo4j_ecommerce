@@ -9,6 +9,7 @@ import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.service.BrandService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
+import com.neo4j_ecom.demo.utils.helper.PaginationInput;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,18 +43,10 @@ public class BrandController {
         );
     }
 
-    @PutMapping("/{id}/revert")
-    public ResponseEntity<ApiResponse<Void>> revertBrand(@PathVariable String id) {
-        brandService.revertBrand(id);
-        return ResponseEntity.ok(
-                ApiResponse.builderResponse(SuccessCode.UPDATED,null)
-        );
-    }
-
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') || hasRole('SELLER')")
     public ResponseEntity<ApiResponse<List<Brand>>> getBrands() {
-        return  ResponseEntity.ok(
+        return ResponseEntity.ok(
                 ApiResponse.builderResponse(
                         SuccessCode.FETCHED,
                         brandService.getBrands()
@@ -75,30 +68,23 @@ public class BrandController {
     public ResponseEntity<ApiResponse<PaginationResponse>> getProductsByBrandId(
             @PathVariable String brandId,
             @RequestParam(defaultValue = "0") String page,
-            @RequestParam(defaultValue = "20")String size) {
-        log.info("id brand : {}", brandId);
-        log.info("page: {}", page);
-        log.info("size: {}", size);
-        Integer pageInt = Integer.parseInt(page);
-        Integer sizeInt = Integer.parseInt(size);
+            @RequestParam(defaultValue = "20") String size) {
 
-
-        try {
-            Integer.parseInt(page);
-            Integer.parseInt(size);
-        } catch (NumberFormatException e) {
-            throw new AppException(ErrorCode.WRONG_INPUT);
-        }
-
-        if (pageInt < 0 || sizeInt < 0) {
-            throw new AppException(ErrorCode.WRONG_INPUT);
-        }
+        PaginationInput.validatePaginationInput(Integer.parseInt(page), Integer.parseInt(size));
 
         return ResponseEntity.ok(ApiResponse.builderResponse(
                 SuccessCode.FETCHED,
-                brandService.getProductsByBrand(brandId, pageInt, sizeInt)
+                brandService.getProductsByBrand(brandId, Integer.parseInt(page), Integer.parseInt(size))
         ));
 
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteBrand(@PathVariable String id) {
+
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(SuccessCode.DELETED, brandService.deleteBrand(id))
+        );
     }
 
     @PutMapping("/{id}")
@@ -111,11 +97,10 @@ public class BrandController {
     }
 
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteBrand(@PathVariable String id) {
-        brandService.deleteBrand(id);
+    @PutMapping("/{id}/revert")
+    public ResponseEntity<ApiResponse<Brand>> revertBrand(@PathVariable String id) {
         return ResponseEntity.ok(
-                ApiResponse.builderResponse(SuccessCode.DELETED,null)
+                ApiResponse.builderResponse(SuccessCode.UPDATED, brandService.revertBrand(id))
         );
     }
 

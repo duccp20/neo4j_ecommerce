@@ -87,21 +87,34 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public Brand revertBrand(String id) {
+    public Void revertBrand(String id) {
 
         Brand existingBrand = this.findBrandById(id);
         if (existingBrand.getStatus().equals(Status.ACTIVE)) {
             throw new AppException(ErrorCode.BRAND_ALREADY_ACTIVE);
         }
 
-        productRepository.findByBrandIdWithStatus(id, Status.DELETED.name())
-                .forEach(product -> {
+        while (true) {
+
+            List<Product> products = productRepository.findByBrandIdWithStatus(id, Status.DELETED.name());
+
+            if (products.isEmpty()) {
+                break;
+            }
+
+            for (Product product : products) {
+
+                if (product.getStatus().equals(Status.DELETED)) {
                     product.setStatus(Status.ACTIVE);
-                    productRepository.save(product);
-                });
+                }
+            }
+            productRepository.saveAll(products);
+
+        }
 
         existingBrand.setStatus(Status.ACTIVE);
-        return brandRepository.save(existingBrand);
+        brandRepository.save(existingBrand);
+        return null;
     }
 
     @Override
