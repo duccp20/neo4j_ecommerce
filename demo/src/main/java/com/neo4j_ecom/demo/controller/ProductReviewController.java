@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -26,7 +28,7 @@ public class ProductReviewController {
 
     @PostMapping("/{productId}/reviews")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ApiResponse<ProductReviewResponse>> handleCreateProductReview(
+    public ResponseEntity<ApiResponse<ProductReviewResponse>> createProductReview(
             @PathVariable String productId,
             @Valid
             @RequestBody ProductReviewRequest request
@@ -45,7 +47,7 @@ public class ProductReviewController {
     }
 
     @GetMapping("{productId}/reviews")
-    public ResponseEntity<ApiResponse<PaginationResponse>> handleGetAllReviewsByProductId(
+    public ResponseEntity<ApiResponse<PaginationResponse>> getAllReviewsByProductId(
             @PathVariable String productId,
             @RequestParam(defaultValue = "0") String page,
             @RequestParam(defaultValue = "20") String size,
@@ -85,18 +87,18 @@ public class ProductReviewController {
                         .build()
         );
     }
-
-//    @PutMapping("/{id}/")
-//    public ResponseEntity<ApiResponse<ProductResponse>> handleUpdateProductReview() {
-//        return null;
-//    }
-
-
-
-
-
+    //
+////    @PutMapping("/{id}/")
+////    public ResponseEntity<ApiResponse<ProductResponse>> handleUpdateProductReview() {
+////        return null;
+////    }
+//
+//
+//
+//
+//
     @GetMapping("{productId}/reviews/filter")
-    public ResponseEntity<ApiResponse<PaginationResponse>> handleGetAllReviewsByVariantIdFilter(
+    public ResponseEntity<ApiResponse<PaginationResponse>> getAllReviewsByVariantIdFilter(
             @RequestParam(defaultValue = "0") String page,
             @RequestParam(defaultValue = "20") String size,
             @PathVariable String productId,
