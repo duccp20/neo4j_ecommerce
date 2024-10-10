@@ -20,7 +20,6 @@ public interface FileService {
 
     void deleteFileFirebase(String path) throws FileNotFoundException;
 
-
     List<String> storeFileS3(List<File> files, String folder) throws URISyntaxException, IOException, InterruptedException;
 
     void deleteFileS3(List<String> imageURLs) throws FileNotFoundException;

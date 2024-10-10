@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductBannerMapper {
 
-
     public ProductBanner toEntity(ProductBannerRequest request) {
 
         return ProductBanner.builder()

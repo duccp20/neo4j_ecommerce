@@ -87,15 +87,15 @@ public class ProductController {
         );
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{productId}")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable String id) {
-        log.info("id product : {}", id);
+    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable String productId) {
+        log.info("id product : {}", productId);
 
         return ResponseEntity.status(SuccessCode.DELETED.getCode()).body(
                 ApiResponse.builderResponse(
                         SuccessCode.DELETED,
-                        productService.deleteProduct(id)
+                        productService.deleteProduct(productId)
                 )
         );
     }
@@ -118,40 +118,6 @@ public class ProductController {
         );
     }
 
-
-    @DeleteMapping("/{productId}/images")
-    public ResponseEntity<ApiResponse<Void>> deleteProductImage(
-            @PathVariable String productId,
-            @RequestParam String imgUrl
-    ) {
-        log.info("id product : {}", productId);
-        log.info("imgUrl: {}", imgUrl);
-
-        return ResponseEntity.status(SuccessCode.DELETED.getCode()).body(
-                ApiResponse.builderResponse(
-                        SuccessCode.DELETED,
-                        productService.deleteProductImage(productId, imgUrl)
-                )
-        );
-    }
-
-    @PostMapping("/{productId}/images")
-    public ResponseEntity<ApiResponse<List<String>>> createProductImages(
-            @PathVariable String productId,
-            @RequestPart List<MultipartFile> files
-    ) throws URISyntaxException, IOException {
-        log.info("productId: {}", productId);
-        log.info("files: {}", files);
-
-        return ResponseEntity.status(SuccessCode.CREATED.getCode()).body(
-                ApiResponse.builderResponse(
-                        SuccessCode.CREATED,
-                        productService.createProductImages(productId, files)
-                )
-        );
-    }
-
-
     @GetMapping("/exists")
     public ResponseEntity<ApiResponse<Boolean>> productExists(@RequestParam String name) {
         return ResponseEntity.ok(
@@ -162,21 +128,7 @@ public class ProductController {
         );
     }
 
-    @PostMapping("/{productId}/images/primary-image")
-    public ResponseEntity<ApiResponse<Void>> setPrimaryImage(
-            @PathVariable String productId,
-            @RequestParam String imgUrl
-    ) {
-        log.info("productId: {}", productId);
-        log.info("imgUrl: {}", imgUrl);
 
-        return ResponseEntity.status(SuccessCode.CREATED.getCode()).body(
-                ApiResponse.builderResponse(
-                        SuccessCode.CREATED,
-                        productService.setPrimaryImage(productId, imgUrl)
-                )
-        );
-    }
 
 
 }

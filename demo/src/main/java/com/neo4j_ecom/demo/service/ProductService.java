@@ -15,9 +15,6 @@ import java.util.Optional;
 public interface ProductService {
     Product createProduct(ProductRequest request);
     Optional<Product> findById(String id);
-
-    String createProductImage(MultipartFile file) throws URISyntaxException;
-
     Map<String, Object> getProductById(String id);
 
     List<Product> getAllProducts();
@@ -25,12 +22,6 @@ public interface ProductService {
     Product updateProduct(String id, ProductRequest request);
 
     Void deleteProduct(String id);
-
-    List<String> createProductImages(String productId, List<MultipartFile> files) throws URISyntaxException, IOException;
-
-    Void deleteProductImage(String id, String imgUrl);
-
-    Void setPrimaryImage(String productId, String imgUrl);
 
     PaginationResponse getTopProductsSold( int page, int size);
 

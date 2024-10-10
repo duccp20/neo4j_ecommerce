@@ -27,14 +27,6 @@ spring:
             enable: true
   ###
 
-# file
-file:
-  image:
-    base-uri: file:///C:/workplace/backend/java/neo4j_ecommerce_/source/upload/
-    folder:
-      product: products
-      product-banner: banners
-
 # firebase
 
 firebase:
