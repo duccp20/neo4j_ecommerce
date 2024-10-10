@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Data
 @Document(value = "brands")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties({"target","source"})
 public class Brand extends BaseEntity {
 
     @Id
