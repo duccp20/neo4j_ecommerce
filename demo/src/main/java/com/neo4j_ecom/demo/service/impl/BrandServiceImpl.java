@@ -48,6 +48,7 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public List<Brand> getBrands() {
         return brandRepository.findAll().stream().filter(brand -> brand.getStatus().equals(Status.ACTIVE)).collect(Collectors.toList());
+
     }
 
     @Override
@@ -120,4 +121,5 @@ public class BrandServiceImpl implements BrandService {
 
         return PaginationResponse.builder().meta(meta).result(products).build();
     }
+
 }

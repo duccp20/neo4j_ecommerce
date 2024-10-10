@@ -43,9 +43,11 @@ public class BrandController {
         );
     }
 
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') || hasRole('SELLER')")
     public ResponseEntity<ApiResponse<List<Brand>>> getBrands() {
+
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
                         SuccessCode.FETCHED,
@@ -54,12 +56,12 @@ public class BrandController {
         );
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Brand>> getBrandById(@PathVariable String id) {
+    @GetMapping("/{brandId}")
+    public ResponseEntity<ApiResponse<Brand>> getBrandById(@PathVariable String brandId) {
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
                         SuccessCode.FETCHED,
-                        brandService.findBrandById(id)
+                        brandService.findBrandById(brandId)
                 )
         );
     }
@@ -79,30 +81,21 @@ public class BrandController {
 
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteBrand(@PathVariable String id) {
+    @DeleteMapping("/{brandId}")
+    public ResponseEntity<ApiResponse<Void>> deleteBrand(@PathVariable String brandId) {
 
         return ResponseEntity.ok(
-                ApiResponse.builderResponse(SuccessCode.DELETED, brandService.deleteBrand(id))
+                ApiResponse.builderResponse(SuccessCode.DELETED, brandService.deleteBrand(brandId))
         );
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Brand>> updateBrand(@PathVariable String id, @Valid @RequestBody Brand brand) {
+    @PutMapping("/{brandId}")
+    public ResponseEntity<ApiResponse<Brand>> updateBrand(@PathVariable String brandId, @Valid @RequestBody Brand brand) {
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
                         SuccessCode.UPDATED,
-                        brandService.updateBrand(id, brand)
+                        brandService.updateBrand(brandId, brand)
                 ));
     }
-
-
-    @PutMapping("/{id}/revert")
-    public ResponseEntity<ApiResponse<Void>> revertBrand(@PathVariable String id) {
-        return ResponseEntity.ok(
-                ApiResponse.builderResponse(SuccessCode.UPDATED, brandService.revertBrand(id))
-        );
-    }
-
 
 }

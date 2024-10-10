@@ -52,10 +52,13 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     Page<Product> findByCategories_IdAndIdNot(String categoryId, String productId, PageRequest pageRequest);
 
-    @Query("{ 'status' : ?0 }")
+<<<<<<< HEAD
     Page<Product> findByBrandId(String brandId, Pageable pageable);
 
     List<Product> findByBrandId(String brandId);
+=======
+    Page<Product> findByBrandId(String brandId, PageRequest pageRequest);
+>>>>>>> c40f1cb1cc0318c7daea956cb7b775ef576cc68c
 
     @Query("{ 'brandId' : ?0, 'status' : ?1 }")
     List<Product> findByBrandIdWithStatus(String brandId, String status);
