@@ -57,6 +57,7 @@ public class BrandController {
     }
 
     @GetMapping("/{brandId}")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('SELLER')")
     public ResponseEntity<ApiResponse<Brand>> getBrandById(@PathVariable String brandId) {
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
@@ -67,6 +68,7 @@ public class BrandController {
     }
 
     @GetMapping("/{brandId}/products")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('SELLER')")
     public ResponseEntity<ApiResponse<PaginationResponse>> getProductsByBrandId(
             @PathVariable String brandId,
             @RequestParam(defaultValue = "0") String page,
@@ -82,6 +84,7 @@ public class BrandController {
     }
 
     @DeleteMapping("/{brandId}")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('SELLER')")
     public ResponseEntity<ApiResponse<Void>> deleteBrand(@PathVariable String brandId) {
 
         return ResponseEntity.ok(
@@ -90,6 +93,7 @@ public class BrandController {
     }
 
     @PutMapping("/{brandId}")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('SELLER')")
     public ResponseEntity<ApiResponse<Brand>> updateBrand(@PathVariable String brandId, @Valid @RequestBody Brand brand) {
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
@@ -99,6 +103,7 @@ public class BrandController {
     }
 
     @PutMapping("/{brandId}/revert")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('SELLER')")
     public ResponseEntity<ApiResponse<Brand>> revertBrand(@PathVariable String brandId) {
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
@@ -106,7 +111,4 @@ public class BrandController {
                         brandService.revertBrand(brandId)
                 ));
     }
-
-
-
 }

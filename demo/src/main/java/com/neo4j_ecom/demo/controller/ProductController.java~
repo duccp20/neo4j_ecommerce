@@ -71,7 +71,6 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
-    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ApiResponse<Product>> updateProduct(
             @PathVariable String productId,
             @Valid
