@@ -27,7 +27,6 @@ public class ProductVariant {
     private BigDecimal sellingPrice;
     private BigDecimal originalPrice;
     private BigDecimal discountedPrice;
-    private String productId;
     private List<String> images;
     private List<VariantOption> variantOptions;
 }

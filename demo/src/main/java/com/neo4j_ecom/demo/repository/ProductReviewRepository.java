@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ProductReviewRepository extends MongoRepository<ProductReview, String> {
 
-    Page<ProductReview> findAllByProductId(String productId, PageRequest pageRequest);
-
-    Page<ProductReview> findAllByProductIdAndRating(String productId, int rating, PageRequest pageRequest);
+//    Page<ProductReview> (String productId, PageRequest pageRequest);
+//
+//    Page<ProductReview> findAllByProductIdAndRating(String productId, int rating, PageRequest pageRequest);
 }

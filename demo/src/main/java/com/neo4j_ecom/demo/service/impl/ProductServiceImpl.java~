@@ -294,9 +294,8 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Product> productPage = productRepository.findAll(pageable);
 
-        List<ProductPopular> products = productPage.getContent().stream()
-                .map(productMapper::toPopular)
-                .collect(Collectors.toList());
+        List<ProductPopular> products = productPage.getContent().stream(
+        ).map(productMapper::toPopular).collect(Collectors.toList());
 
         Meta meta = Meta.builder()
                 .current(productPage.getNumber() + 1)

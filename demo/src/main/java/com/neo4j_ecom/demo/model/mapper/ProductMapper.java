@@ -34,8 +34,7 @@ public class ProductMapper {
                 .description(request.getDescription() != null ? request.getDescription().trim() : null)
                 .primaryImage(request.getPrimaryImage())
                 .avgRating(request.getRating())
-                .brand(request.getBrandId() != null ? brandRepository.findById(request.getBrandId()).get() : null)
-                .sku(request.getSKU())
+                .sku(request.getSku())
                 .name(request.getName() != null ? request.getName().trim() : null)
                 .primaryVariantType(request.getPrimaryVariantType())
                 .soldQuantity(request.getSoldQuantity())
@@ -117,29 +116,6 @@ public class ProductMapper {
     }
 
 
-    public void updateProduct(Product product, ProductRequest request) {
-
-
-        product.setOriginalPrice(request.getOriginalPrice() != null ? request.getOriginalPrice() : null);
-        product.setSellingPrice(request.getSellingPrice() != null ? request.getSellingPrice() : null);
-        product.setDiscountedPrice(request.getDiscountedPrice() != null ? request.getDiscountedPrice() : null);
-
-        if (request.getQuantityAvailable() > 0) {
-            product.setQuantityAvailable(request.getQuantityAvailable());
-        }
-        product.setSellingType(request.getSellingType() != null ? request.getSellingType() : null);
-        product.setDescription(request.getDescription() != null ? request.getDescription() : null);
-        product.setPrimaryImage(request.getPrimaryImage() != null ? request.getPrimaryImage() : null);
-//        product.setRating(request.getRating() != null ? request.getRating() : null);
-//        product.setBrandName(request.getBrandName() != null ? request.getBrandName() : null);
-        product.setSku(request.getSKU() != null ? request.getSKU() : null);
-        product.setName(request.getName() != null ? request.getName() : null);
-
-        if (request.getProductDimension() != null) {
-            product.setProductDimension(request.getProductDimension());
-        }
-
-    }
 
     public ProductPopular toPopular(Product product) {
         List<ProductVariant> variants = product.getProductVariants() != null ? product.getProductVariants() : new ArrayList<>();

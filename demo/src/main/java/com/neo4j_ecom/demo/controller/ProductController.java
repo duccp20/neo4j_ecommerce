@@ -2,10 +2,12 @@ package com.neo4j_ecom.demo.controller;
 
 import com.neo4j_ecom.demo.model.dto.request.ProductRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
+import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.model.dto.response.product.ProductResponse;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.service.ProductService;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
+import com.neo4j_ecom.demo.utils.helper.PaginationInput;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -59,7 +61,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts() {
+    public ResponseEntity<ApiResponse<List<Product>>> getAllProducts() {
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
                         SuccessCode.FETCHED,
@@ -68,40 +70,70 @@ public class ProductController {
         );
     }
 
-    @PutMapping
-    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(
-            @RequestParam String id,
+    @PutMapping("/{productId}")
+    public ResponseEntity<ApiResponse<Product>> updateProduct(
+            @PathVariable String productId,
             @Valid
             @RequestBody ProductRequest request
     ) {
-        log.info("id product : {}", id);
+        log.info("id product : {}", productId);
         log.info("request: {}", request);
 
         return ResponseEntity.status(SuccessCode.UPDATED.getCode()).body(
                 ApiResponse.builderResponse(
                         SuccessCode.UPDATED,
-                        productService.updateProduct(id, request)
+                        productService.updateProduct(productId, request)
+                )
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable String id) {
+        log.info("id product : {}", id);
+
+        return ResponseEntity.status(SuccessCode.DELETED.getCode()).body(
+                ApiResponse.builderResponse(
+                        SuccessCode.DELETED,
+                        productService.deleteProduct(id)
+                )
+        );
+    }
+
+    @GetMapping("/top-selling")
+    public ResponseEntity<ApiResponse<PaginationResponse>> getTopSelling(
+            @RequestParam(defaultValue = "0") String page,
+            @RequestParam(defaultValue = "4") String size
+    ) {
+        log.info("page: {}", page);
+        log.info("size: {}", size);
+
+        PaginationInput.validatePaginationInput(Integer.parseInt(page), Integer.parseInt(size));
+
+        return ResponseEntity.status(SuccessCode.FETCHED.getCode()).body(
+                ApiResponse.builderResponse(
+                        SuccessCode.FETCHED,
+                        productService.getTopProductsSold(Integer.parseInt(page), Integer.parseInt(size))
                 )
         );
     }
 
 
-    @DeleteMapping("/{id}/images")
+    @DeleteMapping("/{productId}/images")
     public ResponseEntity<ApiResponse<Void>> deleteProductImage(
-            @PathVariable String id,
+            @PathVariable String productId,
             @RequestParam String imgUrl
     ) {
-        log.info("id product : {}", id);
+        log.info("id product : {}", productId);
         log.info("imgUrl: {}", imgUrl);
 
         return ResponseEntity.status(SuccessCode.DELETED.getCode()).body(
                 ApiResponse.builderResponse(
                         SuccessCode.DELETED,
-                        productService.deleteProductImage(id, imgUrl)
+                        productService.deleteProductImage(productId, imgUrl)
                 )
         );
     }
-
 
     @PostMapping("/{productId}/images")
     public ResponseEntity<ApiResponse<List<String>>> createProductImages(
@@ -130,22 +162,6 @@ public class ProductController {
         );
     }
 
-
-
-
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable String id) {
-        log.info("id product : {}", id);
-
-        return ResponseEntity.status(SuccessCode.DELETED.getCode()).body(
-                ApiResponse.builderResponse(
-                        SuccessCode.DELETED,
-                        productService.deleteProduct(id)
-                )
-        );
-    }
-
     @PostMapping("/{productId}/images/primary-image")
     public ResponseEntity<ApiResponse<Void>> setPrimaryImage(
             @PathVariable String productId,
@@ -163,21 +179,4 @@ public class ProductController {
     }
 
 
-//    @GetMapping("/top-selling")
-//    public ResponseEntity<ApiResponse<PaginationResponse>> getTopSelling(
-//            @RequestParam(defaultValue = "0") String page,
-//            @RequestParam(defaultValue = "4") String size
-//    ) {
-//        log.info("page: {}", page);
-//        log.info("size: {}", size);
-//
-//        PaginationInput.validatePaginationInput(Integer.parseInt(page), Integer.parseInt(size));
-//
-//        return ResponseEntity.status(SuccessCode.FETCHED.getCode()).body(
-//                ApiResponse.builderResponse(
-//                        SuccessCode.FETCHED,
-//                        productService.getTopSelling(Integer.parseInt(page), Integer.parseInt(size))
-//                )
-//        );
-//    }
 }

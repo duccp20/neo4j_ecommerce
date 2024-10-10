@@ -46,6 +46,16 @@ public class CategoryServiceImpl implements CategoryService {
     ProductMapper productMapper;
 
     @Override
+    public List<CategoryResponse> handleGetAllCategoriesFeatured(boolean isFeatured) {
+        return null;
+    }
+
+    @Override
+    public List<CategoryResponse> handleGetAllCategories() {
+        return null;
+    }
+
+    @Override
     @Transactional
     public CategoryResponse handleCreateCategory(CategoryRequest request) {
 
@@ -156,96 +166,59 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity() {
         List<CategoryResponseTopSold> categoryResponseTopSoldList = categoryRepository.getCategoryTopSoldList();
+        return categoryResponseTopSoldList;
+
+
+//    @Override
+//    public List<CategoryResponse> handleGetAllCategoriesFeatured(boolean isFeatured) {
+//
+//        List<Category> categories = categoryRepository.findByIsFeatured(isFeatured);
+//
+//        log.info("categories: {}", categories);
+//
+//        List<CategoryResponse> categoryResponses = new ArrayList<>();
+//        for (Category category : categories) {
+//            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+//            //do not show product for this api
+//            categoryResponse.setProducts(Collections.emptyList());
+//            categoryResponses.add(categoryResponse);
+//        }
+//
+//        log.info("categoryResponses: {}", categoryResponses);
+//
+//        return categoryResponses;
+//    }
+//
+//    @Override
+//    public List<CategoryResponse> handleGetAllCategories() {
+//
+//        List<Category> categories = categoryRepository.findAll();
+//
+//        log.info("categories in handleGetAllCategories: {}", categories);
+//
+//        List<CategoryResponse> categoryResponses = new ArrayList<>();
+//        for (Category category : categories) {
+//            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
+//            categoryResponses.add(categoryResponse);
+//        }
+//
+//        return categoryResponses;
+//    }
+
+    }
+
     @Override
-    public PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer page, Integer size, String productId) {
+    public List<CategoryResponse> handleGetCategoriesByLevel(Integer level) {
+        return null;
+    }
 
-        PageRequest pageRequest = PageRequest.of(page, size);
-
-        Page<Product> productPage = productRepository.findByCategories_IdAndIdNot(categoryId, productId, pageRequest);
-
-        List<ProductPopular> productResponses = productPage.getContent().stream().map(productMapper::toPopular).collect(Collectors.toList());
-
-        Meta meta = Meta.builder()
-                .current(productPage.getNumber() + 1)
-                .pageSize(productPage.getNumberOfElements())
-                .totalPages(productPage.getTotalPages())
-                .totalItems(productPage.getTotalElements())
-                .isFirstPage(productPage.isFirst())
-                .isLastPage(productPage.isLast())
-                .build();
-
-        return PaginationResponse.builder()
-                .meta(meta)
-                .result(productResponses)
-                .build();
+    @Override
+    public PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer pageInt, Integer sizeInt, String productId) {
+        return null;
     }
 
     @Override
     public PaginationResponse handleGetAllCategoriesFeaturedWithProducts(Integer pageInt, Integer sizeInt) {
-
-        PageRequest pageRequest = PageRequest.of(pageInt, sizeInt);
-
-        Page<Category> categoryPage = categoryRepository.findByIsFeaturedTrue(pageRequest);
-
-        List<Category> categories = categoryPage.getContent();
-
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-            categoryResponse.setProducts(productRepository.findAllByCategoryId(new ObjectId(category.getId())).stream().map(productMapper::toPopular).collect(Collectors.toList()));
-            categoryResponses.add(categoryResponse);
-        }
-
-        Meta meta = Meta.builder()
-                .current(categoryPage.getNumber() + 1)
-                .pageSize(categoryPage.getNumberOfElements())
-                .totalPages(categoryPage.getTotalPages())
-                .totalItems(categoryPage.getTotalElements())
-                .isFirstPage(categoryPage.isFirst())
-                .isLastPage(categoryPage.isLast())
-                .build();
-
-        return PaginationResponse.builder()
-                .meta(meta)
-//                .result(categoryResponses)
-                .build();
+        return null;
     }
-
-    @Override
-    public List<CategoryResponse> handleGetAllCategoriesFeatured(boolean isFeatured) {
-
-        List<Category> categories = categoryRepository.findByIsFeatured(isFeatured);
-
-        log.info("categories: {}", categories);
-
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-            //do not show product for this api
-            categoryResponse.setProducts(Collections.emptyList());
-            categoryResponses.add(categoryResponse);
-        }
-
-        log.info("categoryResponses: {}", categoryResponses);
-
-        return categoryResponses;
-    }
-
-    @Override
-    public List<CategoryResponse> handleGetAllCategories() {
-
-        List<Category> categories = categoryRepository.findAll();
-
-        log.info("categories in handleGetAllCategories: {}", categories);
-
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-            categoryResponses.add(categoryResponse);
-        }
-
-        return categoryResponses;
-    }
-
-
 }

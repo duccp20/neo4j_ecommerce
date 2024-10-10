@@ -1,0 +1,23 @@
+package com.neo4j_ecom.demo.model.dto.response.product;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Value;
+
+import java.math.BigDecimal;
+
+public interface ProductPopular {
+
+    String getId();
+    String getName();
+    String getImage();
+
+    String getBrandName();
+    Float getAvgRating();
+    Long getSumSoldQuantity();
+    BigDecimal getMinSellingPrice();
+    BigDecimal getMaxSellingPrice();
+    BigDecimal getMinDiscountedPrice();
+    BigDecimal getMaxDiscountedPrice();
+}
