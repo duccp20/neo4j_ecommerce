@@ -46,6 +46,8 @@ public enum ErrorCode {
     //brand
     BRAND_ALREADY_EXISTS(409, "Brand Already Exists!", HttpStatus.CONFLICT),
     BRAND_NOT_FOUND(404, "Brand Not Found!", HttpStatus.NOT_FOUND),
+    BRAND_ALREADY_ACTIVE(409,"Brand Already Active !",HttpStatus.CONFLICT),
+
 
     //Auth
     EMAIL_ALREADY_EXISTS(409, "Mail Already Exists!", HttpStatus.CONFLICT),

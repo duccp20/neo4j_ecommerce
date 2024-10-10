@@ -51,23 +51,7 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     Page<Product> findByCategories_IdAndIdNot(String categoryId, String productId, PageRequest pageRequest);
 
-
-    @Aggregation(pipeline = {
-            "{ $project: { " +
-                    "_id: 1, " +
-                    "name: 1, " +
-                    "quantityAvailable: 1, " +
-                    "primaryImage: 1, " +
-                    "sellingPrice: { $ifNull: ['$sellingPrice', 0] }, " +
-                    "soldQuantity: { $sum: { $ifNull: ['$productVariants.soldQuantity', 0] } }, " +
-                    "categories: { $map: { input: '$categories', as: 'category', in: { $ifNull: ['$category.name', ''] } } }, " +
-                    "avgRating: { $avg: { $ifNull: [{ $map: { input: '$productVariants', as: 'variant', in: { $ifNull: ['$variant.avgRating', 0] } } }, []] } }, " +
-                    "createdAt: 1, " +
-                    "updatedAt: 1 " +
-                    "}}",
-            "{ $sort : { soldQuantity : -1 } }"
-    })
-    Page<ProductPopular> findTopSelling(Pageable pageable);
+    Page<Product> findByBrandId(String brandId, PageRequest pageRequest);
 
 }
 
