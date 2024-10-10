@@ -6,7 +6,6 @@ import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.model.dto.response.pagination.Meta;
 import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
-import com.neo4j_ecom.demo.model.dto.response.product.ProductPopular;
 import com.neo4j_ecom.demo.model.entity.Category;
 import com.neo4j_ecom.demo.model.entity.Product;
 import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
@@ -14,7 +13,6 @@ import com.neo4j_ecom.demo.model.mapper.ProductMapper;
 import com.neo4j_ecom.demo.repository.CategoryRepository;
 import com.neo4j_ecom.demo.repository.ProductRepository;
 import com.neo4j_ecom.demo.service.CategoryService;
-import com.neo4j_ecom.demo.service.ProductService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,12 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,18 +44,18 @@ public class CategoryServiceImpl implements CategoryService {
     ProductMapper productMapper;
 
     @Override
-    public List<CategoryResponse> handleGetAllCategoriesFeatured(boolean isFeatured) {
-        return null;
+    public List<Category> handleGetAllCategoriesFeatured(boolean isFeatured) {
+        return categoryRepository.findByIsFeatured(isFeatured);
     }
 
     @Override
-    public List<CategoryResponse> handleGetAllCategories() {
-        return null;
+    public List<Category> handleGetAllCategories() {
+        return categoryRepository.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"));
     }
 
     @Override
     @Transactional
-    public CategoryResponse handleCreateCategory(CategoryRequest request) {
+    public Category handleCreateCategory(CategoryRequest request) {
 
         boolean existedCategory = categoryRepository.existsByName(request.getName());
 
@@ -79,23 +77,23 @@ public class CategoryServiceImpl implements CategoryService {
             categoryRepository.save(parent);
         }
 
-        return categoryMapper.toResponse(category);
+        return category;
     }
 
 
     @Override
-    public CategoryResponse handleGetCategoryById(String id) {
+    public Category handleGetCategoryById(String id) {
 
 
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        return categoryMapper.toResponse(category);
+        return category;
 
     }
 
     @Override
-    public CategoryResponse handleUpdateCategory(String id, CategoryRequest request) {
+    public Category handleUpdateCategory(String id, CategoryRequest request) {
 
         Category category = categoryRepository.findById(id).
                 orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -111,7 +109,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.save(updatedCategory);
 
-        return categoryMapper.toResponse(updatedCategory);
+        return updatedCategory;
 
     }
 
@@ -134,33 +132,23 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponse> handleGetAllCategoriesByParentId(String parentId) {
+    public List<Category> handleGetAllCategoriesByParentId(String parentId) {
 
         List<Category> categories = categoryRepository.findByParentId(parentId);
 
         log.info("categories in handleGetAllCategoriesByParentId: {}", categories);
 
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryResponse categoryResponse = categoryMapper.toResponse(category);
-            //do not show product for this api
-            categoryResponse.setProducts(Collections.emptyList());
-            categoryResponses.add(categoryResponse);
-        }
-
-        return categoryResponses;
+        return categories;
     }
 
     @Override
-    public CategoryResponse handleGetCategoryByName(String name) {
+    public Category handleGetCategoryByName(String name) {
 
         Category category = categoryRepository.findByName(name)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
-
-        CategoryResponse categoryResponse = categoryMapper.toResponse(category);
         log.info("category: {}", category);
 
-        return categoryResponse;
+        return category;
     }
 
     @Override
@@ -208,17 +196,55 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponse> handleGetCategoriesByLevel(Integer level) {
-        return null;
+    public List<Category> handleGetCategoriesByLevel(Integer level) {
+        return categoryRepository.findByLevel(level);
     }
 
     @Override
-    public PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer pageInt, Integer sizeInt, String productId) {
-        return null;
+    public PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer pageInt, Integer sizeInt) {
+
+            PageRequest pageRequest = PageRequest.of(pageInt, sizeInt);
+
+            Page<Product> productPage = productRepository.getAllProductsByCategoryId(new ObjectId(categoryId), pageRequest);
+
+            List<Product> products = productPage.getContent();
+
+            Meta meta = Meta.builder()
+                    .current(productPage.getNumber() + 1)
+                    .pageSize(productPage.getNumberOfElements())
+                    .totalPages(productPage.getTotalPages())
+                    .totalItems(productPage.getTotalElements())
+                    .isFirstPage(productPage.isFirst())
+                    .isLastPage(productPage.isLast())
+                    .build();
+
+            return PaginationResponse.builder()
+                    .meta(meta)
+                    .result(products)
+                    .build();
     }
 
     @Override
     public PaginationResponse handleGetAllCategoriesFeaturedWithProducts(Integer pageInt, Integer sizeInt) {
-        return null;
+
+        PageRequest pageRequest = PageRequest.of(pageInt, sizeInt);
+
+        Page<Category> categoryPage = categoryRepository.findByIsFeaturedTrue(pageRequest);
+
+        List<Category> categories = categoryPage.getContent();
+
+        Meta meta = Meta.builder()
+                .current(categoryPage.getNumber() + 1)
+                .pageSize(categoryPage.getNumberOfElements())
+                .totalPages(categoryPage.getTotalPages())
+                .totalItems(categoryPage.getTotalElements())
+                .isFirstPage(categoryPage.isFirst())
+                .isLastPage(categoryPage.isLast())
+                .build();
+
+        return PaginationResponse.builder()
+                .meta(meta)
+                .result(categories)
+                .build();
     }
 }

@@ -19,9 +19,6 @@ import java.util.Optional;
 public interface ProductRepository extends MongoRepository<Product, String> {
     boolean existsByName(String name);
 
-
-
-
     @Aggregation(pipeline = {
             "{ $project: { " +
                     "_id: 1, " +
@@ -39,14 +36,13 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     })
     List<ProductCategoryResponse> findProductsOrderedByLatestUpdateTime();
 
+    @Query("{ 'categories': { $elemMatch: { $eq: ?0 } } }")
+    Page<Product> getAllProductsByCategoryId(ObjectId categoryId, Pageable pageable);
 
     @Query("{ 'productVariants._id' : ?0 }")
     Product findByVariantId(String variantId);
 
     Optional<Product> findById(String id);
-
-    @Query("{ 'categories': ?0 }")
-    List<Product> findAllByCategoryId(ObjectId categoryId);
 
     Page<Product> findByCategories_Id(String categoryId, PageRequest pageRequest);
 
