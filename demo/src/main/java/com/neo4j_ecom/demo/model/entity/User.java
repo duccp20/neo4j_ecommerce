@@ -2,6 +2,8 @@ package com.neo4j_ecom.demo.model.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
@@ -17,6 +19,8 @@ import java.util.Set;
 @Data
 @Document("users")
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIgnoreProperties({"target", "source"})
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
 
     @Id
@@ -36,6 +40,5 @@ public class User {
     private String verificationToken;
 
 }
-
 
 
