@@ -60,8 +60,4 @@ public class ProductReview extends BaseEntity {
                 .build();
     }
 
-    
-    
-
-
 }

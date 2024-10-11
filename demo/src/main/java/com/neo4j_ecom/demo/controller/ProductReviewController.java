@@ -30,6 +30,7 @@ public class ProductReviewController {
 
     @PostMapping("/{productId}/reviews")
     @PreAuthorize("hasRole('USER')")
+
     public ResponseEntity<ApiResponse<ProductReview>> createProductReview(
             @PathVariable String productId,
             @Valid
@@ -42,6 +43,25 @@ public class ProductReviewController {
                 ApiResponse.builderResponse(
                         SuccessCode.CREATED,
                         productReviewService.createReview(productId, request))
+        );
+    }
+
+    @PutMapping("/{productId}/reviews/{reviewId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ApiResponse<ProductReview>> updateProductReview(
+            @PathVariable String productId,
+            @PathVariable String reviewId,
+            @Valid @RequestBody ProductReviewRequest request
+    ) {
+        log.info("update product review request : productId {}, reviewId {}, request {}", productId, reviewId, request);
+        SuccessCode successCode = SuccessCode.UPDATED;
+
+
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.UPDATED,
+                        productReviewService.updateReview(productId, reviewId, request)
+                )
         );
     }
 
@@ -90,6 +110,24 @@ public class ProductReviewController {
                 ApiResponse.builderResponse(
                         SuccessCode.FETCHED,
                         response
+                )
+        );
+    }
+
+    @DeleteMapping("/{productId}/reviews/{reviewId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ApiResponse<Void>> deleteProductReview(
+            @PathVariable String productId,
+            @PathVariable String reviewId
+    ) {
+        log.info("delete product review request: productId {}, reviewId {}", productId, reviewId);
+
+        productReviewService.deleteReview(productId, reviewId);
+
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builderResponse(
+                        SuccessCode.DELETED,
+                        null
                 )
         );
     }
