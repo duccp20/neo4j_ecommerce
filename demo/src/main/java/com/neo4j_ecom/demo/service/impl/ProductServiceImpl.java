@@ -9,9 +9,7 @@ import com.neo4j_ecom.demo.model.dto.response.product.ProductPopular;
 import com.neo4j_ecom.demo.model.entity.*;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.ProductVariant;
 import com.neo4j_ecom.demo.model.entity.ProductVariant.VariantOption;
-import com.neo4j_ecom.demo.model.mapper.CategoryMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductMapper;
-import com.neo4j_ecom.demo.model.mapper.ProductReviewMapper;
 import com.neo4j_ecom.demo.model.mapper.ProductVariantMapper;
 import com.neo4j_ecom.demo.repository.*;
 import com.neo4j_ecom.demo.service.*;
@@ -278,9 +276,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-
     private void validateProductVariantPrices(ProductVariantRequest request) {
-
         if (request.getOriginalPrice() == null || request.getSellingPrice() == null) {
             throw new AppException(ErrorCode.PRODUCT_NOT_REQUIRED_PRICE);
         }
@@ -294,7 +290,4 @@ public class ProductServiceImpl implements ProductService {
             throw new AppException(ErrorCode.INVALID_PRODUCT_PRICES);
         }
     }
-
-
-
 }

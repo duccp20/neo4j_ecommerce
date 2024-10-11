@@ -4,14 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 
+import com.neo4j_ecom.demo.model.dto.request.ProductReviewRequest;
 import com.neo4j_ecom.demo.model.entity.BaseEntity;
 
 import com.neo4j_ecom.demo.model.entity.User;
 import com.neo4j_ecom.demo.model.entity.Product;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -24,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -42,10 +41,23 @@ public class ProductReview extends BaseEntity {
     private List<ReviewOption> options = new ArrayList<>();
     @DocumentReference(lazy = true)
     private User reviewer;
-    @Transient
-    private Float avgRating;
-    @Transient
-    private int totalReviews;
 
+    public static ProductReview fromRequest(ProductReviewRequest request) {
+        return ProductReview.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .title(request.getTitle())
+                .rating(request.getRating())
+                .content(request.getContent())
+                .options(request.getOptions())
+                .build();
+    }
+
+    public User getReviewer() {
+        return User.builder().id(reviewer.getId())
+                .firstName(reviewer.getFirstName())
+                .lastName(reviewer.getLastName())
+                .build();
+    }
 
 }

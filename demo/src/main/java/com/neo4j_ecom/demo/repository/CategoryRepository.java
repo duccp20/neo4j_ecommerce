@@ -22,7 +22,8 @@ public interface CategoryRepository extends MongoRepository<Category, String> {
 
     List<Category> findByParentId(String parentId);
 
-    //    List<Category> findAllCategories();
+    @Query("{ 'parentId': ?0 }")
+    List<Category> findAll();
 
     @Aggregation(pipeline = {
             "{ $lookup: { " +

@@ -6,9 +6,11 @@ import com.neo4j_ecom.demo.model.dto.request.ProductReviewRequest;
 import com.neo4j_ecom.demo.model.dto.response.ApiResponse;
 import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
 import com.neo4j_ecom.demo.model.dto.response.review.ProductReviewResponse;
+import com.neo4j_ecom.demo.model.entity.Review.ProductReview;
 import com.neo4j_ecom.demo.service.ProductReviewService;
 import com.neo4j_ecom.demo.utils.enums.ErrorCode;
 import com.neo4j_ecom.demo.utils.enums.SuccessCode;
+import com.neo4j_ecom.demo.utils.helper.PaginationInput;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,27 +30,25 @@ public class ProductReviewController {
 
     @PostMapping("/{productId}/reviews")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ApiResponse<ProductReviewResponse>> createProductReview(
+
+    public ResponseEntity<ApiResponse<ProductReview>> createProductReview(
             @PathVariable String productId,
             @Valid
             @RequestBody ProductReviewRequest request
     ) {
 
-        log.info("create product review request : productId {}, request {}",  productId, request);
+        log.info("create product review request : productId {}, request {}", productId, request);
 
-        SuccessCode successCode = SuccessCode.CREATED;
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<ProductReviewResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productReviewService.createReview(productId, request))
-                        .build()
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.CREATED,
+                        productReviewService.createReview(productId, request))
         );
     }
 
     @PutMapping("/{productId}/reviews/{reviewId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ApiResponse<ProductReviewResponse>> updateProductReview(
+    public ResponseEntity<ApiResponse<ProductReview>> updateProductReview(
             @PathVariable String productId,
             @PathVariable String reviewId,
             @Valid @RequestBody ProductReviewRequest request
@@ -56,12 +56,12 @@ public class ProductReviewController {
         log.info("update product review request : productId {}, reviewId {}, request {}", productId, reviewId, request);
         SuccessCode successCode = SuccessCode.UPDATED;
 
+
         return ResponseEntity.ok(
-                ApiResponse.<ProductReviewResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(productReviewService.updateReview(productId, reviewId, request))
-                        .build()
+                ApiResponse.builderResponse(
+                        SuccessCode.UPDATED,
+                        productReviewService.updateReview(productId, reviewId, request)
+                )
         );
     }
 
@@ -75,47 +75,20 @@ public class ProductReviewController {
 
     ) {
 
-        Integer pageInt = Integer.parseInt(page);
-        Integer sizeInt = Integer.parseInt(size);
+        PaginationInput.validatePaginationInput(Integer.parseInt(page), Integer.parseInt(size));
 
-        try {
-            Integer.parseInt(page);
-            Integer.parseInt(size);
-        } catch (NumberFormatException e) {
-            throw new AppException(ErrorCode.WRONG_INPUT);
-        }
+        log.info("get all reviews by product request : {}, page {}, size {}", productId, page, size, sortBy);
 
-        if (pageInt < 0 || sizeInt < 0) {
-            throw new AppException(ErrorCode.WRONG_INPUT);
-        }
+        PaginationResponse response = productReviewService.getAllReviewsByProductId(productId, Integer.parseInt(page), Integer.parseInt(size), sortBy, sortOrder);
 
-        if (!sortOrder.equalsIgnoreCase("ASC") && !sortOrder.equalsIgnoreCase("DESC")) {
-            throw new AppException(ErrorCode.WRONG_INPUT);
-        }
-
-        log.info("get all reviews by product request : {}, page {}, size {}", productId, page, size, sortBy, sortOrder);
-        SuccessCode successCode = SuccessCode.FETCHED;
-
-        PaginationResponse response = productReviewService.getAllReviewsByProductId(productId, pageInt, sizeInt, sortBy, sortOrder);
-
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<PaginationResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(response)
-                        .build()
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.FETCHED,
+                        response
+                )
         );
     }
-    //
-////    @PutMapping("/{id}/")
-////    public ResponseEntity<ApiResponse<ProductResponse>> handleUpdateProductReview() {
-////        return null;
-////    }
-//
-//
-//
-//
-//
+
     @GetMapping("{productId}/reviews/filter")
     public ResponseEntity<ApiResponse<PaginationResponse>> getAllReviewsByVariantIdFilter(
             @RequestParam(defaultValue = "0") String page,
@@ -123,32 +96,21 @@ public class ProductReviewController {
             @PathVariable String productId,
             @RequestParam(defaultValue = "5") String rating
     ) {
-
-        Integer pageInt = Integer.parseInt(page);
-        Integer sizeInt = Integer.parseInt(size);
-
-        try {
-            Integer.parseInt(page);
-            Integer.parseInt(size);
-        } catch (NumberFormatException e) {
-            throw new AppException(ErrorCode.WRONG_INPUT);
-        }
-
-        if (pageInt < 0 || sizeInt < 0) {
-            throw new AppException(ErrorCode.WRONG_INPUT);
-        }
-
-        Integer ratingInt = Integer.parseInt(rating);
         log.info("get all reviews by product request : {}, rating {}", productId, rating);
-        SuccessCode successCode = SuccessCode.FETCHED;
 
-        PaginationResponse response = productReviewService.getAllReviewsByProductIdFilter(productId, ratingInt, pageInt, sizeInt);
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<PaginationResponse>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .data(response)
-                        .build()
+        PaginationInput.validatePaginationInput(Integer.parseInt(page), Integer.parseInt(size));
+
+        if (Integer.parseInt(rating) < 1 || Integer.parseInt(rating) > 5) {
+            throw new AppException(ErrorCode.WRONG_INPUT);
+        }
+
+        PaginationResponse response = productReviewService.getAllReviewsByProductIdFilter(productId, Integer.parseInt(rating), Integer.parseInt(page), Integer.parseInt(size));
+
+        return ResponseEntity.ok(
+                ApiResponse.builderResponse(
+                        SuccessCode.FETCHED,
+                        response
+                )
         );
     }
 
@@ -158,16 +120,15 @@ public class ProductReviewController {
             @PathVariable String productId,
             @PathVariable String reviewId
     ) {
-        log.info("delete product review request : productId {}, reviewId {}", productId, reviewId);
+        log.info("delete product review request: productId {}, reviewId {}", productId, reviewId);
+
         productReviewService.deleteReview(productId, reviewId);
 
-        SuccessCode successCode = SuccessCode.DELETED;
-
-        return ResponseEntity.status(successCode.getCode()).body(
-                ApiResponse.<Void>builder()
-                        .statusCode(successCode.getCode())
-                        .message(successCode.getMessage())
-                        .build()
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builderResponse(
+                        SuccessCode.DELETED,
+                        null
+                )
         );
     }
 }

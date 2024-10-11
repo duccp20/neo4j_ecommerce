@@ -5,31 +5,32 @@ import com.neo4j_ecom.demo.model.dto.request.CategoryRequest;
 import com.neo4j_ecom.demo.model.dto.response.CategoryResponse;
 import com.neo4j_ecom.demo.model.dto.response.category.CategoryResponseTopSold;
 import com.neo4j_ecom.demo.model.dto.response.pagination.PaginationResponse;
+import com.neo4j_ecom.demo.model.entity.Category;
 
 
 import java.util.List;
 
 public interface CategoryService{
-    List<CategoryResponse> handleGetAllCategoriesFeatured(boolean isFeatured);
-    List<CategoryResponse> handleGetAllCategories();
+    List<Category> handleGetAllCategoriesFeatured(boolean isFeatured);
+    List<Category> handleGetAllCategories();
 
-    CategoryResponse handleCreateCategory(CategoryRequest request);
+    Category handleCreateCategory(CategoryRequest request);
 
-    CategoryResponse handleGetCategoryById(String id);
+    Category handleGetCategoryById(String id);
 
-    CategoryResponse handleUpdateCategory(String id, CategoryRequest request);
+    Category handleUpdateCategory(String id, CategoryRequest request);
 
     Void handleDeleteCategory(String id);
 
-    List<CategoryResponse> handleGetAllCategoriesByParentId(String parentId);
+    List<Category> handleGetAllCategoriesByParentId(String parentId);
 
-    CategoryResponse handleGetCategoryByName(String name);
+    Category handleGetCategoryByName(String name);
 
     List<CategoryResponseTopSold> handleGetAllCategoriesBySoldQuantity();
 
-    List<CategoryResponse> handleGetCategoriesByLevel(Integer level);
+    List<Category> handleGetCategoriesByLevel(Integer level);
 
-    PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer pageInt, Integer sizeInt, String productId);
+    PaginationResponse handleGetProductsByCategoryId(String categoryId, Integer pageInt, Integer sizeInt);
 
     PaginationResponse handleGetAllCategoriesFeaturedWithProducts(Integer pageInt, Integer sizeInt);
 }

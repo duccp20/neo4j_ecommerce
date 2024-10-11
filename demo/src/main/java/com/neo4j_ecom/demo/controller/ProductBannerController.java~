@@ -34,6 +34,7 @@ public class ProductBannerController {
             @RequestBody ProductBanner request
     ) {
         log.info("request: {}", request);
+//        ProductBanner createdBanner  = productBannerService.handleCreateBanner(request);
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
                         SuccessCode.CREATED,
@@ -74,6 +75,7 @@ public class ProductBannerController {
 
     @GetMapping("banners/images/{quantity}")
     public ResponseEntity<ApiResponse<List<String>>> handleGetBannerImagesByQuantity(@PathVariable int quantity) {
+        SuccessCode successCode = SuccessCode.FETCHED;
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
                         SuccessCode.FETCHED,
@@ -89,7 +91,8 @@ public class ProductBannerController {
             @Valid
             @RequestBody ProductBanner request
 
-    )  {
+    ) throws URISyntaxException, IOException {
+        SuccessCode successCode = SuccessCode.UPDATED;
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
                         SuccessCode.UPDATED,
@@ -102,7 +105,7 @@ public class ProductBannerController {
     @DeleteMapping("/banners/{bannerId}")
     public ResponseEntity<ApiResponse<Void>> handleDeleteBanner(
             @PathVariable String bannerId) {
-
+        SuccessCode successCode = SuccessCode.DELETED;
         return ResponseEntity.ok(
                 ApiResponse.builderResponse(
                         SuccessCode.DELETED,

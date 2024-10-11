@@ -54,7 +54,6 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     List<Product> findAllById(String id);
 
-    @Query("{ 'productId' : ?0 }")
     Page<ProductReview> findAllByProductId(String productId, PageRequest pageRequest);
 }
 

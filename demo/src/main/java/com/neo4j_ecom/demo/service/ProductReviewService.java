@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface ProductReviewService {
 
-    ProductReviewResponse createReview(String productId, ProductReviewRequest review);
+    ProductReview createReview(String productId, ProductReviewRequest review);
 
-    ProductReviewResponse updateReview(String productId, String reviewId, ProductReviewRequest reviewRequest);
+    ProductReview updateReview(String productId, String reviewId, ProductReviewRequest reviewRequest);
 
     PaginationResponse getAllReviewsByProductId(String productId, int page, int size, String sortBy, String sortOrder);
 
