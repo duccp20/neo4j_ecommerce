@@ -1,0 +1,2 @@
+package com.neo4j_ecom.demo.model.projection;public class ProductPopular {
+}

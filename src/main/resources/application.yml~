@@ -1,0 +1,64 @@
+
+server:
+  port: 8080
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      database: ${MONGODB_DATABASE}
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  #Config server spring email
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_SENDER}
+    password: ${EMAIL_SENDER_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  ###
+
+# firebase
+
+firebase:
+  secret: ${FIREBASE_CONFIG}
+  link-base: https://firebasestorage.googleapis.com/v0/b/ecom-accessed.appspot.com/o
+  bucket: ecom-accessed.appspot.com
+
+#AWS S3
+aws:
+  access:
+    key:
+      id: ${AWS_ACCESS_KEY_ID}
+  secret:
+    access:
+      key: ${AWS_SECRET_ACCESS_KEY}
+  s3:
+    bucket:
+      name: ${AWS_S3_BUCKET_NAME}
+  region: ${AWS_REGION}
+
+logging:
+  level:
+    root=DEBUG:
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  access-expiration: 86400000
+  refresh-expiration: 604800000
+
+
+
+domain: "https://neo4j-ecommerce.onrender.com/api/v1"
+
+#https://neo4j-ecommerce.onrender.com/api/v1
+#http://localhost:8080/api/v1

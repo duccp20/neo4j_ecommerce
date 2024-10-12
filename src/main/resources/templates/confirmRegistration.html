@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <title>Email</title>
+    <style>
+        .email-container {
+            width: 50%;
+            padding: 0px;
+            margin: 20px auto;
+            font-family: 'Poppins', sans-serif;
+            color: #000;
+            font-size: 15px;
+        }
+
+        img {
+            width: 100%;
+            height: 80%;
+        }
+
+        .email-container__new-pass {
+            width: 40%;
+            margin: 20px auto;
+            text-align: center;
+            background-color: #FE5656;
+            border-radius: 15px;
+            color: #000;
+            border: none;
+        }
+
+        .btn-redirect {
+            background-color: #f4b459;
+            border: none;
+        }
+
+        .txt-redirect {
+            color: white !important;
+            text-decoration: none;
+            display: block;
+            padding: 20px 0;
+            font-size: 18px;
+        }
+
+        h4 {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        span {
+            font-weight: bold;
+        }
+
+        h5 {
+            line-height: 5px;
+            font-size: 15px;
+        }
+
+        .email-container__image {
+            width: 150px;
+            height: auto;
+
+        }
+
+        @media screen and (max-width: 750px) {
+            .email-container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="email-container">
+    <div class="email-container__image">
+        <img src="https://firebasestorage.googleapis.com/v0/b/ecom-accessed.appspot.com/o/products%2F1727511109359-1659539191896.jpg?alt=media"
+             alt="Accessed Image">
+    </div>
+    <div class="email-container__content">
+        <h3 class="email-container__title">Welcome to <strong>Accessed</strong></h3>
+        <p><strong>Accessed</strong> is your one-stop e-commerce platform, offering a wide range of products at
+            competitive prices. We aim to bring you the best online shopping experience.</p>
+        <p>To complete your account registration, please click the button below to activate your account and start
+            shopping with us.</p>
+        <button class="email-container__new-pass">
+            <a class="txt-redirect" th:href="${link}">Confirm Email</a>
+        </button>
+        <p>Thank you for choosing Accessed. We look forward to serving you!</p>
+        <p>Best regards,</p>
+    </div>
+</div>
+</body>
+
+</html>
